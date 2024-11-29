@@ -4,14 +4,17 @@ import Pagination from './components/Pagination';
 
 export default function Home() {
   const { posts, totalPages, currentPage } = getPaginatedPosts(1);
-  
+
   return (
     <section>
       <h1 className="mb-8 text-2xl font-semibold tracking-tighter">
         About Me
       </h1>
       <p className="mb-4">
-        Hi, I'm Fin, a web developer and product strategist with over a decade of experience in turning ideas into impactful digital solutions. My expertise lies in frontend development, product management, and team leadership, where I bridge the gap between technology and user needs to create better products.
+        Hi, I'm Fin, a web developer with over a decade of experience in turning ideas into impactful digital solutions. My passion lies in frontend development, where I focus on mastering the latest technologies and best practices to build intuitive, high-performance user interfaces. I prioritize crafting seamless and engaging experiences that resonate with users.
+      </p>
+      <p>
+        While my expertise centers on frontend development, I also integrate data analysis and user feedback to inform decisions that optimize product functionality. By combining a hands-on approach with strategic thinking, I ensure every feature delivers meaningful value and enhances the user experience.
       </p>
       <h2 className="my-6 text-xl font-semibold tracking-tighter">What I Do</h2>
       <ul className="mb-4 list-disc list-inside">
@@ -27,7 +30,7 @@ export default function Home() {
         <Pagination totalPages={totalPages} currentPage={currentPage} />
       </div>
     </section>
-    
-  
+
+
   )
 }

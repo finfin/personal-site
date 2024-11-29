@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { ThemeSelect } from './theme-select';
 
 const navItems = {
   '/': {
@@ -12,12 +13,8 @@ const navItems = {
   },
 }
 
-interface NavbarProps {
-  theme: string | undefined;
-  onThemeChange: (theme: string) => void;
-}
 
-export function Navbar({ theme, onThemeChange }: NavbarProps) {
+export function Navbar() {
   return (
     <aside className="-ml-[8px] mb-16 tracking-tight">
       <div className="lg:sticky lg:top-20">
@@ -39,15 +36,7 @@ export function Navbar({ theme, onThemeChange }: NavbarProps) {
             })}
           </div>
           <div className="ml-auto">
-            <select
-              value={theme}
-              onChange={(e) => onThemeChange(e.target.value)}
-              className="border rounded px-2 py-1"
-            >
-              <option value="system">Auto</option>
-              <option value="light">Light</option>
-              <option value="dark">Dark</option>
-            </select>
+            <ThemeSelect />
           </div>
         </nav>
       </div>

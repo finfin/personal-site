@@ -5,9 +5,9 @@ import { GeistMono } from 'geist/font/mono'
 import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import Footer from './components/footer'
-import ClientNav from './components/client-nav'
+import { Navbar} from './components/nav'
 import { baseUrl } from './sitemap'
-import { ThemeProvider } from "next-themes"
+import { ThemeProvider } from "./provider/theme-provider";
 
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
@@ -55,11 +55,9 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="antialiased max-w-3xl mx-4 mt-8 lg:mx-auto">
-        <ThemeProvider
-          attribute="data-theme"
-        >
+        <ThemeProvider>
           <main className="flex-auto min-w-0 mt-6 flex flex-col px-2 md:px-0">
-            <ClientNav />
+            <Navbar />
             {children}
             <Footer />
             <Analytics />
