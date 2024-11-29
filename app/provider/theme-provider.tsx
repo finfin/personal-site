@@ -4,64 +4,38 @@ import { createContext, useContext, useEffect, useState, useMemo } from 'react'
 
 interface ThemeContextType {
   theme: string
-  currentTheme: string
   setTheme: (theme: string) => void
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
 
-// 同步獲取初始主題
-const getInitialTheme = () => {
-  if (typeof window === 'undefined') return 'auto'
-  return localStorage.getItem('theme') || 'auto'
-}
-
-const initialTheme = getInitialTheme()
-
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [userTheme, setUserTheme] = useState(initialTheme)
+  const [theme, setTheme] = useState('auto')
 
-  // 派生 currentTheme
-  const currentTheme = useMemo(() => {
-    if (typeof window === 'undefined') return 'light'
-
-    if (userTheme === 'auto') {
-      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-    }
-    return userTheme as 'light' | 'dark'
-  }, [userTheme])
-
-  // 處理主題變化和 DOM 更新
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-
-    document.documentElement.setAttribute('data-theme', currentTheme);
-
-    if (userTheme === 'auto') {
-      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-
-      const handleChange = (e: MediaQueryListEvent) => {
-        const newTheme = e.matches ? 'dark' : 'light';
-        document.documentElement.setAttribute('data-theme', newTheme);
-      };
-
-      mediaQuery.addEventListener('change', handleChange);
-      return () => mediaQuery.removeEventListener('change', handleChange);
+    // Don't update data-theme if we're in auto mode
+    if (theme !== 'auto') {
+      document.documentElement.dataset.theme = theme;
+      return;
     }
-  }, [userTheme, currentTheme]);
 
-  const handleThemeChange = (newTheme: string) => {
-    setUserTheme(newTheme)
-    localStorage.setItem('theme', newTheme)
-  }
+    // For auto mode, we need to watch system preferences
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
 
-  console.log('userTheme:', userTheme, 'currentTheme:', currentTheme);
+    // Set initial theme based on system preference
+    document.documentElement.dataset.theme = mediaQuery.matches ? 'dark' : 'light';
+
+    // Update theme when system preference changes
+    function handleChange(e) {
+      document.documentElement.dataset.theme = e.matches ? 'dark' : 'light';
+    }
+
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, [theme]);
+
   return (
-    <ThemeContext.Provider value={{
-      theme: userTheme,
-      currentTheme,
-      setTheme: handleThemeChange
-    }}>
+    <ThemeContext.Provider value={{ theme, setTheme }}>
       {children}
     </ThemeContext.Provider>
   )
