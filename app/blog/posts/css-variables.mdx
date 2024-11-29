@@ -1,0 +1,400 @@
+---
+title: '你可能不知道的 CSS 變數細節 - 2. 使用 var() 以及實際應用'
+publishedAt: '2024-11-15'
+summary: 'Explore the enduring debate between using spaces and tabs for code indentation, and why this choice matters more than you might think.'
+---
+
+
+## 用 `var()` 取值
+
+CSS 中的 `var()` 函數是一個非常實用的工具，用來讀取自定義屬性 (也就是 CSS 變數) 的值。其語法如下：
+
+```css
+var( <custom-property-name>, <fallback-value>? )
+```
+
+### 基本規則
+
+1. **第一個參數必須為 CSS 變數**：直接填入數值（例如 `var(20px)`）會導致錯誤，因為 `var()` 僅接受自定義屬性名稱。
+
+2. **`var()` 不能用來取代屬性名稱**：換句話說，我們無法使用 `var(--prop-name): 20px;` 這樣的寫法，因為 `var()` 僅限於屬性值部分。
+
+```css
+.foo {
+  margin: var(20px); /* 錯誤，20px 不是 CSS 變數 */
+
+  --prop-name: margin-top;
+  var(--prop-name): 20px; /* 錯誤，不能這樣寫 */
+}
+```
+
+### 細部行為
+
+1. `var(--b, fallback_value)` 的第二個參數作為**預設值**：當 `--b` 未定義或是無效時，將使用 `fallback_value`。
+
+2. `var(--c,)` 語法無誤，空的預設值：當 `--c` 無效時，預設值會是空白，這裡逗號的存在表示我們有提供預設值，即使是空的。
+
+3. `var(--d, var(--e), var(--f), var(--g))` 呢？依據規範的話其實第一個逗號 `,` 之後的都是預設值，也就是當 `--d` 是 invalid 的時候會計算 `var(--e), var(--f), var(--g)` 來作結果的值
+
+4. `var()` 是一個完整的 CSS token：例如 `20px` 是一個完整的 token，無法由 `var()` 分開組合，`var(--size)var(--unit)` 不會生成 `20px`。
+
+5. `initial` 與 CSS 變數：直接給 CSS 變數賦值 `initial`，表示該變數值為初始無效值，若想讓屬性顯示 `initial`，則需要將 `initial` 放在預設值內。
+
+6. **URL 與 var() 的特性**：`url()` 被視為一個完整的 CSS token，若要使用 URL，必須在變數定義時包含 `url()`。
+
+```css
+:root {
+  /* 1. */
+  margin: var(--b, 20px); /* 若 --b 無效，則 margin 使用 20px */
+
+  /* 2. */
+  padding: var(--c,) 20px; /* --c 無效時，padding 為 20px */
+
+  /* 3. */
+  font-family: var(--fonts, "lucida grande", tahoma, Arial); /* 若 --fonts 無效，則使用 "lucida grande", tahoma, Arial */
+
+  /* 4. */
+  --text-size: 12;
+  --text-unit: px;
+  font-size: var(--text-size)var(--text-unit); /* 錯誤，解析為 12 和 px 而非 12px */
+
+  /* 5. */
+  --initialized: initial;
+  background: var(--initialized, initial); /* 結果為 background: initial */
+
+  /* 6. */
+  --invalid-url: "https://useme.medium.com";
+  background: url(var(--invalid-url)); /* 無效，因為 url() 內的 var() 無法解析 */
+
+  --valid-url: url(https://useme.medium.com);
+  background: var(--valid-url); /* 正確使用方式 */
+}
+```
+
+## 變數的解析
+
+CSS 變數其實也是一種 CSS 屬性，遵循 CSS 權重規則。深入了解權重如何影響 CSS 變數的應用，有助於更精確地控制樣式的範圍。
+
+1. **全域變數與區域變數**：在 `:root` 定義的變數適用於整個文件，若放在不同選擇器的話則會有相對於選擇器的作用範圍。
+
+   ```css
+   :root {
+     --main-color: blue; /* 全域適用 */
+   }
+
+   .container {
+     --main-color: green; /* 只在 .container 生效 */
+   }
+   ```
+
+2. **權重的優先順序**：權重高的變數定義會覆蓋權重低的變數。
+
+   ```css
+   :root {
+     --main-color: blue;
+   }
+
+   .section {
+     --main-color: green; /* 覆蓋 :root 定義 */
+   }
+
+   .section p {
+     color: var(--main-color); /* 顯示綠色 */
+   }
+
+   p {
+     color: var(--main-color); /* 顯示藍色 */
+   }
+   ```
+
+   ```html
+   <div class="section">
+     <p>這段文字會使用 .section 的 --main-color，為綠色。</p>
+   </div>
+
+   <p>這段文字會使用 :root 的 --main-color，為藍色。</p>
+   ```
+
+3. **變數定義依權重計算順序**：像 CSS 屬性一樣，變數值的計算依權重由小至大。
+
+   ```css
+   :root {
+     --red: 255;
+     --green: 255;
+     --blue: 255;
+     --background: rgb(var(--red), var(--green), var(--blue));
+   }
+
+   .box {
+     --green: 0;
+     background: var(--background);
+   }
+   ```
+
+   在這個範例中，`.box` 的背景顏色是白色，並不會因為 `.box` 設定了 `--green: 0`就變成 rgb(255, 0, 255)。這是因為 `--background` 在計算值的時候是以當下看到的 `var(--red), var(--green), var(--blue)` 來決定，而 `-green: 0 ` 是出現在 `.box` 的定義內，此時已經無法影響前面決定的值了。
+
+4. **同層級的 pseudo-classes 重新計算變數**：這類變數會隨伺 pseudo-classes 的狀態而變更。
+
+   ```css
+   :root {
+     --red: 255;
+     --green: 255;
+     --blue: 255;
+   }
+
+   .box {
+     --background: rgb(var(--red), var(--green), var(--blue));
+     background: var(--background);
+   }
+
+   .box:hover {
+     --green: 0; /* hover 時背景顏色改變 */
+   }
+   ```
+
+---
+
+接下來，看一下兩個特別的 CSS 變數用法：
+
+## 進階應用 A：動畫
+
+CSS 變數無法直接與動畫搭配，原因是瀏覽器無法推測變數的資料型態。為解決這個問題，可搭配 `@property` 定義變數的型態與初始值，讓瀏覽器理解該變數如何應用於動畫。
+
+```css
+@property --green {
+  syntax: "<number>";
+  initial-value: 255;
+  inherits: false;
+}
+
+.section {
+  padding: 5em;
+  background: rgb(50, var(--green), 50);
+  transition: --green 0.5s;
+}
+
+.section:hover {
+    --green: 50;
+}
+```
+
+HTML
+
+```html
+<div class="section">
+  <p>這段底色使用 CSS 變數 ＋ 動畫</p>
+</div>
+```
+
+這段程式碼中，我們透過 `@property` 將 `--green` 定義為 `<number>` 型態，設定初始值為 255。當滑鼠移到 `.section` 上時，`--green` 變為 50，實現動態顏色切換的效果。
+
+[Codepen 範例網址](https://codepen.io/finfin/pen/VwoqWPZ)
+
+---
+
+## 進階應用 B：淺色/深色模式切換
+
+若想做主題色的切換，就把顏色抽出變成變數，依據 `prefers-color-scheme` 即可在系統的淺色與深色模式之間切換。
+
+```css
+:root {
+  --background-color: #FBFBFB;
+  --container-background-color: #EBEBEB;
+  --headline-color: #0077EE;
+  --text-color: #333333;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background-color: #121212;
+    --container-background-color: #555555;
+    --headline-color: #94B2E6;
+    --text-color: #e0e0e0;
+  }
+}
+```
+
+### 加入手動切換同時整合系統設定
+
+以上是依據系統設定決定主題色系，但若想讓使用者自行控制該怎麼作？
+
+這時候就要多一個 checkbox 來承載切換狀態。直覺上 checkbox 選取時是深色模式、沒有選取時是淺色模式，這樣我們可以利用 CSS 變數加上 `:has()` 很輕鬆的處理變數的切換。
+
+我想試著用純 CSS 完成這件事情，但使用者的系統設定有可能是淺色或深色，而 CSS 無法做到在深色模式的時候把 checkbox 改為選取狀態。
+
+山不轉路轉，我們需要稍微繞一下，變成這樣：
+
+- 用 CSS 實作一個 toggle，視覺上 OFF 代表淺色模式、ON 代表深色模式
+
+<CodePen codePenId="VwoqgKx" />
+![截圖 2024-11-12 下午1.57.26.png](./截圖%202024-11-12%20下午1.57.26.png)
+
+![截圖 2024-11-12 下午1.57.46.png](./截圖%202024-11-12%20下午1.57.46.png)
+
+- 系統設定淺色模式：checkbox 沒有選取時，對應到 OFF 的狀態，代表淺色模式。而選取時，對應到 ON 的狀態，代表使用深色模式
+
+- 系統設定深色模式：因為系統預設的設定剛好相反，因此呈現也需要反過來，也就是說 checkbox 沒有選取時，對應到 ON 的狀態，代表使用深色模式。選取時，對應到 OFF 的狀態，使用淺色模式。
+
+要達到這樣的效果，有兩個要點：
+
+### 第一，變數依據系統設定以及 checkbox 狀態決定其值
+
+```css
+:root {
+  --background-color: #FBFBFB;
+  --container-background-color: #EBEBEB;
+  --headline-color: #0077EE;
+  --text-color: #333333;
+}
+
+:root:has(input[type="checkbox"]:checked) {
+  --background-color: #121212;
+  --container-background-color: #555555;
+  --headline-color: #94B2E6;
+  --text-color: #e0e0e0;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background-color: #121212;
+    --container-background-color: #555555;
+    --headline-color: #94B2E6;
+    --text-color: #e0e0e0;
+  }
+
+  :root:has(input[type="checkbox"]:checked) {
+    --background-color: #FBFBFB;
+    --container-background-color: #EBEBEB;
+    --headline-color: #0077EE;
+    --text-color: #333333;
+  }
+}
+```
+
+### 第二，則是 toggle 依據系統設定決定 checked 狀態與 ON / OFF 的關聯性
+
+可以看到深色跟淺色模式時候的 CSS 屬性剛好是相反的
+
+```css
+
+/* Toggle Switch Styles */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+/* Hide the checkbox element to style a custom switch */
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* Slider styling for the switch background */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--slider-bg, #ccc);
+  transition: 0.4s;
+  border-radius: 34px;
+}
+
+/* Slider knob styling */
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+/* Dark mode styles: make the switch look "checked" by default */
+@media (prefers-color-scheme: dark) {
+  .slider {
+    background-color: #94b2e6;
+  }
+  .slider:before {
+    transform: translateX(26px); /* Move knob to the right */
+  }
+
+  /* Invert checked state in dark mode to look "unchecked" */
+  input:checked + .slider {
+    background-color: #ccc;
+  }
+  input:checked + .slider:before {
+    transform: translateX(0); /* Move knob to the left */
+  }
+}
+
+/* Light mode styles: make the switch look "unchecked" by default */
+@media (prefers-color-scheme: light) {
+  .slider {
+    background-color: #ccc;
+  }
+  .slider:before {
+    transform: translateX(0); /* Knob on the left */
+  }
+
+  /* Invert checked state in light mode to look "checked" */
+  input:checked + .slider {
+    background-color: #94b2e6;
+  }
+  input:checked + .slider:before {
+    transform: translateX(26px); /* Move knob to the right */
+  }
+}
+
+```
+
+### 簡化變數設定
+
+第一點的變數設定我們可以用 CSS 變數的神奇技巧 [Space Toggle](https://github.com/propjockey/css-sweeper?tab=readme-ov-file#css-is-a-programming-language-thanks-to-the-space-toggle-trick) 再進行一些簡化，直接先上 code 再來介紹其機制：
+
+```css
+:root {
+  --ON: initial; /* Default state variable to use for switching colors */
+  --OFF: ; /* Alternative state variable for switching colors */
+
+  /* Set default color variables based on light mode */
+  --light: var(--ON);
+  --dark: var(--OFF);
+
+  /* Define custom properties for colors used in light and dark modes */
+  --background-color: var(--light, #fbfbfb) var(--dark, #121212);
+  --container-background-color: var(--light, #ebebeb) var(--dark, #555555);
+  --headline-color: var(--light, #0077ee) var(--dark, #94b2e6);
+  --text-color: var(--light, #333333) var(--dark, #e0e0e0);
+}
+
+:root:has(input[type="checkbox"]:checked) {
+  --light: var(--OFF);
+  --dark: var(--ON);
+}
+
+```
+
+這個技巧的重點在 `--background-color: var(--light, #fbfbfb) var(--dark, #121212);` 這一行，這個背景顏色則是依據 `--light`跟 `--dark` 的值來決定的，有點像是我們把 if / else 直接寫在屬性內。
+
+如何決定？可以看到初始情況下 `--light: var(--ON)`，而 `--ON: initial`
+
+代表了 `--ON` 一開始是一個 invalid 的狀態（請見前一篇文），而 `--OFF` 則是空白。這個套用到 `var(--light, #fbfbfb) var(--dark, #121212)` 的時候，因為第一個 `var()` 的 `--light` 是 invalid 所以會取用預設值 `#fbfbfb` ，第二個 `var()` 的 `--dark`  則是有效變數，空白，因此 `-background-color` 會等於 `#fbfbfb` 加上空白。
+
+下面其他變數都是一樣的邏輯，依據 `--light` 跟 `--dark` 兩個變數的狀態來決定最後使用的是深色還是淺色的主題，這個設定只需要每一個顏色變數設定一次。
+
+而後續切換狀態就簡單了，當下如果是深色模式時，就是 `--light: var(--OFF);` 加上 `--dark: var(--ON);`。而如果是淺色模式，就是相反的`--light: var(--OFF);` 加上 `--dark: var(--ON);`。 這裡邏輯有不是很直覺，不過以目前 CSS 的功能來說似乎只能這樣兜出這種判斷器，如果有更好的作法也請告知。
+
+最後完成的範例： https://codepen.io/finfin/pen/VwoqgKx
+
+## 總結
+
+CSS 功能持續的在擴增，2016 年後 CSS 變數就已經出現在主流瀏覽器上，後續的 `@property` , `:has()` 都讓 CSS 變數可以有更彈性的使用方法。甚至新的 scroll-driven animation 也有許多搭配 CSS 變數來呈現的神奇技巧，之後有機會再來介紹。
