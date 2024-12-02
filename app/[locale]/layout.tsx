@@ -1,0 +1,127 @@
+import '../global.css'
+import type { Metadata } from 'next'
+import { GeistSans } from 'geist/font/sans'
+import { GeistMono } from 'geist/font/mono'
+import { Analytics } from '@vercel/analytics/react'
+import { SpeedInsights } from '@vercel/speed-insights/next'
+import Footer from '../components/footer'
+import { Navbar} from '../components/nav'
+import { baseUrl } from '../sitemap'
+import { ThemeProvider } from "../provider/theme-provider";
+import {NextIntlClientProvider} from 'next-intl';
+import {getMessages, getTranslations} from 'next-intl/server';
+import {notFound} from 'next/navigation';
+import {routing} from '@/i18n/routing';
+
+export async function generateMetadata({ params }: { params: { locale: string } }) {
+  const { locale } = await params;
+
+  if (!routing.locales.includes(locale as any)) {
+    notFound();
+  }
+
+  // Providing all messages to the client
+  // side is the easiest way to get started
+  const t = await getTranslations({locale, namespace: 'metadata'});
+
+  return {
+    title: t('title'),
+    description: 'This is my portfolio.',
+    openGraph: {
+      title: 'My Portfolio',
+      description: 'This is my portfolio.',
+      url: baseUrl,
+      siteName: 'My Portfolio',
+      locale: 'en_US',
+      type: 'website',
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      },
+    },
+  }
+}
+
+
+// export const metadata: Metadata = {
+//   metadataBase: new URL(baseUrl),
+//   title: {
+//     default: 'Things About Web Dev',
+//     template: '%s | Next.js Portfolio Starter',
+//   },
+//   description: 'This is my portfolio.',
+//   openGraph: {
+//     title: 'My Portfolio',
+//     description: 'This is my portfolio.',
+//     url: baseUrl,
+//     siteName: 'My Portfolio',
+//     locale: 'en_US',
+//     type: 'website',
+//   },
+//   robots: {
+//     index: true,
+//     follow: true,
+//     googleBot: {
+//       index: true,
+//       follow: true,
+//       'max-video-preview': -1,
+//       'max-image-preview': 'large',
+//       'max-snippet': -1,
+//     },
+//   },
+// }
+
+const cx = (...classes) => classes.filter(Boolean).join(' ')
+
+export default async function RootLayout({
+  children,
+  params,
+}: {
+  children: React.ReactNode
+  params: { locale: string }
+}) {
+
+  const { locale } = await params;
+  // Ensure that the incoming `locale` is valid
+  if (!routing.locales.includes(locale as any)) {
+    notFound();
+  }
+
+  // Providing all messages to the client
+  // side is the easiest way to get started
+  const messages = await getMessages();
+
+  return (
+    <html
+      lang={locale}
+      className={cx(
+        'text-black bg-white dark:text-white dark:bg-black',
+        GeistSans.variable,
+        GeistMono.variable
+      )}
+      suppressHydrationWarning
+    >
+      <body className="antialiased max-w-4xl mx-4 mt-8 lg:mx-auto">
+        <NextIntlClientProvider messages={messages}>
+          <ThemeProvider>
+            <main className="flex-auto min-w-0 mt-6 flex flex-col px-2 md:px-0">
+              <Navbar />
+              {children}
+              <Footer />
+              <Analytics />
+              <SpeedInsights />
+            </main>
+          </ThemeProvider>
+        </NextIntlClientProvider>
+      </body>
+    </html>
+  )
+}
+

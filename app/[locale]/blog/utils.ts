@@ -50,7 +50,7 @@ function getMDXData(dir) {
 }
 
 export function getBlogPosts() {
-  return getMDXData(path.join(process.cwd(), 'app', 'blog', 'posts'))
+  return getMDXData(path.join(process.cwd(), 'app', '[locale]', 'blog', 'posts'))
 }
 
 export function formatDate(date: string, includeRelative = false) {
@@ -106,8 +106,8 @@ export const POSTS_PER_PAGE = 20;
 export function getPaginatedPosts(page: number = 1): PostsWithPagination {
   const startIndex = (page - 1) * POSTS_PER_PAGE;
   const endIndex = startIndex + POSTS_PER_PAGE;
-  
-  const sortedPosts = getBlogPosts().sort((a, b) => 
+
+  const sortedPosts = getBlogPosts().sort((a, b) =>
     new Date(b.metadata.publishedAt).getTime() - new Date(a.metadata.publishedAt).getTime()
   );
 

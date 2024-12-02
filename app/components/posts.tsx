@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { formatDate } from '../blog/utils'
+import { formatDate } from '../[locale]/blog/utils'
 
 interface BlogPost {
   metadata: {

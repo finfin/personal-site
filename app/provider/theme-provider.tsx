@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState, useMemo } from 'react'
+import { createContext, useContext, useEffect, useState } from 'react'
 
 interface ThemeContextType {
   theme: string
@@ -9,10 +9,20 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
 
-export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState('auto')
+// 獲取初始主題
+const getInitialTheme = () => {
+  if (typeof window === 'undefined') return 'auto'
+  return localStorage.getItem('theme') || 'auto'
+}
 
+export function ThemeProvider({ children }: { children: React.ReactNode }) {
+  const [theme, setTheme] = useState(getInitialTheme)
+
+  // 處理主題變化
   useEffect(() => {
+    // 保存主題到 localStorage
+    localStorage.setItem('theme', theme)
+
     // Don't update data-theme if we're in auto mode
     if (theme !== 'auto') {
       document.documentElement.dataset.theme = theme;

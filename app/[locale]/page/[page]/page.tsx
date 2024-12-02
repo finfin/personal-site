@@ -1,4 +1,4 @@
-import { getPaginatedPosts } from '../../blog/utils';
+import { getPaginatedPosts } from '../../[lang]/blog/utils';
 import { Posts } from '../../components/posts';
 import Pagination from '../../components/Pagination';
 import { notFound } from 'next/navigation';
@@ -11,13 +11,13 @@ interface PageProps {
 
 export default function Page({ params }: PageProps) {
   const pageNumber = parseInt(params.page);
-  
+
   if (isNaN(pageNumber)) {
     notFound();
   }
 
   const { posts, totalPages, currentPage } = getPaginatedPosts(pageNumber);
-  
+
   if (pageNumber > totalPages) {
     notFound();
   }
@@ -28,4 +28,4 @@ export default function Page({ params }: PageProps) {
       <Pagination totalPages={totalPages} currentPage={currentPage} />
     </main>
   );
-} 
+}

@@ -1,21 +1,27 @@
 import { getPaginatedPosts } from './blog/utils';
-import { Posts } from './components/posts';
-import Pagination from './components/Pagination';
+import { Posts } from '../components/posts';
+import Pagination from '../components/Pagination';
+import {getTranslations} from 'next-intl/server';
+import {Link} from '@/i18n/routing';
 
-export default function Home() {
+export default async function Home({params: { lang }}) {
   const { posts, totalPages, currentPage } = getPaginatedPosts(1);
+
+  const t = await getTranslations();
 
   return (
     <section>
       <h1 className="mb-8 text-2xl font-semibold tracking-tighter">
-        About Me
+        {t('about.title')}
       </h1>
-      <p className="mb-4">
-        Hi, I'm Fin, a web developer with over a decade of experience in turning ideas into impactful digital solutions. My passion lies in frontend development, where I focus on mastering the latest technologies and best practices to build intuitive, high-performance user interfaces. I prioritize crafting seamless and engaging experiences that resonate with users.
-      </p>
-      <p>
-        While my expertise centers on frontend development, I also integrate data analysis and user feedback to inform decisions that optimize product functionality. By combining a hands-on approach with strategic thinking, I ensure every feature delivers meaningful value and enhances the user experience.
-      </p>
+      {/* break dict.about.description line break into p element */
+      /* dict.about.description is a string with line breaks */
+      /* so we need to split it into an array of strings */
+      /* and map each string to a p element */}
+      {t('about.description').split('\n').map((line) => (
+        <p className="mb-4">{line}</p>))
+      }
+
       <h2 className="my-6 text-xl font-semibold tracking-tighter">What I Do</h2>
       <ul className="mb-4 list-disc list-inside">
         <li><strong>Frontend Development</strong>: Crafting high-performance, modular, and maintainable interfaces, with deep expertise in React and CSS optimization.</li>

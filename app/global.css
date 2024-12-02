@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@variant dark (&:where([data-theme="dark"]));
+@variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 
 ::selection {
@@ -19,15 +19,12 @@
   --sh-entity: #e25a1c;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
+:root {
+  &:where([data-theme="dark"]) {
     --sh-class: #4c97f8;
     --sh-identifier: white;
     --sh-keyword: #f47067;
     --sh-string: #0fa295;
-  }
-  html {
-    color-scheme: dark;
   }
 }
 
