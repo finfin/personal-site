@@ -5,5 +5,8 @@
   "about": {
     "title": "About Me",
     "description": "Hi, I'm Fin, a web developer with over a decade of experience in turning ideas into impactful digital solutions. My passion lies in frontend development, where I focus on mastering the latest technologies and best practices to build intuitive, high-performance user interfaces. I prioritize crafting seamless and engaging experiences that resonate with users.\nWhile my expertise centers on frontend development, I also integrate data analysis and user feedback to inform decisions that optimize product functionality. By combining a hands-on approach with strategic thinking, I ensure every feature delivers meaningful value and enhances the user experience."
+  },
+  "blog": {
+    "title": "Blog"
   }
 }

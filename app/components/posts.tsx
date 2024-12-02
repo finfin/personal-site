@@ -19,9 +19,9 @@ export function Posts({ posts }: PostsProps) {
     <div className="flex flex-col gap-8">
       {posts.map((post) => (
         <Link
-          key={post.slug}
           className="flex flex-col gap-2"
           href={`/blog/${post.slug}`}
+          key={post.slug}
         >
           <div className="flex flex-col gap-1">
             <h2 className="font-medium text-xl">{post.metadata.title}</h2>

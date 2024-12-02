@@ -6,8 +6,8 @@ export function ThemeSelect() {
 
   return (
     <select
-      value={theme}
       onChange={(e) => setTheme(e.target.value)}
+      value={theme}
     >
       <option value="auto">Auto</option>
       <option value="light">Light</option>

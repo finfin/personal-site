@@ -1,10 +1,10 @@
 function ArrowIcon() {
   return (
     <svg
-      width="12"
+      fill="none"
       height="12"
       viewBox="0 0 12 12"
-      fill="none"
+      width="12"
       xmlns="http://www.w3.org/2000/svg"
     >
       <path
@@ -22,9 +22,9 @@ export default function Footer() {
         <li>
           <a
             className="flex items-center transition-all hover:text-neutral-800 dark:hover:text-neutral-100"
+            href="/rss"
             rel="noopener noreferrer"
             target="_blank"
-            href="/rss"
           >
             <ArrowIcon />
             <p className="ml-2 h-7">rss</p>
@@ -33,9 +33,9 @@ export default function Footer() {
         <li>
           <a
             className="flex items-center transition-all hover:text-neutral-800 dark:hover:text-neutral-100"
+            href="https://github.com/vercel/next.js"
             rel="noopener noreferrer"
             target="_blank"
-            href="https://github.com/vercel/next.js"
           >
             <ArrowIcon />
             <p className="ml-2 h-7">github</p>
@@ -44,9 +44,9 @@ export default function Footer() {
         <li>
           <a
             className="flex items-center transition-all hover:text-neutral-800 dark:hover:text-neutral-100"
+            href="https://vercel.com/templates/next.js/portfolio-starter-kit"
             rel="noopener noreferrer"
             target="_blank"
-            href="https://vercel.com/templates/next.js/portfolio-starter-kit"
           >
             <ArrowIcon />
             <p className="ml-2 h-7">view source</p>

@@ -1,5 +1,4 @@
 import '../global.css'
-import type { Metadata } from 'next'
 import { GeistSans } from 'geist/font/sans'
 import { GeistMono } from 'geist/font/mono'
 import { Analytics } from '@vercel/analytics/react'
@@ -7,16 +6,17 @@ import { SpeedInsights } from '@vercel/speed-insights/next'
 import Footer from '../components/footer'
 import { Navbar} from '../components/nav'
 import { baseUrl } from '../sitemap'
-import { ThemeProvider } from "../provider/theme-provider";
+import { ThemeProvider } from '../provider/theme-provider';
 import {NextIntlClientProvider} from 'next-intl';
 import {getMessages, getTranslations} from 'next-intl/server';
 import {notFound} from 'next/navigation';
 import {routing} from '@/i18n/routing';
+type ValidLocale = (typeof routing.locales)[number];
 
 export async function generateMetadata({ params }: { params: { locale: string } }) {
   const { locale } = await params;
 
-  if (!routing.locales.includes(locale as any)) {
+  if (!routing.locales.includes(locale as ValidLocale)) {
     notFound();
   }
 
@@ -90,7 +90,7 @@ export default async function RootLayout({
 
   const { locale } = await params;
   // Ensure that the incoming `locale` is valid
-  if (!routing.locales.includes(locale as any)) {
+  if (!routing.locales.includes(locale as ValidLocale)) {
     notFound();
   }
 
@@ -100,12 +100,12 @@ export default async function RootLayout({
 
   return (
     <html
-      lang={locale}
       className={cx(
         'text-black bg-white dark:text-white dark:bg-black',
         GeistSans.variable,
         GeistMono.variable
       )}
+      lang={locale}
       suppressHydrationWarning
     >
       <body className="antialiased max-w-4xl mx-4 mt-8 lg:mx-auto">

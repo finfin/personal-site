@@ -23,18 +23,18 @@ export const CodePen: FunctionComponent<ICodePenProps> = ({
   theme = 'default',
 }: ICodePenProps) => (
   <iframe
-    data-testid="codepen"
-    title={`codepen-${codePenId}`}
+    allowFullScreen
     className="my-4"
+    data-testid="codepen"
+    frameBorder="no"
     height={height}
-    style={{
-    width: '100%',
-    }}
     scrolling="no"
     src={`https://codepen.io/team/codepen/embed${
     clickToLoad ? '/preview' : ''
     }/${codePenId}?height=${height}&theme-id=${theme}&default-tab=${tabs}${editable ? '&editable=true' : ''}`}
-    frameBorder="no"
-    allowFullScreen
+    style={{
+    width: '100%',
+    }}
+    title={`codepen-${codePenId}`}
   />
 );

@@ -9,7 +9,7 @@ type Props = {
 }
 
 export async function generateStaticParams() {
-  let posts = getBlogPosts()
+  const posts = getBlogPosts()
 
   return posts.map((post) => ({
     slug: post.slug,
@@ -18,18 +18,18 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props) {
   const { slug } = await params;
-  let post = getBlogPosts().find((post) => post.slug === slug)
+  const post = getBlogPosts().find((post) => post.slug === slug)
   if (!post) {
     return
   }
 
-  let {
+  const {
     title,
     publishedAt: publishedTime,
     summary: description,
     image,
   } = post.metadata
-  let ogImage = image
+  const ogImage = image
     ? image
     : `${baseUrl}/og?title=${encodeURIComponent(title)}`
 
@@ -59,7 +59,7 @@ export async function generateMetadata({ params }: Props) {
 
 export default async function Blog({ params }: Props ) {
   const { slug } = await params
-  let post = getBlogPosts().find((post) => post.slug === slug)
+  const post = getBlogPosts().find((post) => post.slug === slug)
 
   if (!post) {
     notFound()
@@ -68,8 +68,6 @@ export default async function Blog({ params }: Props ) {
   return (
     <section>
       <script
-        type="application/ld+json"
-        suppressHydrationWarning
         dangerouslySetInnerHTML={{
           __html: JSON.stringify({
             '@context': 'https://schema.org',
@@ -88,6 +86,8 @@ export default async function Blog({ params }: Props ) {
             },
           }),
         }}
+        suppressHydrationWarning
+        type="application/ld+json"
       />
       <h1 className="font-semibold text-2xl tracking-tighter">
         {post.metadata.title}

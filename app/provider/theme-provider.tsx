@@ -11,7 +11,7 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
 
 // 獲取初始主題
 const getInitialTheme = () => {
-  if (typeof window === 'undefined') return 'auto'
+  if (typeof window === 'undefined') {return 'auto'}
   return localStorage.getItem('theme') || 'auto'
 }
 
