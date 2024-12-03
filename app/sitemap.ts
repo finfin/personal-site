@@ -1,17 +1,22 @@
-import { getBlogPosts } from 'app/[locale]/blog/utils'
+import { allPosts } from '@/.contentlayer/generated'
 
-export const baseUrl = 'https://portfolio-blog-starter.vercel.app'
+export const baseUrl = 'https://thingsaboutwebdev.vercel.app'
 
 export default async function sitemap() {
-  const blogs = getBlogPosts().map((post) => ({
-    url: `${baseUrl}/blog/${post.slug}`,
-    lastModified: post.metadata.publishedAt,
-  }))
+  const posts = allPosts.map((post) => {
+    // TODO: generate sitemap for every locale
+    // const locales = ['en', 'zh-TW']
+    // const routes = locales.map((locale) => ({
+    //   url: `${baseUrl}/${locale}/${post.path}`,
+    return {
+    url: `${baseUrl}/${post.path}`,
+    lastModified: new Date().toISOString().split('T')[0],
+  }})
 
-  const routes = ['', '/blog'].map((route) => ({
+  const routes = ['', '/posts'].map((route) => ({
     url: `${baseUrl}${route}`,
     lastModified: new Date().toISOString().split('T')[0],
   }))
 
-  return [...routes, ...blogs]
+  return [...routes, ...posts]
 }

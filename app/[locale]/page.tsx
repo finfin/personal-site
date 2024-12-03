@@ -1,12 +1,15 @@
-import { getPaginatedPosts } from './blog/utils';
+// import { getPaginatedPosts } from './blog/utils';
 import { Posts } from '../components/posts';
-import Pagination from '../components/Pagination';
+// import Pagination from '../components/Pagination';
 import {getTranslations} from 'next-intl/server';
+import { compareDesc } from 'date-fns'
+import { allPosts } from 'contentlayer/generated'
 
 export default async function Home() {
-  const { posts, totalPages, currentPage } = getPaginatedPosts(1);
+  // const { posts, totalPages, currentPage } = getPaginatedPosts(1);
 
   const t = await getTranslations();
+  const posts = allPosts.sort((a, b) => compareDesc(new Date(a.date), new Date(b.date)))
 
   return (
     <section>
@@ -32,7 +35,7 @@ export default async function Home() {
       </p>
       <div className="max-w-4xl mx-auto px-4 py-8">
         <Posts posts={posts} />
-        <Pagination currentPage={currentPage} totalPages={totalPages} />
+        {/* <Pagination currentPage={currentPage} totalPages={totalPages} /> */}
       </div>
     </section>
 

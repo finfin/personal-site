@@ -1,23 +1,20 @@
 'use client'
 
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import {Link} from '@/i18n/routing'
+// import { usePathname } from 'next/navigation'
 import { ThemeSelect } from './theme-select'
 import LanguageSwitcher from './language-switcher'
 
 export function Navbar() {
-    const pathname = usePathname()
-    const lang = pathname?.split('/')[1] || 'en'
+    // const pathname = usePathname()
+    // const lang = pathname?.split('/')[1] || 'en'
 
     const navItems = {
-        [`/${lang}`]: {
+        ['/']: {
             name: 'home',
         },
-        [`/${lang}/blog`]: {
+        ['/posts']: {
             name: 'blog',
-        },
-        'https://vercel.com/templates/next.js/portfolio-starter-kit': {
-            name: 'deploy',
         },
     }
 

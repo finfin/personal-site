@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
-import { CustomMDX } from 'app/components/mdx'
-import { formatDate, getBlogPosts } from 'app/[locale]/blog/utils'
+import MDXPost from '@/app/components/mdx-post'
+import { format, parseISO } from 'date-fns'
+import { allPosts } from 'contentlayer/generated'
 import { baseUrl } from 'app/sitemap'
 
 type Props = {
@@ -9,39 +10,37 @@ type Props = {
 }
 
 export async function generateStaticParams() {
-  const posts = getBlogPosts()
-
-  return posts.map((post) => ({
+  return allPosts.map((post) => ({
     slug: post.slug,
   }))
 }
 
 export async function generateMetadata({ params }: Props) {
   const { slug } = await params;
-  const post = getBlogPosts().find((post) => post.slug === slug)
+  const post = allPosts.find((post) => post.slug === slug)
   if (!post) {
     return
   }
 
   const {
     title,
-    publishedAt: publishedTime,
-    summary: description,
-    image,
-  } = post.metadata
-  const ogImage = image
-    ? image
+    date,
+    summary,
+    socialImage,
+  } = post
+  const ogImage = socialImage
+    ? socialImage
     : `${baseUrl}/og?title=${encodeURIComponent(title)}`
 
   return {
     title,
-    description,
+    summary,
     openGraph: {
       title,
-      description,
+      summary,
       type: 'article',
-      publishedTime,
-      url: `${baseUrl}/blog/${post.slug}`,
+      date,
+      url: `${baseUrl}/${post.path}`,
       images: [
         {
           url: ogImage,
@@ -51,16 +50,16 @@ export async function generateMetadata({ params }: Props) {
     twitter: {
       card: 'summary_large_image',
       title,
-      description,
+      summary,
       images: [ogImage],
     },
   }
 }
 
+// TODO: make this page Static Site Generation compatible
 export default async function Blog({ params }: Props ) {
   const { slug } = await params
-  const post = getBlogPosts().find((post) => post.slug === slug)
-
+  const post = allPosts.find((post) => post.slug === slug)
   if (!post) {
     notFound()
   }
@@ -72,14 +71,14 @@ export default async function Blog({ params }: Props ) {
           __html: JSON.stringify({
             '@context': 'https://schema.org',
             '@type': 'BlogPosting',
-            headline: post.metadata.title,
-            datePublished: post.metadata.publishedAt,
-            dateModified: post.metadata.publishedAt,
-            description: post.metadata.summary,
-            image: post.metadata.image
-              ? `${baseUrl}${post.metadata.image}`
-              : `/og?title=${encodeURIComponent(post.metadata.title)}`,
-            url: `${baseUrl}/blog/${post.slug}`,
+            headline: post.title,
+            datePublished: post.date,
+            dateModified: post.date,
+            description: post.summary,
+            image: post.socialImage
+              ? `${baseUrl}${post.socialImage}`
+              : `/og?title=${encodeURIComponent(post.title)}`,
+            url: `${baseUrl}/${post.path}`,
             author: {
               '@type': 'Person',
               name: 'My Portfolio',
@@ -90,15 +89,15 @@ export default async function Blog({ params }: Props ) {
         type="application/ld+json"
       />
       <h1 className="font-semibold text-2xl tracking-tighter">
-        {post.metadata.title}
+        {post.title}
       </h1>
       <div className="flex justify-between items-center mt-2 mb-8 text-sm">
         <p className="text-sm text-neutral-600 dark:text-neutral-400">
-          {formatDate(post.metadata.publishedAt)}
+          {format(parseISO(post.date), 'LLLL dd, yyyy')}
         </p>
       </div>
       <article className="prose">
-        <CustomMDX source={post.content} />
+        <MDXPost code={post.body.code} />
       </article>
     </section>
   )

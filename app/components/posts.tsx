@@ -1,36 +1,35 @@
-import Link from 'next/link'
-import { formatDate } from '../[locale]/blog/utils'
-
-interface BlogPost {
-  metadata: {
-    title: string
-    publishedAt: string
-    summary: string
-  }
-  slug: string
-}
+import {Link} from '@/i18n/routing'
+import { format } from 'date-fns'
+import { Post } from 'contentlayer/generated'
 
 interface PostsProps {
-  posts: BlogPost[]
+  posts: Post[]
+}
+
+function PostCard({post} : {post: Post}) {
+  const {path, date, title, summary, slug} = post
+  return (
+    <Link
+      className="flex flex-col gap-2"
+      href={path}
+      key={slug}
+    >
+      <div className="flex flex-col gap-1">
+        <h2 className="font-medium text-xl">{title}</h2>
+        <p className="text-sm text-neutral-600">
+          {format(date, 'LLLL dd, yyyy')}
+        </p>
+        <p className="text-neutral-600">{summary}</p>
+      </div>
+    </Link>
+  )
 }
 
 export function Posts({ posts }: PostsProps) {
   return (
     <div className="flex flex-col gap-8">
       {posts.map((post) => (
-        <Link
-          className="flex flex-col gap-2"
-          href={`/blog/${post.slug}`}
-          key={post.slug}
-        >
-          <div className="flex flex-col gap-1">
-            <h2 className="font-medium text-xl">{post.metadata.title}</h2>
-            <p className="text-sm text-neutral-600">
-              {formatDate(post.metadata.publishedAt, true)}
-            </p>
-            <p className="text-neutral-600">{post.metadata.summary}</p>
-          </div>
-        </Link>
+        <PostCard key={post.slug} post={post} />
       ))}
     </div>
   )
