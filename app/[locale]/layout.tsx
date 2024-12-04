@@ -49,6 +49,18 @@ export async function generateMetadata({ params }: { params: { locale: string } 
         'max-snippet': -1,
       },
     },
+    icons: {
+      icon: [
+        {url: '/image/favicon.ico'},
+        {sizes: '32x32', url: '/image/favicon-32x32.png'},
+        {sizes: '16x16', url: '/image/favicon-16x16.png'},
+      ],
+      other: [{
+        rel: 'apple-touch-icon',
+        url: '/image/apple-touch-icon.png',
+      }]
+    },
+    manifest: '/manifest.webmanifest',
   }
 }
 

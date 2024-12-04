@@ -1,6 +1,6 @@
 import { allPosts } from '@/.contentlayer/generated'
 
-export const baseUrl = 'https://thingsaboutwebdev.vercel.app'
+export const baseUrl = 'https://www.thingsaboutweb.dev'
 
 export default async function sitemap() {
   const posts = allPosts.map((post) => {
