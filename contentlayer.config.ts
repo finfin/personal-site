@@ -1,5 +1,6 @@
 // contentlayer.config.ts
 import { defineDocumentType, makeSource } from 'contentlayer2/source-files'
+import highlight from 'rehype-highlight'
 
 export const Post = defineDocumentType(() => ({
   name: 'Post',
@@ -35,7 +36,7 @@ export const Post = defineDocumentType(() => ({
     language: {
       type: 'enum',
       options: ['en', 'zh-TW'],
-      default: 'zh-TW',
+      default: 'en',
     },
     redirect_from: {
       type: 'list',
@@ -52,5 +53,8 @@ export const Post = defineDocumentType(() => ({
 
 export default makeSource({
   contentDirPath: 'posts',
-  documentTypes: [Post]
+  documentTypes: [Post],
+  mdx: {
+    rehypePlugins: [highlight],
+  },
 })

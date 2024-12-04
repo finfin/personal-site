@@ -1,9 +1,10 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { MDXRemote } from 'next-mdx-remote/rsc'
-import { highlight } from 'sugar-high'
 import React from 'react'
 import { CodePen } from 'app/components/codepen'
+
+import '@/app/styles/highlight-monokai.css'
 function Table({ data }) {
   const headers = data.headers.map((header, index) => (
     <th key={index}>{header}</th>
@@ -48,10 +49,6 @@ function RoundedImage(props) {
   return <Image alt={props.alt} className="rounded-lg" {...props} />
 }
 
-function Code({ children, ...props }) {
-  const codeHTML = highlight(children)
-  return <code dangerouslySetInnerHTML={{ __html: codeHTML }} {...props} />
-}
 
 function slugify(str) {
   return str
@@ -95,7 +92,6 @@ export const mdxComponents = {
   h6: createHeading(6),
   Image: RoundedImage,
   a: CustomLink,
-  code: Code,
   Table,
   CodePen
 }

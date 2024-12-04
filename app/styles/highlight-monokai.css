@@ -1,0 +1,70 @@
+/*
+Monokai style - ported by Luigi Maselli - http://grigio.org
+*/
+
+.hljs {
+  background: var(--hljs-bg);
+  color: var(--hljs-color);
+}
+
+.hljs-tag,
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-literal,
+.hljs-strong,
+.hljs-number,
+.hljs-name {
+  color: var(--hljs-keyword);
+}
+
+.hljs-code {
+  color: var(--hljs-code);
+}
+
+.hljs-attribute,
+.hljs-attr,
+.hljs-symbol,
+.hljs-regexp,
+.hljs-link {
+  color: var(--hljs-attribute);
+}
+
+.hljs-string,
+.hljs-bullet,
+.hljs-subst,
+.hljs-title,
+.hljs-section,
+.hljs-emphasis,
+.hljs-type,
+.hljs-built_in,
+.hljs-selector-attr,
+.hljs-selector-pseudo,
+.hljs-addition,
+.hljs-variable,
+.hljs-template-tag,
+.hljs-template-variable {
+  color: var(--hljs-string);
+}
+
+.hljs-title.class_,
+.hljs-class .hljs-title {
+  color: var(--hljs-class);
+}
+
+.hljs-comment,
+.hljs-quote,
+.hljs-deletion,
+.hljs-meta {
+  color: var(--hljs-comment);
+}
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-literal,
+.hljs-doctag,
+.hljs-title,
+.hljs-section,
+.hljs-type,
+.hljs-selector-id {
+  font-weight: bold;
+}

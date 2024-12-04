@@ -8,23 +8,26 @@
 }
 
 :root {
-  --sh-class: #2d5e9d;
-  --sh-identifier: #354150;
-  --sh-sign: #8996a3;
-  --sh-string: #007f7a;
-  --sh-keyword: #e02518;
-  --sh-comment: #a19595;
-  --sh-jsxliterals: #6266d1;
-  --sh-property: #e25a1c;
-  --sh-entity: #e25a1c;
+  --hljs-bg: #ffffff;
+  --hljs-color: #24292e;
+  --hljs-keyword: #d73a49;
+  --hljs-code: #66d9ef;
+  --hljs-attribute: #005cc5;
+  --hljs-string: #032f62;
+  --hljs-title: #6f42c1;
+  --hljs-comment: #6a737d;
 }
 
 :root {
   &:where([data-theme="dark"]) {
-    --sh-class: #4c97f8;
-    --sh-identifier: white;
-    --sh-keyword: #f47067;
-    --sh-string: #0fa295;
+    --hljs-bg: #272822;
+    --hljs-color: #ddd;
+    --hljs-keyword: #f92672;
+    --hljs-code: #66d9ef;
+    --hljs-attribute: #bf79db;
+    --hljs-string: #a6e22e;
+    --hljs-title: white;
+    --hljs-comment: #75715e;
   }
 }
 
@@ -64,11 +67,12 @@ html {
 }
 
 .prose code {
-  @apply px-1 py-0.5 rounded-lg;
+  @apply px-1 py-0.5 rounded-sm dark:bg-neutral-800 bg-neutral-200;
 }
 
 .prose pre code {
   @apply p-0;
+  background: initial;
   border: initial;
   line-height: 1.5;
 }
@@ -120,6 +124,13 @@ html {
   margin-bottom: 1.25em !important;
 }
 
+.prose hr {
+  @apply my-6 border-t border-neutral-300 dark:border-neutral-700;
+}
+
+.prose pre {
+  @apply mt-4;
+}
 pre::-webkit-scrollbar {
   display: none;
 }

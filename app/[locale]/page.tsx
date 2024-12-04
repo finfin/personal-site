@@ -1,15 +1,15 @@
 // import { getPaginatedPosts } from './blog/utils';
 import { Posts } from '../components/posts';
 // import Pagination from '../components/Pagination';
-import {getTranslations} from 'next-intl/server';
+import {getLocale, getTranslations} from 'next-intl/server';
 import { compareDesc } from 'date-fns'
 import { allPosts } from 'contentlayer/generated'
 
 export default async function Home() {
   // const { posts, totalPages, currentPage } = getPaginatedPosts(1);
-
+  const locale = await getLocale();
   const t = await getTranslations();
-  const posts = allPosts.sort((a, b) => compareDesc(new Date(a.date), new Date(b.date)))
+  const posts = allPosts.sort((a, b) => compareDesc(new Date(a.date), new Date(b.date))).filter((post) => post.language === locale);
 
   return (
     <section>
