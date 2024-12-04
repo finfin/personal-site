@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@formatjs/intl-localematcher": "^0.5.8",
+    "@next/third-parties": "^15.0.3",
     "@tailwindcss/postcss": "4.0.0-beta.3",
     "@types/node": "20.11.17",
     "@types/react": "18.2.55",

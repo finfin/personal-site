@@ -11,6 +11,9 @@ import {NextIntlClientProvider} from 'next-intl';
 import {getMessages, getTranslations} from 'next-intl/server';
 import {notFound} from 'next/navigation';
 import {routing} from '@/i18n/routing';
+import { GoogleAnalytics } from '@next/third-parties/google'
+
+
 type ValidLocale = (typeof routing.locales)[number];
 
 export async function generateMetadata({ params }: { params: { locale: string } }) {
@@ -121,6 +124,7 @@ export default async function RootLayout({
           </ThemeProvider>
         </NextIntlClientProvider>
       </body>
+      <GoogleAnalytics gaId='G-PNJ8MDH6MX' />
     </html>
   )
 }

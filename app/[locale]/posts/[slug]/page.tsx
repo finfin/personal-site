@@ -65,7 +65,7 @@ export default async function Blog({ params }: Props ) {
   }
 
   return (
-    <section>
+    <section className='[view-transition-name:blog-post]'>
       <script
         dangerouslySetInnerHTML={{
           __html: JSON.stringify({
