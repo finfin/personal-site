@@ -6,10 +6,19 @@
     "title": "網頁開發雜記",
     "subtitle": "網頁開發的見解、技巧和資源",
     "description": "這個網站致力於分享網頁開發的見解、技巧和資源。無論你是初學者還是經驗豐富的開發人員，你都會找到有價值的資訊來增進你的技能，並與行業中的最新趨勢保持同步。",
-    "latest_posts": "最新文章"
+    "latest_posts": "最新文章",
+    "view_all_posts": "查看所有文章"
   },
   "about": {
     "title": "關於我",
     "description": "你好\n我是fin"
+  },
+  "post": {
+    "title": "文章列表"
+  },
+  "navbar": {
+    "home": "首頁",
+    "about": "關於",
+    "post": "文章"
   }
 }

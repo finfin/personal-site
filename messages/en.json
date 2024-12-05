@@ -6,13 +6,19 @@
     "title": "Things About Web Development",
     "subtitle": "Insights, Tips, and Resources on Web Development",
     "description": "This site is dedicated to sharing insights, tips, and resources on web development. Whether you're a beginner or an experienced developer, you'll find valuable information to enhance your skills and stay up-to-date with the latest trends in the industry.",
-    "latest_posts": "Latest Posts"
+    "latest_posts": "Latest Posts",
+    "view_all_posts": "View All Posts"
   },
   "about": {
     "title": "About Me",
     "description": "Hi, I'm Fin, a web developer with over a decade of experience in turning ideas into impactful digital solutions. My passion lies in frontend development, where I focus on mastering the latest technologies and best practices to build intuitive, high-performance user interfaces. I prioritize crafting seamless and engaging experiences that resonate with users.\nWhile my expertise centers on frontend development, I also integrate data analysis and user feedback to inform decisions that optimize product functionality. By combining a hands-on approach with strategic thinking, I ensure every feature delivers meaningful value and enhances the user experience."
   },
-  "blog": {
-    "title": "Blog"
+  "post": {
+    "title": "Posts"
+  },
+  "navbar": {
+    "home": "Home",
+    "about": "About",
+    "post": "Posts"
   }
 }

@@ -1,0 +1,397 @@
+---
+title: '使用 Tailwind v4 和 Next.js 實作深色模式與主題切換'
+date: '2024-12-01'
+slug: 'dark-mode-with-tailwind-v4-nextjs'
+summary: '最近使用了 Tailwind CSS v4 Beta 和 Next.js 15 為新的個人部落格實作了深色模式主題切換功能，覺得有蠻多有趣的東西，紀錄一下。'
+type: Post
+language: zh-TW
+---
+
+最近使用了 Tailwind CSS v4 Beta 和 Next.js 15 為新的個人部落格實作了深色模式主題切換功能，覺得有蠻多有趣的東西，紀錄一下。
+
+## 目標：可自訂的網站外觀主題
+
+我們的目標是建立一個主題選擇功能，當使用者造訪網站時，將有三種主題選項可供選擇：淺色、深色和自動（跟隨系統設定）。這個行為借鑑了 [Stack Overflow 的主題選擇系統](https://stackoverflow.com/users/preferences/)，這是一個常見，已逐漸被大眾接受的外觀主題設定方式。
+
+![](./%E6%88%AA%E5%9C%96%202024-11-29%20%E4%B8%8A%E5%8D%889.20.18.png)
+
+這個機制預設使用自動模式，會根據使用者的裝置主題偏好進行調整。使用者可以透過選擇淺色或深色模式來覆蓋此設定，且他們的選擇會被記住，以確保一致的使用體驗。
+
+## 開始使用 Tailwind v4
+
+Tailwind v4 的安裝過程出乎意料地簡單，甚至比前一個版本更為簡便。
+
+在 Next.js 中，設定過程只需要三個簡單的步驟。首先，透過 npm （或你偏好的套件管理工具）安裝套件：
+
+```bash
+npm install tailwindcss@next @tailwindcss/postcss@next
+```
+
+接著，更新 postcss 配置以使用 Tailwind 的新 PostCSS 插件。相較於先前版本，配置明顯簡化，只需要一個插件：
+
+```javascript
+export default {
+  plugins: {
+    '@tailwindcss/postcss': {},
+  },
+};
+```
+
+最後，使用簡單的 import 語句將 Tailwind 導入主要的 CSS 檔案：
+
+```css
+@import "tailwindcss";
+```
+
+## 第零步：運用 Tailwind 的預設深色模式
+
+![](./Step%200.gif)
+
+我們透過 [Tailwind 的 `dark` variant ](https://tailwindcss.com/docs/v4-beta#configuring-dark-mode)提供內建的深色模式支援。當使用像 `text-black dark:text-white` 這樣的 class 時，Tailwind 會根據使用者的系統偏好自動在這些樣式之間切換。
+
+讓我們看看一個簡單的部落格文章卡片元件，並了解 Tailwind 如何處理其深色模式樣式：
+
+```jsx
+function BlogCard({ title, content }) {
+  return (
+    <article className="text-black bg-white dark:text-white dark:bg-black p-4 rounded-lg">
+      <h2 className="text-xl text-gray-900 dark:text-gray-100">{title}</h2>
+      <p className="text-gray-600 dark:text-gray-300">{content}</p>
+    </article>
+  );
+}
+```
+
+Tailwind 會自動生成使用 `prefers-color-scheme` 媒體查詢的 CSS。例如，`dark:text-white` 類別會被轉換為：
+
+```css
+.dark\:text-white {
+    @media (prefers-color-scheme: dark) {
+        color: var(--color-white);
+    }
+}
+```
+
+這個 CSS 有兩點值得注意。首先，它使用 `prefers-color-scheme` 媒體查詢來偵測系統主題偏好。當使用者的系統設定為深色模式時，會自動啟用這個媒體查詢中的樣式。其次，在 v4 版本中，使用 CSS 變數來處理顏色及一些變動設定值。我們不用再進到 Tailwind 設定檔中設定顏色值，而是使用 CSS 自訂屬性（如 `var(--color-white)`），使整個 CSS 的設定更為直覺，在下一個步驟將會看到範例。
+
+## 第一步：自訂主題控制
+
+![](./2024-11-29%2013.54.46.gif)
+
+這一步，我們將新增下拉選單來選擇主題。這涉及三個關鍵部分：自訂 Tailwind 的主題屬性、建立主題管理系統，以及主題選擇的元件。
+
+在 Tailwind v3 中，深色模式配置是通過 `tailwind.config.js` 檔案管理的：
+
+```javascript
+/** For Tailwind v3 */
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  darkMode: ['variant', '&:not(.light *)'],
+  // ...
+}
+```
+
+在 v4 中，設定方式改變了。我們要在主要的 css 檔案中定義 dark variant 的行為：
+
+```css
+@import "tailwindcss";
+@variant dark (&:where([data-theme="dark"]));
+```
+
+v4 將設定直接移至 CSS 中，而非使用獨立的 `tailwind.config.js`。例如，我們現在可以使用 CSS 變數定義自訂顏色（`--color-primary: #ff0000;`），使用 `@variant` 指令設定深色模式。
+
+目前的設定告訴 Tailwind 在看到 `data-theme="dark"` 屬性時要套用深色模式，而不是依賴系統偏好。
+
+接著，我們需要一個地方來管理這個 `data-theme` 屬性。因此，讓我們建立我們的主題管理系統：
+
+```jsx
+// ThemeProvider.jsx
+import { createContext, useContext, useState, useEffect } from 'react';
+
+const ThemeContext = createContext();
+
+export function ThemeProvider({ children }) {
+  const [theme, setTheme] = useState('light');
+
+  // Synchronize theme state with HTML data attribute
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+  }, [theme]);
+
+  // Provide theme context to children
+  return (
+    <ThemeContext.Provider value={{ theme, setTheme }}>
+      {children}
+    </ThemeContext.Provider>
+  );
+}
+
+// Custom hook for easy theme access
+export function useTheme() {
+  const context = useContext(ThemeContext);
+  if (context === undefined) {
+    throw new Error('useTheme must be used within a ThemeProvider');
+  }
+  return context;
+}
+```
+
+然後，我們建立一個選擇元件，讓使用者可以明確控制他們的主題選擇：
+
+```jsx
+// ThemeSelect.jsx
+export function ThemeSelect() {
+  const { theme, setTheme } = useTheme();
+
+  return (
+    <select
+      value={theme}
+      onChange={(e) => setTheme(e.target.value)}
+      className="bg-white dark:bg-gray-800 text-black dark:text-white p-2 rounded border border-gray-300 dark:border-gray-600"
+    >
+      <option value="light">Light</option>
+      <option value="dark">Dark</option>
+    </select>
+  );
+}
+```
+
+最後，我們用 ThemeProvider 包裝我們的應用程式，並將 ThemeSelect 元件放在我們想要主題控制出現的地方：
+
+```jsx
+// App.jsx
+function App() {
+  return (
+    <ThemeProvider>
+      <div className="min-h-screen bg-white dark:bg-gray-900">
+        <nav className="p-4">
+          <ThemeSelect />
+        </nav>
+        {/* Rest of your application */}
+      </div>
+    </ThemeProvider>
+  );
+}
+```
+
+現在使用者可以通過選擇來改變主題，而不是改變系統設定。接下來，我們將擴展這個功能以支援「自動」選項，就像第零步一樣，讓它能夠使用系統偏好。
+
+### 瀏覽器相容性
+
+Tailwind v4 Beta 使用 CSS 巢狀語法生成的深色模式 class：
+
+```css
+.dark\:text-white {
+    &:where([data-theme="dark"], [data-theme="dark"] *) {
+        color: var(--color-white);
+    }
+}
+```
+
+由於巢狀 CSS 是相對較新的功能，這可能會造成較舊的瀏覽器如 Safari 16 出現問題，相關討論可參見 [GitHub issue #14753](https://github.com/tailwindlabs/tailwindcss/issues/14753)。由於 v4 仍在 beta 階段，這個實作可能會根據社群反饋和相容性而改變。
+
+## 第二步：依據系統偏好的主題切換
+
+現在，我們準備加入系統偏好偵測。這功能的核心是 `window.matchMedia('(prefers-color-scheme: dark)')` API。這讓我們不只能檢查目前的系統主題，還能在它改變時作出回應。可以把它想像成訂閱系統主題的通知，在使用者切換系統主題偏好時，我們的網站都會收到通知並作出相應改變。等同於 JavaScript 版本的 `@media (prefers-color-scheme: dark)` 。
+
+首先，讓我們在主題管理監測並更新系統偏好：
+
+```jsx
+// ThemeProvider.jsx
+import { createContext, useContext, useState, useEffect } from 'react';
+
+const ThemeContext = createContext();
+
+export function ThemeProvider({ children }) {
+  const [theme, setTheme] = useState('auto');
+
+  useEffect(() => {
+    // Update data-theme accordingly if user selects light or dark
+    if (theme !== 'auto') {
+      document.documentElement.dataset.theme = theme;
+      return;
+    }
+
+    // For auto mode, we need to watch system preferences
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+    // Set initial theme based on system preference
+    document.documentElement.dataset.theme = mediaQuery.matches ? 'dark' : 'light';
+
+    // Update theme when system preference changes
+    function handleChange(e) {
+      document.documentElement.dataset.theme = e.matches ? 'dark' : 'light';
+    }
+
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, [theme]);
+
+  return (
+    <ThemeContext.Provider value={{ theme, setTheme }}>
+      {children}
+    </ThemeContext.Provider>
+  );
+}
+```
+
+接著，在選擇元件內增加『自動』的選項：
+
+```jsx
+export function ThemeSelect() {
+  const { theme, setTheme } = useTheme();
+
+  return (
+    <select
+      value={theme}
+      onChange={(e) => setTheme(e.target.value)}
+    >
+      <option value="light">Light</option>
+      <option value="dark">Dark</option>
+      <option value="auto">Auto</option>
+    </select>
+  );
+}
+```
+
+使用者現在可以自訂淺色/深色主題，或選擇『自動』，隨著系統偏好的改變自動的切換主題。
+
+## 第三步：保存使用者選擇
+
+到這一步使用者已經有很大的自由度來設定主題偏好，但每次重新整理頁面時，它都會重置為「自動」模式。我們可以用 localStorage 來記住使用者的偏好，藉此改善使用者體驗。這樣，當使用者再次開啟網頁時，會立即看到上一次選擇的主題。
+
+修改 ThemeProvider 來讀取和寫入 localStorage：
+
+```jsx
+// ThemeProvider.jsx
+
+const getInitialTheme = () => {
+  // Handle server-side rendering scenario
+  if (typeof window === 'undefined') return 'auto';
+
+  // Get theme from localStorage, defaulting to 'auto' if not found
+  return localStorage.getItem('theme') || 'auto';
+}
+
+export function ThemeProvider({ children }) {
+  // Initialize state with the result of getInitialTheme()
+  const [theme, setTheme] = useState(getInitialTheme);
+
+  // Rest of the provider implementation...
+  useEffect(() => {
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  useEffect(() => {
+    if (theme !== 'auto') {
+      document.documentElement.dataset.theme = theme;
+      return;
+    }
+
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    document.documentElement.dataset.theme = mediaQuery.matches ? 'dark' : 'light';
+
+    function handleChange(e) {
+      document.documentElement.dataset.theme = e.matches ? 'dark' : 'light';
+    }
+
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, [theme]);
+
+  return (
+    <ThemeContext.Provider value={{ theme, setTheme }}>
+      {children}
+    </ThemeContext.Provider>
+  );
+}
+```
+
+這裡要注意，取得偏好的邏輯被拆出到 `getInitialTheme` 函數中，並設定為 `useState`的初始值，這確保在元件 mount 之前就有一個有效的值。這可以防止在初始渲染期間出現錯誤的顏色，造成頁面閃爍的不良體驗。
+
+透過新增的 locaStorage 與 getInitialTheme，無論使用者偏好明確的淺色/深色模式還是自動的系統主題切換，他們的選擇都會在下次造訪網站時被記住。
+
+### 關於系統偏好和瀏覽器行為的說明
+
+要注意 `matchMedia` 取得的是瀏覽器回報的主題偏好，而這不一定是直接從作業系統獲取。舉例來說，Arc 瀏覽器可以有自己的主題設定，這會覆蓋系統偏好。這也就是說，在「自動」模式下，主題會依據使用者在瀏覽器設定的偏好來顯示，如下圖。
+
+![](./Nov%2029%202024.gif)
+
+## 額外補充：使用 next-themes 函式庫
+
+雖然從零開始實作主題偏好很有趣，但在實際應用中，我們可能會想要一個捷徑，這時可以考慮使用 next-themes 函式庫。
+
+首先安裝套件：
+
+```bash
+npm install next-themes
+```
+
+然後我們可以用 next-themes 提供的 ThemeProvider 取代我們自訂的版本：
+
+```jsx
+import { ThemeProvider } from 'next-themes'
+
+function App({ Component, pageProps }) {
+  return (
+    <ThemeProvider attribute="data-theme">
+      <Component {...pageProps} />
+    </ThemeProvider>
+  )
+}
+```
+
+`next-themes` 取代了我們剛才創建的 ThemeProvider，使用相同的 `useTheme` hook：
+
+```jsx
+import { useTheme } from 'next-themes'
+
+export function ThemeSelect() {
+  const { theme, setTheme } = useTheme();
+
+  return (
+    <select
+      value={theme}
+      onChange={(e) => setTheme(e.target.value)}
+    >
+      <option value="light">Light</option>
+      <option value="dark">Dark</option>
+      <option value="auto">Auto</option>
+    </select>
+  );
+}
+```
+
+> 這裡要注意，使用 `next-themes` 的 `useTheme` 時，會看到 hydration 錯誤。這是因為 `useTheme` 的許多值在伺服器端都是未定義的，例如我們在無法在伺服端讀取 localStorage。在 html 標籤中添加 suppressHydrationWarning 可以略過這個問題。詳見 [範例](https://github.com/pacocoursey/next-themes/tree/main?tab=readme-ov-file#faq)。
+
+其實在前幾步驟的，我們實作了許多與 next-themes 相似的功能：
+
+- 通過 ThemeProvider 進行主題管理
+
+- 偵測系統主題變更
+
+- 自動處理瀏覽器儲存同步
+
+- 防止頁面載入時出現錯誤主題閃爍
+
+雖然 next-themes 提供了更為細緻的功能，但透過這些實作，能更為深入了解主題切換的運作邏輯。
+
+# 結論
+
+這整串的實作，一些學習以及有趣的地方：
+
+- Tailwind v4 相較於 v3 的改變：使用了非常多新的語法，包含了巢狀 CSS、CSS 變數、設定內嵌於 CSS 內等
+
+- 運用 matchMedia API 處理系統偏好：matchMedia 真的好用，且會即時反應
+
+- 解決主題閃爍的挑戰：跟 FOUC 類似
+
+### 參考資料：
+
+- [開源 Tailwind CSS v4.0 的進展](https://tailwindcss.com/blog/tailwindcss-v4-alpha)
+
+- [Tailwind CSS v4.0 Beta 1](https://tailwindcss.com/blog/tailwindcss-v4-beta)
+
+- [Tailwind v4.0 Beta 文件](https://tailwindcss.com/docs/v4-beta)
+
+- https://dev.to/wearethreebears/exploring-typesafe-design-tokens-in-tailwind-4-372d

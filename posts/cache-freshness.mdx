@@ -1,0 +1,33 @@
+---
+title: '瀏覽器的預設快取時效 Cache Freshness'
+date: '2024-09-29'
+slug: 'cache-freshness'
+summary: '瀏覽器預設是怎麼判斷資源是否要快取呢？當沒有手動設定快取資訊的時候瀏覽器會怎麼處理我們的資源？'
+type: Post
+language: zh-TW
+---
+
+一般在講瀏覽器 Cache 時常見的控制手段有 cache-control / etag / last-modified ，我們會透過這些設定來告知瀏覽器這個資源是否『新鮮』，而我們也可以針對不新鮮的資源作相對應的處理。
+
+
+
+那麼，瀏覽器預設是怎麼判斷一個資源新不新鮮呢？（有興趣的話，這個英文名詞叫做 cache freshness），RFC 7324 有這樣子的定義
+
+
+
+> If the response has a Last-Modified header field (Section 2.2 of \[RFC7232\]), caches are encouraged to use a heuristic expiration value that is no more than some fraction of the interval since that time. A typical setting of this fraction might be 10%.
+
+
+
+如果 response header 裡面有 Last-Modified 資訊，那麼建議新鮮度會以修改時間到現在的 10% 為建議時間。也就是說如果今天你拿了一個十小時前修改的檔案，那麼這檔案的新鮮度就是一小時。如果是十年前修改的檔案，新鮮度就是一年。
+
+
+
+但 RFC 也有寫到這個新鮮度邏輯演算法只是個建議 (encouraged)，實際瀏覽器實作呢？
+
+- Chrome / Safari: 遵照 RFC 建議的 10%
+- Firefox 也是 10% 但是有個上限為一週
+
+
+
+延伸要注意的就是，如果今天你有一個十年前修改的檔案，想要確保使用者端都會更新，那就需要用一些其他方式來驅使使用者更新檔案。

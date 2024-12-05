@@ -1,0 +1,191 @@
+---
+title: '你可能不知道的 CSS 變數細節 - 1. 命名規則與賦值方法 '
+date: '2024-11-07'
+slug: 'css-variables-part-1'
+summary: '探究 CSS 變數的命名規則與賦值方法，包含如何正確設定自定義屬性名稱、避免常見解析錯誤，以及在不同情境下靈活使用 CSS 變數的實用技巧。'
+type: Post
+language: zh-TW
+---
+
+在研究 CSS 變數的過程中，我發現其中蘊藏著許多令人興奮的潛力和一些不易察覺的細節。像許多開發者一樣，我最初只是在簡單的場景中使用 CSS 變數，很少會碰到邊界情況。這種用法確實有效，但也意味著還有許多可以進一步探索和嘗試的空間。我認為，若能更深入地了解 CSS 變數的命名規則與正確賦值方式，將能大幅擴展其應用範圍與靈活性。
+
+我將自己的研究和心得整理於此，盡可能提供對 CSS 變數更全面且深入的介紹。希望這篇文章不僅能幫助您，也幫助我自己，一同挖掘 CSS 變數的潛力，探索更多樣式設計的可能性。
+
+*本系列文章假設您已經對 CSS 變數的基礎概念有一定了解，例如 `--name: value` 的語法與 `var(--name)` 的基本用法，或至少能理解這篇 [CSS 變數介紹](https://developer.mozilla.org/en-US/docs/Web/CSS/Using_CSS_custom_properties) 的前三分之一內容。*
+
+## 命名規則
+
+在使用 CSS 變數時，命名是首要的一步。以下是 CSS 變數在命名時應遵循的一些基本規範：
+
+1. **基本前綴：**\
+   所有自定義屬性名稱必須以兩個連字號（`--`）開頭，例如 `--main-color`。這種命名方式能讓瀏覽器辨識出這些屬性屬於自定義範疇，避免與原生 CSS 屬性名稱產生混淆。
+
+2. **大小寫區分：**\
+   CSS 自定義屬性名稱對大小寫敏感，這意味著 `--main-color` 和 `--Main-Color` 是兩個完全不同的變數。在撰寫樣式時，務必保持一致的大小寫格式，避免因大小寫不一致而錯誤引用變數名稱，造成解析錯誤。
+
+   **範例：**
+
+   ```css
+   :root {
+     --main-color: blue;
+     --Main-Color: red; /* 大小寫不同，視為另一個屬性 */
+   }
+
+   .box1 {
+     color: var(--main-color); /* 使用 --main-color，結果為藍色 */
+   }
+
+   .box2 {
+     color: var(--Main-Color); /* 使用 --Main-Color，結果為紅色 */
+   }
+   ```
+
+3. **保留字：**\
+   單獨的 `--` 是保留字，可能在未來有特定用途，因此不應將其作為自定義屬性名稱。
+
+   **範例：**
+
+   ```css
+   :root {
+     --: green; /* 錯誤：名稱為單獨的 --，這是保留名稱 */
+     --custom-color: green; /* 正確：自定義名稱避免使用保留名稱 */
+   }
+
+   .text {
+     color: var(--custom-color); /* 使用自定義屬性 */
+   }
+   ```
+
+4. **命名限制：**
+
+   在為 CSS 變數命名時，需注意字符的選擇和規範，這不僅有助於提升可讀性，也避免了因字符衝突產生的問題。
+
+   1. **允許的字符：**
+
+      - **英文字母**：大小寫英文字母（A-Z, a-z）
+
+      - **數字**：0-9
+
+      - **連字號**：`-`
+
+      - **底線**：`_`
+
+      - **Unicode 字符**：例如 Emoji 或非拉丁字符（Unicode 範圍 U+0080 及以上）
+
+   2. **特殊字符跳脫：**\
+      若變數名稱包含特殊字符（例如 `&`, `?`），可以透過跳脫字符（`\`）或 Unicode 代碼表示。例如，`&` 可以寫作 `\26`。（參考 [CSS 語法規範](https://www.w3.org/TR/CSS22/syndata.html#characters) ）
+
+   3. **變數長度：**\
+      雖然 CSS 規範並未對變數名稱的長度設置嚴格限制，但為了提升可讀性，建議名稱長度保持在 50 字元以內。實際測試顯示，Chromium 瀏覽器支持的變數名稱長度甚至可達 1M 字元以上。
+
+   #### 範例
+
+   以下範例展示了 CSS 變數命名的靈活性，並示範了如何正確處理特殊字符的跳脫：
+
+   ```css
+   :root {
+     /* Unicode 字符命名 */
+     --主色: #3498db;
+     --次要色: #e74c3c;
+
+     /* 使用 Emoji 作為變數名稱 */
+     --😺: #2ecc71;
+
+     /* 包含特殊字符，使用跳脫字元，實際名稱為 --B&W? */
+     --B\&W\?: #2ecc72;
+
+     /* 使用 Unicode 代碼進行跳脫，等同於上面的 --B\&W\?，變數名稱會是 --B&W? */
+     --B\26W\3F: #abcdef;
+   }
+
+   .container {
+     color: var(--B\26W\3F); /* 取到 #abcdef */
+   }
+
+   .container-alt {
+     color: var(--B\&W\?); /* 取到 #abcdef */
+   }
+   ```
+
+## 賦值
+
+CSS 變數的值允許多種不同類型的標記序列，但同時也需要遵循一些特定的語法規則。讓我們來看看合法的賦值範例：
+
+```css
+:root {
+  --foo: if(x > 5) this.width = 10;
+  --string-with-semicolon: "font-size: 16px;"; /* 字串中包含分號是合法的 */
+  --complex-calc: calc(100% / 3 + 20px);       /* 使用 calc() 函數進行複雜計算 */
+  --negative-value: -10px;                     /* 可以使用負數值 */
+  --multiple-values: 10px 20px 30px 40px;      /* 可包含多個值，例如用於 margin 或 padding */
+  --unitless-number: 1.5;                      /* 無單位數值 */
+  --nested-var: var(--string-with-semicolon);  /* 使用 var() 函數嵌套其他變數 */
+  --empty-string: ;                            /* 空值 */
+  --color: rgba(255, 0, 0, 0.5);               /* 使用顏色函數 */
+  --special-chars: "Content: \"Hello\"";       /* 包含特殊字符的字串 */
+}
+```
+
+從以上範例可以看出，CSS 變數對值的容許範圍相當廣泛，但這並不代表所有值都是合法的。要注意的是，CSS 變數作為屬性的一部分，必須遵循 CSS 屬性的基本規範，例如引號或括號應成對出現，並且需要避免一些不合法的語法。
+
+### 不合法的值
+
+如果賦予 CSS 變數不合法的值，CSS 解析器會報錯，並且可能導致後續的樣式解析出現問題。以下是幾個不合法的賦值範例：
+
+```css
+:root {
+  --incomplete-string: "Hello;           /* 不合法：字串缺少結束引號 */
+  --incomplete-url: url(http://example.com/image.png; /* 不合法：url() 缺少結束括號 */
+  --unmatched-parenthesis: calc(100% - 50%; /* 不合法：calc() 函數的括號未閉合 */
+  --invalid-exclamation: 50px !;          /* 不合法：唯一合法的驚嘆號使用是 !important */
+  --invalid-var: var(--undefined-variable); /* 不合法：var() 函數引用未定義的變數，且無回退值 */
+}
+```
+
+### 使用 `!important`
+
+CSS 變數可看作一個 CSS 屬性，因此同樣支持 `!important`，用法也相同。以下範例展示了 `!important` 如何影響變數的優先順序：
+
+```css
+div {
+  color: var(--text-color);
+}
+
+.cls {
+  --text-color: green !important;
+}
+
+#target {
+  --text-color: red;
+}
+```
+
+在上述範例中，`#target` 和 `.cls` 都影響到 `div` 的 `--text-color`，依照選擇器的優先度來說，`#target` 應該優先於 `.cls`。但是，由於 `.cls` 中的 `--text-color` 使用了 `!important`，最終 `div` 的文字顏色會是綠色。需要注意的是，`!important` 只影響變數之間的優先順序，並不會傳遞到變數引用的屬性上，最終的 `color` 是 `green` 而非 `green !important`。
+
+### 使用 `initial`
+
+```css
+:root {
+  --invalid: initial;
+}
+```
+
+一個滿特別的特性。當使用 `initial` 作為變數值時，這個變數會被視為無效 (`invalid`) 狀態，因此在使用 `var()` 函數引用時將不起作用。這與 `--empty: ;` 的行為不同，`--empty` 是空值，並不會導致屬性無效。因此，使用 `initial` 可以作為一種「取消」變數定義的方式。（[參照](https://www.w3.org/TR/css-variables-1/#guaranteed-invalid)）
+
+### 依賴循環 (Dependency Cycle)
+
+CSS 變數支持相互引用，但如果發生依賴循環，則在循環中的所有變數都會變成無效 (`invalid`) 狀態。以下範例展示了循環依賴的情況：
+
+```css
+:root {
+  --one: calc(var(--two)  - 1);
+  --two: calc(var(--three)  - 1);
+  --three: calc(var(--one) + 2);
+}
+```
+
+在這種情況下，`--one`、`--two` 和 `--three` 都會無效，因為它們相互依賴，形成了一個循環，導致相關變數都會變成無效狀態。 （[參照](https://www.w3.org/TR/css-variables-1/#cycles)）
+
+## 小結
+
+透過這篇文章，我們深入探討了 CSS 變數的命名規則與賦值細節，了解了如何正確設定與管理這些變數，避免常見的解析錯誤。希望這些基礎知識能讓您在日後的開發中更有效地使用 CSS 變數。下一篇文章將會進一步介紹如何使用 `var()` 來取用 CSS 變數的值，並探討一些具體的應用場景，讓 CSS 變數的運用更加靈活。

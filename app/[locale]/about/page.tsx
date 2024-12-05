@@ -8,7 +8,7 @@ export default async function Home() {
 
   return (
     <section>
-      <h1 className="mb-8 text-2xl font-semibold tracking-tighter">
+      <h1 className="mb-8 text-2xl font-semibold">
         {t('about.title')}
       </h1>
 
@@ -16,7 +16,7 @@ export default async function Home() {
         <p className="mb-4" key={index}>{line}</p>))
       }
 
-      <h2 className="my-6 text-xl font-semibold tracking-tighter">What I Do</h2>
+      <h2 className="my-6 text-xl font-semibold">What I Do</h2>
       <ul className="mb-4 list-disc list-inside">
         <li><strong>Frontend Development</strong>: Crafting high-performance, modular, and maintainable interfaces, with deep expertise in React and CSS optimization.</li>
         <li><strong>Product Strategy</strong>: Using data-driven insights and UX research to develop impactful features and enhance user experiences.</li>

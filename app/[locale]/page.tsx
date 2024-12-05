@@ -1,5 +1,6 @@
 import { Posts } from '../components/posts';
 import {getLocale, getTranslations} from 'next-intl/server';
+import { Link } from 'i18n/routing'
 import { compareDesc } from 'date-fns'
 import { allPosts } from 'contentlayer/generated'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/card'
@@ -7,13 +8,20 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/card'
 export default async function Home() {
   const locale = await getLocale();
   const t = await getTranslations('home');
-  const posts = allPosts.sort((a, b) => compareDesc(new Date(a.date), new Date(b.date))).filter((post) => post.language === locale);
+  const posts = allPosts
+    .sort((a, b) => compareDesc(new Date(a.date), new Date(b.date)))
+    .filter((post) => post.language === locale)
+    .slice(0, 5);
 
   return (
     <section>
       <div className="relative flex flex-col items-center justify-center text-center space-y-6 h-64">
         <div>
-          <h1 className="text-5xl font-bold mb-2">{t('title')}</h1>
+
+          <h1 className="font-bold mb-2 text-5xl bg-gradient-to-r from-dark-background-primary to-dark-background-secondary
+          dark:from-light-background-primary
+          dark:to-light-background-secondary
+          text-transparent bg-clip-text animate-gradient-x py-2">{t('title')}</h1>
           <h2 className="text-xl text-muted-foreground mt-4">{t('subtitle')}</h2>
         </div>
       </div>
@@ -29,6 +37,14 @@ export default async function Home() {
           </CardHeader>
           <CardContent>
             <Posts posts={posts} />
+            <div className="mt-4 text-center">
+              <Link
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                href="/posts"
+              >
+                {t('view_all_posts')} →
+              </Link>
+            </div>
           </CardContent>
         </Card>
       </div>

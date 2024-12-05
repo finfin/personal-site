@@ -88,7 +88,7 @@ export default async function Blog({ params }: Props ) {
         suppressHydrationWarning
         type="application/ld+json"
       />
-      <h1 className="font-semibold text-2xl tracking-tighter">
+      <h1 className="font-semibold text-2xl">
         {post.title}
       </h1>
       <div className="flex justify-between items-center mt-2 mb-8 text-sm">

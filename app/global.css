@@ -72,7 +72,7 @@ html {
 }
 
 .prose code {
-  @apply px-1 py-0.5 rounded-sm dark:bg-neutral-800 bg-neutral-200;
+  @apply px-1 py-0.5 rounded-sm dark:bg-white/10 bg-black/10;
 }
 
 .prose pre code {
@@ -96,19 +96,19 @@ html {
 }
 
 .prose h1 {
-  @apply text-4xl font-medium tracking-tight mt-6 mb-2;
+  @apply text-4xl font-medium mt-6 mb-2;
 }
 
 .prose h2 {
-  @apply text-xl font-medium tracking-tight mt-6 mb-2;
+  @apply text-xl font-medium mt-6 mb-2;
 }
 
 .prose h3 {
-  @apply text-xl font-medium tracking-tight mt-6 mb-2;
+  @apply text-xl font-medium mt-6 mb-2;
 }
 
 .prose h4 {
-  @apply text-lg font-medium tracking-tight mt-6 mb-2;
+  @apply text-lg font-medium mt-6 mb-2;
 }
 
 .prose strong {
@@ -136,6 +136,15 @@ html {
 .prose pre {
   @apply mt-4;
 }
+
+.prose blockquote {
+  @apply border-l-3 border-neutral-700 dark:border-neutral-300 pl-4 py-1;
+
+  p {
+    @apply m-0;
+  }
+}
+
 pre::-webkit-scrollbar {
   display: none;
 }
@@ -167,3 +176,15 @@ table {
     @apply dark:border-gray-600 border-gray-300;
   }
 }
+
+@keyframes gradient-x {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+
+.animate-gradient-x {
+  background-size: 200% 200%;
+  animation: gradient-x 5s ease infinite;
+}
+
