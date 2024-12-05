@@ -9,7 +9,7 @@ export default async function sitemap() {
     // const routes = locales.map((locale) => ({
     //   url: `${baseUrl}/${locale}/${post.path}`,
     return {
-    url: `${baseUrl}/${post.path}`,
+    url: `${baseUrl}/${post.language}${post.path}`,
     lastModified: new Date().toISOString().split('T')[0],
   }})
 

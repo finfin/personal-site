@@ -19,6 +19,7 @@ const getInitialTheme = () => {
 const getCurrentTheme = (theme) => {
   // currentTheme is theme when not auto
   // if auto, we need to check system preference
+  if (typeof window === 'undefined') {return 'light'}
   if (theme !== 'auto') {
     return theme;
   }

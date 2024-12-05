@@ -3,6 +3,7 @@ import MDXPost from '@/components/mdx-post'
 import { format, parseISO } from 'date-fns'
 import { allPosts } from 'contentlayer/generated'
 import { baseUrl } from 'app/sitemap'
+import { getLocale } from 'next-intl/server'
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -17,7 +18,8 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props) {
   const { slug } = await params;
-  const post = allPosts.find((post) => post.slug === slug)
+  const locale = await getLocale();
+  const post = allPosts.find((post) => post.slug === slug && post.language === locale)
   if (!post) {
     return
   }
@@ -59,7 +61,9 @@ export async function generateMetadata({ params }: Props) {
 // TODO: make this page Static Site Generation compatible
 export default async function Blog({ params }: Props ) {
   const { slug } = await params
-  const post = allPosts.find((post) => post.slug === slug)
+  const locale = await getLocale();
+  const post = allPosts.find((post) => post.slug === slug && post.language === locale)
+
   if (!post) {
     notFound()
   }

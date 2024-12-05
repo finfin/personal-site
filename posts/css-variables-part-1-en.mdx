@@ -1,0 +1,184 @@
+---
+title: 'Thing You May Not Know About CSS Variables - 1. Naming Rules and Value Assignments'
+date: '2024-11-07'
+slug: 'css-variables-part-1'
+summary: 'In my exploration of CSS variables, I discovered a lot of exciting potential and subtle details that aren’t always apparent at first glance. Like many developers, I initially used CSS variables in simple, straightforward ways, rarely encountering edge cases. This approach is common and effective for many purposes, but it means theres a lot more to explore and experiment with. In my view, gaining a deeper understanding of CSS variable naming rules and valid value assignments can significantly expand the range and flexibility of their applications.'
+type: Post
+language: en
+---
+
+In my exploration of CSS variables, I discovered a lot of exciting potential and subtle details that aren’t always apparent at first glance. Like many developers, I initially used CSS variables in simple, straightforward ways, rarely encountering edge cases. This approach is common and effective for many purposes, but it means there’s a lot more to explore and experiment with. In my view, gaining a deeper understanding of CSS variable naming rules and valid value assignments can significantly expand the range and flexibility of their applications.
+
+I’ve compiled my research and insights here, aiming to provide a more thorough and comprehensive look at CSS variables. My hope is that this article will be a resource to help both you and myself unlock the full potential of CSS variables and discover new possibilities in styling.
+
+*This series assumes you’re already familiar with the basics of CSS variables, such as the `--name: value` syntax and the `var(--name)` function, or that you’re comfortable with the foundational concepts covered in the first third of this [CSS Variables Introduction](https://blog.logrocket.com/how-to-use-css-variables-like-a-pro/).*
+
+# Naming Rules
+
+When using CSS variables, naming is the first essential step. Here are some key guidelines for naming CSS variables:
+
+## **Basic Prefix**
+
+All custom property names must begin with two hyphens (`--`), for example, `--main-color`. This prefix helps the browser distinguish custom properties from native CSS properties, reducing the chance of conflicts.
+
+## **Case Sensitivity**
+CSS custom property names are case-sensitive, meaning `--main-color` and `--Main-Color` are treated as two entirely different variables. It's important to maintain consistent casing throughout your code to avoid mistakenly referencing variables with mismatched cases, which can lead to parsing errors.
+
+**Example:**
+   ```css
+   :root {
+     --main-color: blue;
+     --Main-Color: red; /* Case difference, treated as a separate property */
+   }
+
+   .box1 {
+     color: var(--main-color); /* Refers to --main-color, resulting in blue */
+   }
+
+   .box2 {
+     color: var(--Main-Color); /* Refers to --Main-Color, resulting in red */
+   }
+   ```
+
+## **Reserved Words:**
+A standalone `--` is reserved and may have specific purposes in future specifications. Therefore, avoid using it as a custom property name.
+   **Example:**
+
+   ```css
+   :root {
+     --: green; /* Invalid: a standalone -- is reserved */
+     --custom-color: green; /* Valid: custom property avoids reserved name */
+   }
+
+   .text {
+     color: var(--custom-color); /* Uses the custom property */
+   }
+   ```
+
+## **Naming Restrictions:**
+
+When naming CSS variables, it’s crucial to consider allowed characters and conventions, which improve readability and prevent conflicts.
+
+1. **Allowed Characters:**
+  - **Alphabetic Characters:** Uppercase and lowercase English letters (A-Z, a-z)
+  - **Numbers:** 0-9
+  - **Hyphens:** `-`
+  - **Underscores:** `_`
+  - **Unicode Characters:** Emojis or non-Latin characters (Unicode range U+0080 and above)
+2. **Escaping Special Characters:**
+   If a variable name includes special characters (such as `&` or `?`), it can be represented using escape characters (`\`) or Unicode codes. For example, `&` can be written as `\26`. ([Refer to Syntax and basic data types - Characters and case](https://www.w3.org/TR/CSS22/syndata.html#characters) for more details).
+3. **Variable Length:**
+   While there are no strict limits on variable name length, for readability, it’s recommended to keep names under 50 characters. I did some experiment with Chromium, it can supports variable name length up to 1 million characters.
+
+**Example**
+   The following example demonstrates the flexibility of CSS variable naming and how to handle special characters properly:
+
+   ```css
+   :root {
+     /* Naming with Unicode characters */
+     --primary-color: #3498db;
+     --secondary-color: #e74c3c;
+
+     /* Using an Emoji as a variable name */
+     --😺: #2ecc71;
+
+     /* Special characters with escape sequences, resulting in --B&W? */
+     --B\&W\?: #2ecc72;
+
+     /* Using Unicode escape codes, equivalent to --B&W? */
+     --B\26W\3F: #abcdef;
+   }
+
+   .container {
+     color: var(--B\26W\3F); /* Result is #abcdef */
+   }
+
+   .container-alt {
+     color: var(--B\&W\?); /* Result is #abcdef */
+   }
+   ```
+
+# Assigning Values
+
+CSS variables can hold various types of values, but they also need to follow specific syntax rules. Let’s look at some examples of valid value assignments:
+
+```css
+:root {
+  --foo: if(x > 5) this.width = 10;
+  --string-with-semicolon: "font-size: 16px;"; /* Strings can include semicolons */
+  --complex-calc: calc(100% / 3 + 20px);       /* Complex calculations with calc() */
+  --negative-value: -10px;                     /* Negative values */
+  --multiple-values: 10px 20px 30px 40px;      /* Multiple values, e.g., for margin or padding */
+  --unitless-number: 1.5;                      /* Unitless numbers */
+  --nested-var: var(--string-with-semicolon);  /* Nested variables using var() */
+  --empty-string: ;                            /* Empty string */
+  --color: rgba(255, 0, 0, 0.5);               /* Color functions */
+  --special-chars: "Content: \"Hello\"";       /* Strings with special characters */
+}
+```
+
+As these examples show, CSS variables support a wide range of values. However, since CSS variables are part of CSS properties, they must follow general CSS syntax, such as matching quotes and parentheses. Let’s explore some values that don’t meet these requirements.
+
+## Invalid Values
+
+Assigning invalid values to CSS variables can cause parsing errors, which may lead to issues in subsequent styles. Here are some examples of invalid value assignments:
+
+```css
+:root {
+  --incomplete-string: "Hello;           /* Invalid: missing closing quote */
+  --incomplete-url: url(http://example.com/image.png; /* Invalid: missing closing parenthesis */
+  --unmatched-parenthesis: calc(100% - 50%; /* Invalid: unclosed parenthesis in calc() */
+  --invalid-exclamation: 50px !;          /* Invalid: only valid exclamation use is !important */
+  --invalid-var: var(--undefined-variable); /* Invalid: var() references an undefined variable with no fallback */
+}
+```
+
+## Using `!important`
+
+CSS variables, like other CSS properties, support the `!important` flag, which affects priority. Here’s an example showing how `!important` impacts variable precedence:
+
+```css
+div {
+  color: var(--text-color);
+}
+
+.cls {
+  --text-color: green !important;
+}
+
+#target {
+  --text-color: red;
+}
+```
+
+In this example, both `#target` and `.cls` affect the `--text-color` variable on the `div`. By selector specificity, `#target` should override `.cls`. However, because `--text-color` in `.cls` uses `!important`, the final color applied to `div` will be green. It’s important to note that `!important` only impacts priority among variables and does not propagate to the property referencing the variable. The resulting `color` is simply `green`, not `green !important`.
+
+## Using `initial`
+
+```css
+:root {
+  --invalid: initial;
+}
+```
+
+Using `initial` as a CSS variable value is a unique behavior. When assigned to a variable, `initial` makes the variable invalid, causing it to fail when accessed with `var()`. This differs from an empty value (`--empty: ;`), which won’t cause a property to become invalid. Using `initial` effectively “resets” a variable, canceling its definition. ([Reference](https://www.w3.org/TR/css-variables-1/#guaranteed-invalid))
+
+## Dependency Cycles
+
+CSS variables support referencing other variables, but if a dependency cycle occurs, all variables in the cycle become invalid. Here’s an example of a dependency cycle:
+
+```css
+:root {
+  --one: calc(var(--two) - 1);
+  --two: calc(var(--three) - 1);
+  --three: calc(var(--one) + 2);
+}
+```
+
+In this example, `--one`, `--two`, and `--three` reference each other, creating a cycle. As a result, all three variables become invalid due to the circular dependency, which prevents them from resolving. ([Reference](https://www.w3.org/TR/css-variables-1/#cycles))
+
+# Conclusion
+
+In this article, we’ve taken a deep dive into the rules of naming and value assignments for CSS variables, covering how to properly define and manage these variables while avoiding common parsing errors. With this foundational knowledge, you should be able to use CSS variables more effectively in your future development projects.
+
+The next article will explore how to use `var()` to retrieve CSS variable values, along with specific application scenarios to make your use of CSS variables even more flexible and powerful.

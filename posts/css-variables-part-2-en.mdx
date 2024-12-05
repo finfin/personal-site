@@ -1,0 +1,404 @@
+---
+title: 'Things You May Not Know About CSS Variables - 2. Using var() and Cool Examples'
+date: '2024-11-15'
+slug: 'css-variables-part-2'
+summary: 'Dark mode support has become a fundamental aspect of modern web applications, and I recently tackled this feature for my personal blog using Tailwind CSS v4 beta with Next.js 15.'
+type: Post
+language: en
+---
+
+# Things You May Not Know About CSS Variables - 2. Using var() and Cool Examples
+
+## Using `var()`
+
+The `var()` accesses custom property values (CSS variables). Its syntax is as follows:
+
+```css
+var( <custom-property-name>, <fallback-value>? )
+```
+
+### Basic Rules
+
+1. **The first parameter must be a CSS variable:** Direct values, such as `var(20px)`, will result in an error, as `var()` only accepts custom property names.
+
+2. **`var()` cannot replace property names:** In other words, you cannot write something like `var(--prop-name): 20px;` because `var()` is limited to use in property values only.
+
+```css
+.foo {
+  margin: var(20px); /* Error, 20px is not a CSS variable */
+
+  --prop-name: margin-top;
+  var(--prop-name): 20px; /* Error, cannot use var() this way */
+}
+```
+
+### Detailed Behaviors
+
+1. **`var(--b, fallback_value)` Fallbacks:** The second parameter acts as a fallback value, used when `--b` is invalid.
+
+2. **`var(--c,)` Syntax with an Empty Fallback:** If the fallback value is left empty, the syntax remains valid and will default to an empty value if `--c` is invalid.
+
+3. **Multiple Comma:** In `var(--d, var(--e), var(--f), var(--g))`, everything after the first comma is treated as fallback, so if `--d` is invalid, the `var()` expression evaluates `var(--e), var(--f), var(--g)` as one fallback, to determine the result.
+
+4. **`var()` as a Complete CSS Token:** The function acts as a complete CSS token, like `20px` would. Therefore, `var(--size)var(--unit)` will not create `20px` and is considered invalid.
+
+5. **Using `initial` with CSS Variables:** Assigning `initial` to a CSS variable means it is invalid. To display `initial` as a value, it must be placed in the fallback.
+
+6. **`url()` and `var()` Usage:** Since `url()` is treated as a complete CSS token, you need to define the full `url()` within the variable.
+
+```css
+:root {
+  /* 1. */
+  margin: var(--b, 20px); /* Uses 20px if --b is invalid */
+
+  /* 2. */
+  padding: var(--c,) 20px; /* Falls back to 20px if --c is invalid */
+
+  /* 3. */
+  font-family: var(--fonts, "lucida grande", tahoma, Arial); /* Uses fallback font stack if --fonts is invalid */
+
+  /* 4. */
+  --text-size: 12;
+  --text-unit: px;
+  font-size: var(--text-size)var(--text-unit); /* Invalid, as it does not resolve to 12px */
+
+  /* 5. */
+  --initialized: initial;
+  background: var(--initialized, initial); /* Results in background: initial */
+
+  /* 6. */
+  --invalid-url: "https://useme.medium.com";
+  background: url(var(--invalid-url)); /* Invalid, as url() cannot parse var() */
+
+  --valid-url: url(https://useme.medium.com);
+  background: var(--valid-url); /* Correct usage */
+}
+```
+
+## Variable Resolution and Scope
+
+CSS variables, like other CSS properties, follow CSS-specific rules for scope and specificity. Understanding how these factors affect CSS variables allows for more precise control.
+
+1. **Global and Scoped Variables:** Variables defined in `:root` are applied globally, while those defined in selectors have a more limited scope.
+
+   ```css
+   :root {
+     --main-color: blue; /* Globally applied */
+   }
+
+   .container {
+     --main-color: green; /* Scoped, applies only within .container */
+   }
+   ```
+
+2. **Priority by Specificity:** Higher specificity will override lower specificity for CSS variables.
+
+   ```css
+   :root {
+     --main-color: blue;
+   }
+
+   .section {
+     --main-color: green; /* Overrides :root definition */
+   }
+
+   .section p {
+     color: var(--main-color); /* Shows green */
+   }
+
+   p {
+     color: var(--main-color); /* Shows blue */
+   }
+   ```
+
+   ```html
+   <div class="section">
+     <p>This text will use .section's --main-color and be green.</p>
+   </div>
+
+   <p>This text will use :root's --main-color and be blue.</p>
+   ```
+
+3. **Calculating Values Based on Specificity Order:** Like CSS properties, variables are resolved based on specificity in ascending order.
+
+   ```css
+   :root {
+     --red: 255;
+     --green: 255;
+     --blue: 255;
+     --background: rgb(var(--red), var(--green), var(--blue));
+   }
+
+   .box {
+     --green: 0;
+     background: var(--background);
+   }
+   ```
+
+   In this example, the background color of `.box` remains white, as `--background` was resolved to `rgb(255, 255, 255)` before `.box` redefined `--green: 0`.
+
+4. **Reevaluating Variables with Pseudo-Classes:** Variables change based on pseudo-class states when defined at the same level.
+
+   ```css
+   :root {
+     --red: 255;
+     --green: 255;
+     --blue: 255;
+   }
+
+   .box {
+     --background: rgb(var(--red), var(--green), var(--blue));
+     background: var(--background);
+   }
+
+   .box:hover {
+     --green: 0; /* Changes background color on hover */
+   }
+   ```
+
+---
+
+Next, let’s explore some advanced use cases for CSS variables:
+
+## Usage Example A: Animations
+
+CSS variables cannot be directly animated because the browser cannot infer the data type. To resolve this, use `@property` to define the variable's type and initial value, enabling the browser to understand how to animate the variable.
+
+```css
+@property --green {
+  syntax: "<number>";
+  initial-value: 255;
+  inherits: false;
+}
+
+.section {
+  padding: 5em;
+  background: rgb(50, var(--green), 50);
+  transition: --green 0.5s;
+}
+
+.section:hover {
+    --green: 50;
+}
+```
+
+### HTML
+
+```html
+<div class="section">
+  <p>Hover to see CSS variables + animation in action.</p>
+</div>
+```
+
+In this example, `@property` is used to declare `--green` as a `<number>` type with an initial value of 255. When hovering over `.section`, `--green` changes to 50, creating a smooth color transition effect.
+
+[CodePen example](https://codepen.io/finfin/pen/VwoqWPZ)
+
+---
+
+Here’s the content translated and rephrased into English for a technical article:
+
+---
+
+## Usage Example B: Light/Dark Mode Toggle
+
+If you want to implement theme switching for light and dark modes, it’s helpful to extract color values into variables that adjust automatically based on the `prefers-color-scheme` setting. Here’s how you can manage this using CSS variables.
+
+```css
+:root {
+  --background-color: #FBFBFB;
+  --container-background-color: #EBEBEB;
+  --headline-color: #0077EE;
+  --text-color: #333333;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background-color: #121212;
+    --container-background-color: #555555;
+    --headline-color: #94B2E6;
+    --text-color: #e0e0e0;
+  }
+}
+```
+
+### Adding a Manual Toggle that Aligns with System Preferences
+
+While the system setting controls the theme by default, we may want to give users the option to manually toggle between light and dark themes. To achieve this, we can add a checkbox to toggle the state. Ideally, when the checkbox is selected, it indicates dark mode, and when unselected, it represents light mode.
+
+However, CSS cannot automatically detect system settings and change the checkbox state accordingly, especially in dark mode. To handle this limitation, we can use CSS variables and the `:has()` selector to control theme switching based on the checkbox state.
+
+I wanted to try achieving this entirely with CSS, but since a user’s system may be set to either light or dark mode, CSS alone can’t automatically check the checkbox in dark mode.
+
+If we can’t move the mountain, we’ll route the path. Here’s the workaround:
+
+- We’ll use CSS to create a toggle switch, where the visual “OFF” state represents light mode, and “ON” represents dark mode.
+
+![截圖 2024-11-12 下午1.57.26.png](./截圖%202024-11-12%20下午1.57.26.png)
+
+![截圖 2024-11-12 下午1.57.46.png](./截圖%202024-11-12%20下午1.57.46.png)
+
+- **Light Mode Preferred:** When the checkbox is unselected, it corresponds to the “OFF” state (light mode). When selected, it corresponds to the “ON” state (dark mode).
+
+- **Dark Mode Preferred:** Since the system preference is reversed, the visual state also inverts. When the checkbox is unselected, it corresponds to “ON” (dark mode). When selected, it corresponds to “OFF” (light mode).
+
+To achieve this effect, we need two main elements:
+
+**First: Variables that Change Based on System Setting and Checkbox State**
+
+```css
+:root {
+  --background-color: #FBFBFB;
+  --container-background-color: #EBEBEB;
+  --headline-color: #0077EE;
+  --text-color: #333333;
+}
+
+:root:has(input[type="checkbox"]:checked) {
+  --background-color: #121212;
+  --container-background-color: #555555;
+  --headline-color: #94B2E6;
+  --text-color: #e0e0e0;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background-color: #121212;
+    --container-background-color: #555555;
+    --headline-color: #94B2E6;
+    --text-color: #e0e0e0;
+  }
+
+  :root:has(input[type="checkbox"]:checked) {
+    --background-color: #FBFBFB;
+    --container-background-color: #EBEBEB;
+    --headline-color: #0077EE;
+    --text-color: #333333;
+  }
+}
+```
+
+**Second: Toggle Behavior Based on System Settings for `checked` State and ON/OFF Representation**
+
+The light and dark mode CSS properties are reversed depending on the system setting.
+
+```css
+/* Toggle Switch Styles */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+/* Hide the checkbox element to style a custom switch */
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* Slider styling for the switch background */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--slider-bg, #ccc);
+  transition: 0.4s;
+  border-radius: 34px;
+}
+
+/* Slider knob styling */
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+/* Dark mode styles: make the switch look "checked" by default */
+@media (prefers-color-scheme: dark) {
+  .slider {
+    background-color: #94b2e6;
+  }
+  .slider:before {
+    transform: translateX(26px); /* Move knob to the right */
+  }
+
+  /* Invert checked state in dark mode to look "unchecked" */
+  input:checked + .slider {
+    background-color: #ccc;
+  }
+  input:checked + .slider:before {
+    transform: translateX(0); /* Move knob to the left */
+  }
+}
+
+/* Light mode styles: make the switch look "unchecked" by default */
+@media (prefers-color-scheme: light) {
+  .slider {
+    background-color: #ccc;
+  }
+  .slider:before {
+    transform: translateX(0); /* Knob on the left */
+  }
+
+  /* Invert checked state in light mode to look "checked" */
+  input:checked + .slider {
+    background-color: #94b2e6;
+  }
+  input:checked + .slider:before {
+    transform: translateX(26px); /* Move knob to the right */
+  }
+}
+```
+
+### Simplifying Variable Setup with CSS Variable Tricks
+
+Here we’ll use [Space Toggle](https://github.com/propjockey/css-sweeper?tab=readme-ov-file#css-is-a-programming-language-thanks-to-the-space-toggle-trick) technique to simplify variable settings. Here’s the code, followed by an explanation of how it works:
+
+```css
+:root {
+  --ON: initial; /* Default state variable to use for switching colors */
+  --OFF: ; /* Alternative state variable for switching colors */
+
+  /* Set default color variables based on light mode */
+  --light: var(--ON);
+  --dark: var(--OFF);
+
+  /* Define custom properties for colors used in light and dark modes */
+  --background-color: var(--light, #fbfbfb) var(--dark, #121212);
+  --container-background-color: var(--light, #ebebeb) var(--dark, #555555);
+  --headline-color: var(--light, #0077ee) var(--dark, #94b2e6);
+  --text-color: var(--light, #333333) var(--dark, #e0e0e0);
+}
+
+:root:has(input[type="checkbox"]:checked) {
+  --light: var(--OFF);
+  --dark: var(--ON);
+}
+```
+
+The key here is in the line `--background-color: var(--light, #fbfbfb) var(--dark, #121212);`. Here, the background color depends on the values of `--light` and `--dark`, effectively simulating an `if/else` in the property.
+
+**How does it work?** Initially, `--light: var(--ON);` and `--ON: initial;` make `--ON` an invalid state. Meanwhile, `--OFF` is set as an empty string. When applied to `var(--light, #fbfbfb) var(--dark, #121212)`, the invalid `--light` variable will default to `#fbfbfb`, and the valid `--dark` variable (empty) allows `--background-color` to equal `#fbfbfb`.
+
+All the other color variables follow the same logic, adjusting based on the state of `--light` and `--dark`. This way, each color variable only needs to be defined once.
+
+Switching states becomes simple. If dark mode is active, use `--light: var(--OFF);` and `--dark: var(--ON);`. In light mode, reverse them. Though not immediately intuitive, this method is currently the most effective with CSS. If there are better solutions, they are worth exploring.
+
+Complete example: [CodePen Example](https://codepen.io/finfin/pen/VwoqgKx)
+
+---
+
+### Summary
+
+CSS continues to evolve, with CSS variables available in major browsers since 2016. New features like `@property` and `:has()` are expanding CSS variables’ flexibility even further. Combined with other new tools, CSS variables are becoming more powerful—for instance, they can now enhance scroll-driven animations to create visually dynamic effects. As a core element for storing state in CSS, much like variables in any programming language, a solid understanding of CSS variables will prove invaluable for more sophisticated styling and design down the road.

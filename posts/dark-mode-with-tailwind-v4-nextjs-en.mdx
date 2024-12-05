@@ -1,0 +1,403 @@
+---
+title: 'Implementing Dark Mode and Theme Switching using Tailwind v4 and Next.js'
+date: '2024-12-01'
+slug: 'dark-mode-with-tailwind-v4-nextjs'
+summary: 'Dark mode support has become a fundamental aspect of modern web applications, and I recently tackled this feature for my personal blog using Tailwind CSS v4 beta with Next.js 15. In this article, I will walk through my journey of implementing a dynamic theme toggle, share my learnings of both frameworks.'
+type: Post
+language: en
+---
+
+Dark mode support has become a fundamental aspect of modern web applications, and I recently tackled this feature for my personal blog using Tailwind CSS v4 beta with Next.js 15. In this article, I'll walk through my journey of implementing a dynamic theme toggle, share my learnings of both frameworks.
+
+## My Goal: Customizable Website Appearance
+
+Before diving into the implementation details, let's examine what we're building. The goal is to create a theme selection feature that provides a seamless experience while respecting user preferences. When visiting the site, users will have three theme options available: Light, Dark, and Auto (System setting). This behavior mirrors [Stack Overflow's theme selection system](https://stackoverflow.com/users/preferences/), which provides an intuitive and well-tested approach to theme management.
+
+
+![Stack Overflow's theme selection](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/rv7m1jg6cl8lmif9gmsu.png)
+
+This mechanism use Auto mode as default, which adapts to the user's device theme preferences. Users can then override this by selecting either Light or Dark mode, and their choice will persist across visits to provide a consistent experience. This combination of intelligent defaults and preserved user preferences ensures the site remains comfortable to use across different viewing conditions.
+
+## Getting Started with Tailwind v4
+
+To begin experimenting with Tailwind v4, I first needed to set up the framework in my project. The installation process proved remarkably straightforward, even simpler than its predecessor, version 3.
+
+Working with Next.js, the setup process consisted of just three simple steps. The first step was installing the required packages through npm: [reference](https://tailwindcss.com/docs/v4-beta#installing-with-post-css)
+
+```bash
+npm install tailwindcss@next @tailwindcss/postcss@next
+```
+
+Next, update postcss configuration to use Tailwind's new PostCSS plugin. The configuration is notably simpler compared to previous versions, requiring just a single plugin:
+
+```javascript
+export default {
+  plugins: {
+    '@tailwindcss/postcss': {},
+  },
+};
+```
+
+Finally, imported Tailwind into main CSS file using a straightforward import statement:
+
+```css
+@import "tailwindcss";
+```
+
+## Step 0: Leveraging Tailwind's Default Dark Mode
+
+
+![Default behavior of tailwind dark variant](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/pwu80tlikgyvrcik8b6w.gif)
+
+Tailwind provides built-in support for dark mode through its `dark` variant. When we use utility classes like `text-black dark:text-white`, Tailwind will automatically switch between these styles based on the user's system preferences.
+
+Let's look at a simple blog post card component and understand how Tailwind handles its dark mode styling:
+
+```jsx
+function BlogCard({ title, content }) {
+  return (
+    <article className="text-black bg-white dark:text-white dark:bg-black p-4 rounded-lg">
+      <h2 className="text-xl text-gray-900 dark:text-gray-100">{title}</h2>
+      <p className="text-gray-600 dark:text-gray-300">{content}</p>
+    </article>
+  );
+}
+```
+
+When Tailwind processes our utility classes, it generates CSS that uses the `prefers-color-scheme` media query. For example, the `dark:text-white` class gets transformed into:
+
+```css
+.dark\:text-white {
+    @media (prefers-color-scheme: dark) {
+        color: var(--color-white);
+    }
+}
+```
+
+This CSS transformation reveals two important aspects of how Tailwind v4 works. First, it uses the `prefers-color-scheme` media query to detect system theme preferences. When a user's system is set to dark mode, any styles within this media query automatically activate. Second, and notably in v4, it leverages CSS variables for colors. Instead of hardcoding color values, Tailwind now uses CSS custom properties (like `var(--color-white)`), making the entire theming system more flexible and performant. These variables are defined at the root level of your CSS, allowing for easy theme customization and manipulation.
+
+## Step 1: Custom Theme Control
+
+
+![Image description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/azaxhty7gkvorfftiocd.gif)
+
+Now, we'll enhance our setup to support explicit theme selection through a dropdown select. This involves three key pieces: configuring Tailwind to respect our custom theme attribute, creating a theme management system, and an user interface for theme selection.
+
+One of the most significant changes when implementing dark mode in v4 is the shift in how dark variants are configured. In Tailwind v3, dark mode configuration was managed through the `tailwind.config.js` file:
+
+```javascript
+/** For Tailwind v3 */
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  darkMode: ['variant', '&:not(.light *)'],
+  // ...
+}
+```
+
+In v4, we define our dark variant behavior alongside our Tailwind import, in the main css file:
+
+```css
+@import "tailwindcss";
+@variant dark (&:where([data-theme="dark"]));
+```
+
+Instead of relying heavily on the JavaScript configuration file, v4 moves configuration options directly into CSS. For example, we can now define custom colors as CSS variables (`--color-primary: #ff0000;`), configure variants using `@variant` directives.
+
+Now our configuration tells Tailwind to apply dark styles when it finds a `data-theme="dark"` attribute, rather than relying on system preferences.
+
+Then, we need a place to manage this `data-theme` attribute. Hence, let’s create our theme management system:
+
+```jsx
+// ThemeProvider.jsx
+import { createContext, useContext, useState, useEffect } from 'react';
+
+const ThemeContext = createContext();
+
+export function ThemeProvider({ children }) {
+  const [theme, setTheme] = useState('light');
+
+  // Synchronize theme state with HTML data attribute
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+  }, [theme]);
+
+  // Provide theme context to children
+  return (
+    <ThemeContext.Provider value={{ theme, setTheme }}>
+      {children}
+    </ThemeContext.Provider>
+  );
+}
+
+// Custom hook for easy theme access
+export function useTheme() {
+  const context = useContext(ThemeContext);
+  if (context === undefined) {
+    throw new Error('useTheme must be used within a ThemeProvider');
+  }
+  return context;
+}
+```
+
+Then, we create a select component that gives users explicit control over their theme choice:
+
+```jsx
+// ThemeSelect.jsx
+export function ThemeSelect() {
+  const { theme, setTheme } = useTheme();
+
+  return (
+    <select
+      value={theme}
+      onChange={(e) => setTheme(e.target.value)}
+      className="bg-white dark:bg-gray-800 text-black dark:text-white p-2 rounded border border-gray-300 dark:border-gray-600"
+    >
+      <option value="light">Light</option>
+      <option value="dark">Dark</option>
+    </select>
+  );
+}
+```
+
+Finally, we wrap our application with the ThemeProvider and place the ThemeSelect component where we want the theme controls to appear:
+
+```jsx
+// App.jsx
+function App() {
+  return (
+    <ThemeProvider>
+      <div className="min-h-screen bg-white dark:bg-gray-900">
+        <nav className="p-4">
+          <ThemeSelect />
+        </nav>
+        {/* Rest of your application */}
+      </div>
+    </ThemeProvider>
+  );
+}
+```
+
+Now user can change the theme by selecting instead of changing system setting. Next, we'll extend this feature to support an "auto" option that respects system preferences , just like phase 0.
+
+### A Note About Generated CSS and Browser Compatibility
+
+Tailwind v4 beta generates dark mode utilities using modern CSS nesting syntax:
+
+```css
+.dark\:text-white {
+    &:where([data-theme="dark"], [data-theme="dark"] *) {
+        color: var(--color-white);
+    }
+}
+```
+
+As CSS nesting is a [relatively new feature](https://caniuse.com/css-nesting), there are ongoing discussions about browser compatibility in the Tailwind community (see [GitHub issue #14753](https://github.com/tailwindlabs/tailwindcss/issues/14753)). Since v4 is in beta, this implementation might change based on community feedback and compatibility concerns.
+
+## Step 2: System-Aware Theme Switching
+
+After setting up manual theme selection in Phase 1, we're now ready to add system preference detection.
+
+The centerpiece of this enhancement is the `window.matchMedia('(prefers-color-scheme: dark)')` API. This gives us a way to not only check the current system theme but also respond when it changes. Think of it like subscribing to your system's theme announcements - whenever the user toggles their system theme, our site will hear about it and react accordingly. It’s an javascript equivalent of `@media (prefers-color-scheme: dark)` .
+
+First, let's update our theme management to react to system preferences:
+
+```jsx
+// ThemeProvider.jsx
+import { createContext, useContext, useState, useEffect } from 'react';
+
+const ThemeContext = createContext();
+
+export function ThemeProvider({ children }) {
+  const [theme, setTheme] = useState('auto');
+
+  useEffect(() => {
+    // Update data-theme accordingly if user selects light or dark
+    if (theme !== 'auto') {
+      document.documentElement.dataset.theme = theme;
+      return;
+    }
+
+    // For auto mode, we need to watch system preferences
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+    // Set initial theme based on system preference
+    document.documentElement.dataset.theme = mediaQuery.matches ? 'dark' : 'light';
+
+    // Update theme when system preference changes
+    function handleChange(e) {
+      document.documentElement.dataset.theme = e.matches ? 'dark' : 'light';
+    }
+
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, [theme]);
+
+  return (
+    <ThemeContext.Provider value={{ theme, setTheme }}>
+      {children}
+    </ThemeContext.Provider>
+  );
+}
+```
+
+Now we expand our select component to include the auto option:
+
+```jsx
+export function ThemeSelect() {
+  const { theme, setTheme } = useTheme();
+
+  return (
+    <select
+      value={theme}
+      onChange={(e) => setTheme(e.target.value)}
+    >
+      <option value="light">Light</option>
+      <option value="dark">Dark</option>
+      <option value="auto">Auto</option>
+    </select>
+  );
+}
+```
+
+Users can now choose between explicit light/dark themes or let their system preferences automatically control the theme. When in auto mode, the site smoothly transitions between themes as system preferences change, creating a seamless experience that respects both user choice and system settings.
+
+## Step 3: Persisting Theme Preferences
+
+Our theme system works well, but it resets to 'auto' whenever the user refreshes the page. Let's improve the user experience by remembering their theme preference using localStorage. This way, when users return to our site, they'll see their chosen theme immediately.
+
+We'll modify our ThemeProvider to read and write to localStorage:
+
+```jsx
+// ThemeProvider.jsx
+
+const getInitialTheme = () => {
+  // Handle server-side rendering scenario
+  if (typeof window === 'undefined') return 'auto';
+
+  // Get theme from localStorage, defaulting to 'auto' if not found
+  return localStorage.getItem('theme') || 'auto';
+}
+
+export function ThemeProvider({ children }) {
+  // Initialize state with the result of getInitialTheme()
+  const [theme, setTheme] = useState(getInitialTheme);
+
+  // Rest of the provider implementation...
+  useEffect(() => {
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  useEffect(() => {
+    if (theme !== 'auto') {
+      document.documentElement.dataset.theme = theme;
+      return;
+    }
+
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    document.documentElement.dataset.theme = mediaQuery.matches ? 'dark' : 'light';
+
+    function handleChange(e) {
+      document.documentElement.dataset.theme = e.matches ? 'dark' : 'light';
+    }
+
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, [theme]);
+
+  return (
+    <ThemeContext.Provider value={{ theme, setTheme }}>
+      {children}
+    </ThemeContext.Provider>
+  );
+}
+```
+
+A critical aspect is ensuring we have a valid theme value before the component even mounts by separating the initial theme logic into `getInitialTheme`, and pass it directly to `useState`. This prevents any potential flash of incorrect theme during the initial render.
+
+Now user preferences can persist across browser sessions, creating a more consistent and personalized experience. Whether a user prefers explicit light/dark modes or automatic system-based switching, their choice will be remembered the next time they visit our site.
+
+### A Note About System Preferences and Browser Behavior
+
+Our `matchMedia` implementation detects theme preferences as reported by the browser, not directly from the operating system. Some browsers, like Arc, have their own theme settings that can override the system preferences. This means in 'auto' mode, the theme will respond to whatever the browser reports as the current preference, which might come from either the system or browser-specific settings.
+
+![Customizing appearance in Arc will override color scheme detection](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/c15xhunudtmdro4z25ht.gif)
+
+
+## Bonus Step: Using next-themes Library
+
+While building a custom theme implementation has been instructive, in real world we might want a shortcut, this is where you may consider using the [next-themes library](https://github.com/pacocoursey/next-themes).
+
+To switch to next-themes, we first install the package:
+
+```bash
+npm install next-themes
+```
+
+Then we can replace our custom ThemeProvider with the one from next-themes:
+
+```jsx
+import { ThemeProvider } from 'next-themes'
+
+function App({ Component, pageProps }) {
+  return (
+    <ThemeProvider attribute="data-theme">
+      <Component {...pageProps} />
+    </ThemeProvider>
+  )
+}
+```
+
+`next-themes` replaces the ThemeProvider we just created, with the same `useTheme` hook:
+
+```jsx
+import { useTheme } from 'next-themes'
+
+export function ThemeSelect() {
+  const { theme, setTheme } = useTheme();
+
+  return (
+    <select
+      value={theme}
+      onChange={(e) => setTheme(e.target.value)}
+    >
+      <option value="light">Light</option>
+      <option value="dark">Dark</option>
+      <option value="auto">Auto</option>
+    </select>
+  );
+}
+```
+
+
+> **Why do I get server/client mismatch error?**
+>
+> When using `useTheme`, you will use see a hydration mismatch error when rendering UI that relies on the current theme. This is because many of the values returned by `useTheme` are undefined on the server, since we can't read `localStorage` until mounting on the client. Add a `suppressHydrationWarning` to the html tag to ignore this. See [++example++](https://github.com/pacocoursey/next-themes/tree/main?tab=readme-ov-file#avoid-hydration-mismatch).
+>
+> [https://github.com/pacocoursey/next-themes/tree/main?tab=readme-ov-file#faq](https://github.com/pacocoursey/next-themes/tree/main?tab=readme-ov-file#faq)
+
+In this implementation, we've actually built several core features that mirror next-themes:
+
+- Theme management through `ThemeProvider`
+
+- Automatic handling of browser storage synchronization
+
+- Protection against flash of wrong theme on page load
+
+- Support for system theme changes across all modern browsers
+
+While next-themes provides additional fine-grained features, understanding how to build a theme system from scratch, as we did in the previous steps, gives valuable insights into how theme switching works under the hood.
+
+## Conclusion
+
+Through this implementation journey, I've learned a lot: from Tailwind v4's elegant CSS-based approach and leveraging the `matchMedia` API for system preferences, to solving the flash of wrong theme challenge. Hope this article helps you understand the nuances of implementing dark mode and inspires you to create more accessible and user-friendly web applications.
+
+
+## References
+
+- [Open-sourcing our progress on Tailwind CSS v4.0
+](https://tailwindcss.com/blog/tailwindcss-v4-alpha)
+- [Tailwind CSS v4.0 Beta 1](https://tailwindcss.com/blog/tailwindcss-v4-beta)
+- [Tailwind v4.0 Beta Document](https://tailwindcss.com/docs/v4-beta)
+
+
+
