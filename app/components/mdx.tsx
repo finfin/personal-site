@@ -2,9 +2,9 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { MDXRemote } from 'next-mdx-remote/rsc'
 import React from 'react'
-import { CodePen } from 'app/components/codepen'
+import { CodePen } from '@/components/codepen'
 
-import '@/app/styles/highlight-monokai.css'
+import '@/styles/highlight-monokai.css'
 function Table({ data }) {
   const headers = data.headers.map((header, index) => (
     <th key={index}>{header}</th>

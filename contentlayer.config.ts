@@ -1,6 +1,8 @@
 // contentlayer.config.ts
 import { defineDocumentType, makeSource } from 'contentlayer2/source-files'
 import highlight from 'rehype-highlight'
+import rehypeSlug from 'rehype-slug'
+import remarkCustomHeaderId from 'remark-custom-header-id'
 
 export const Post = defineDocumentType(() => ({
   name: 'Post',
@@ -55,6 +57,10 @@ export default makeSource({
   contentDirPath: 'posts',
   documentTypes: [Post],
   mdx: {
-    rehypePlugins: [highlight],
+    remarkPlugins: [remarkCustomHeaderId],
+    rehypePlugins: [
+      rehypeSlug,
+      highlight,
+    ],
   },
 })

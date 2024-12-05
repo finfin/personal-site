@@ -1,7 +1,12 @@
 @import "tailwindcss";
 @variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
-
+@theme {
+  --color-dark-background-primary: #242433;
+  --color-dark-background-secondary: #423050;
+  --color-light-background-primary: #e4e1ec;
+  --color-light-background-secondary: #cdbddb;
+}
 ::selection {
   background-color: #47a3f3;
   color: #fefefe;
@@ -155,3 +160,10 @@ table {
   white-space: nowrap;
 }
 
+@layer base {
+  *,
+  ::before,
+  ::after {
+    @apply dark:border-gray-600 border-gray-300;
+  }
+}

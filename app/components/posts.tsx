@@ -1,6 +1,7 @@
-import {Link} from '@/i18n/routing'
+import {Link} from 'i18n/routing'
 import { format } from 'date-fns'
 import { Post } from 'contentlayer/generated'
+import { Card, CardContent, CardHeader } from '@/components/card'
 
 interface PostsProps {
   posts: Post[]
@@ -9,18 +10,18 @@ interface PostsProps {
 function PostCard({post} : {post: Post}) {
   const {path, date, title, summary, slug} = post
   return (
-    <Link
-      className="flex flex-col gap-2"
-      href={path}
-      key={slug}
-    >
-      <div className="flex flex-col gap-1">
-        <h2 className="font-medium text-xl">{title}</h2>
-        <p className="text-sm text-neutral-600">
-          {format(date, 'LLLL dd, yyyy')}
-        </p>
-        <p className="text-neutral-600">{summary}</p>
-      </div>
+    <Link href={path} key={slug}>
+      <Card className="transition-colors hover:bg-muted/50">
+        <CardHeader>
+          <h2 className="font-medium text-xl">{title}</h2>
+          <p className="text-sm text-muted-foreground">
+            {format(date, 'LLLL dd, yyyy')}
+          </p>
+        </CardHeader>
+        <CardContent>
+          <p className="text-muted-foreground">{summary}</p>
+        </CardContent>
+      </Card>
     </Link>
   )
 }

@@ -1,6 +1,6 @@
 'use client'
 
-import {Link} from '@/i18n/routing'
+import {Link} from 'i18n/routing'
 // import { usePathname } from 'next/navigation'
 import { ThemeSelect } from './theme-select'
 import LanguageSwitcher from './language-switcher'
@@ -19,9 +19,9 @@ export function Navbar() {
     }
 
     return (
-        <aside className="-ml-[8px] mb-16 tracking-tight">
-            <div className="lg:sticky lg:top-20">
-                <nav className="flex flex-row items-start relative px-0 pb-0 fade md:overflow-auto scroll-pr-6 md:relative">
+        <aside className="tracking-tight bg-light-background-secondary dark:bg-dark-background-secondary py-4 px-4 lg:sticky lg:top-0 z-10">
+            <div className="max-w-4xl lg:mx-auto  ">
+                <nav className="flex flex-row items-center relative px-0 pb-0 fade md:overflow-auto scroll-pr-6 md:relative">
                     <div className="flex flex-row space-x-0 pr-10">
                         {Object.entries(navItems).map(([path, { name }]) => {
                             return (

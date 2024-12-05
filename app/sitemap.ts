@@ -1,4 +1,4 @@
-import { allPosts } from '@/.contentlayer/generated'
+import { allPosts } from '../.contentlayer/generated'
 
 export const baseUrl = 'https://www.thingsaboutweb.dev'
 

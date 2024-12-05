@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation'
-import MDXPost from '@/app/components/mdx-post'
+import MDXPost from '@/components/mdx-post'
 import { format, parseISO } from 'date-fns'
 import { allPosts } from 'contentlayer/generated'
 import { baseUrl } from 'app/sitemap'

@@ -22,7 +22,7 @@
     ],
     "strictNullChecks": true,
     "paths": {
-      "@/*": ["./*"],
+      "@/*": ["./app/*"],
       "contentlayer/generated": ["./.contentlayer/generated"]
     }
   },
