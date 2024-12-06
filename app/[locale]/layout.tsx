@@ -15,7 +15,6 @@ import {routing} from 'i18n/routing';
 import { GoogleAnalytics } from '@next/third-parties/google'
 import { Wave } from '@/components/wave';
 
-
 type ValidLocale = (typeof routing.locales)[number];
 
 export async function generateMetadata({ params }: { params: { locale: string } }) {
@@ -135,12 +134,12 @@ export default async function RootLayout({
               {children}
               <Footer />
               <Analytics />
-              <SpeedInsights />
             </main>
           </ThemeProvider>
         </NextIntlClientProvider>
+        <GoogleAnalytics gaId='G-PNJ8MDH6MX' />
+        <SpeedInsights />
       </body>
-      <GoogleAnalytics gaId='G-PNJ8MDH6MX' />
     </html>
   )
 }
