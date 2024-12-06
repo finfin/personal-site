@@ -38,7 +38,14 @@
 
 html {
   min-width: 360px;
+  font-size: 16px;
 }
+
+@media (min-width:420px) {
+  html {
+   font-size:18px
+  }
+ }
 
 .prose .anchor {
   @apply absolute invisible no-underline;
@@ -100,7 +107,7 @@ html {
 }
 
 .prose h2 {
-  @apply text-xl font-medium mt-6 mb-2;
+  @apply text-2xl font-medium mt-6 mb-2;
 }
 
 .prose h3 {

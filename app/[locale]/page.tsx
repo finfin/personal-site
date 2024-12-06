@@ -5,6 +5,13 @@ import { compareDesc } from 'date-fns'
 import { allPosts } from 'contentlayer/generated'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/card'
 
+export async function generateStaticParams() {
+  return [
+    { locale: 'en' },
+    { locale: 'zh-TW' }
+  ]
+}
+
 export default async function Home() {
   const locale = await getLocale();
   const t = await getTranslations('home');
@@ -31,11 +38,11 @@ export default async function Home() {
       }
 
       <div className="max-w-4xl mx-auto  my-8">
-        <Card>
-          <CardHeader>
+        <Card className='border-none'>
+          <CardHeader className='px-0'>
             <CardTitle>{t('latest_posts')}</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className='px-0'>
             <Posts posts={posts} />
             <div className="mt-4 text-center">
               <Link

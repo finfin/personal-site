@@ -10,8 +10,7 @@
     "view_all_posts": "查看所有文章"
   },
   "about": {
-    "title": "關於我",
-    "description": "你好\n我是fin"
+    "title": "關於我"
   },
   "post": {
     "title": "文章列表"
@@ -19,6 +18,6 @@
   "navbar": {
     "home": "首頁",
     "about": "關於",
-    "post": "文章"
+    "posts": "文章"
   }
 }

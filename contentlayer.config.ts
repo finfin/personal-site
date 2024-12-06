@@ -6,7 +6,7 @@ import remarkCustomHeaderId from 'remark-custom-header-id'
 
 export const Post = defineDocumentType(() => ({
   name: 'Post',
-  filePathPattern: 'posts/**/*.mdx',
+  filePathPattern: 'content/posts/**/*.mdx',
   contentType: 'mdx',
   fields: {
     title: {
@@ -40,10 +40,6 @@ export const Post = defineDocumentType(() => ({
       options: ['en', 'zh-TW'],
       default: 'en',
     },
-    redirect_from: {
-      type: 'list',
-      of: { type: 'string' },
-    },
   },
   computedFields: {
     path: {
@@ -53,9 +49,30 @@ export const Post = defineDocumentType(() => ({
   },
 }))
 
+export const Page = defineDocumentType(() => ({
+  name: 'Page',
+  filePathPattern: 'content/pages/**/*.mdx',
+  contentType: 'mdx',
+  fields: {
+    name: {
+      type: 'string',
+      required: true,
+    },
+    path: {
+      type: 'string',
+      required: true,
+    },
+    language: {
+      type: 'enum',
+      options: ['en', 'zh-TW'],
+      default: 'en',
+    },
+  },
+}));
+
 export default makeSource({
-  contentDirPath: 'posts',
-  documentTypes: [Post],
+  contentDirPath: 'content',
+  documentTypes: [Post, Page],
   mdx: {
     remarkPlugins: [remarkCustomHeaderId],
     rehypePlugins: [

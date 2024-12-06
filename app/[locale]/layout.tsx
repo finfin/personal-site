@@ -14,6 +14,7 @@ import { notFound } from 'next/navigation';
 import { routing } from 'i18n/routing';
 import { GoogleAnalytics } from '@next/third-parties/google'
 import { Wave } from '@/components/wave';
+import { cn } from '@/lib/utils'
 
 type ValidLocale = (typeof routing.locales)[number];
 
@@ -65,8 +66,6 @@ export async function generateMetadata({ params }: { params: { locale: string } 
   }
 }
 
-const cx = (...classes) => classes.filter(Boolean).join(' ')
-
 export default async function RootLayout({
   children,
   params,
@@ -87,7 +86,7 @@ export default async function RootLayout({
 
   return (
     <html
-      className={cx(
+      className={cn(
         'text-black dark:text-white dark:bg-dark-background-primary bg-light-background-primary',
         GeistSans.variable,
         GeistMono.variable
