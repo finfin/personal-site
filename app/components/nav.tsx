@@ -5,6 +5,7 @@ import { Link } from 'i18n/routing'
 import { ThemeSelect } from './theme-select'
 import LanguageSwitcher from './language-switcher'
 import { useTranslations } from 'next-intl'
+import { useEffect, useState } from 'react'
 
 const navbarItems = {
     ['/']: {
@@ -19,6 +20,11 @@ export function Navbar() {
     // const pathname = usePathname()
     // const lang = pathname?.split('/')[1] || 'en'
     const t = useTranslations('navbar')
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     return (
         <aside className="tracking-tight bg-light-background-secondary dark:bg-dark-background-secondary py-4 px-4 lg:sticky lg:top-0 z-10">
@@ -38,7 +44,7 @@ export function Navbar() {
                         })}
                     </div>
                     <div className="flex flex-row gap-4 ml-auto">
-                        <ThemeSelect />
+                        {mounted && <ThemeSelect />}
                         <LanguageSwitcher />
                     </div>
                 </nav>

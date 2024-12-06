@@ -5,7 +5,6 @@ import { createContext, useContext, useEffect, useState } from 'react'
 interface ThemeContextType {
   theme: string
   setTheme: (theme: string) => void
-  currentTheme: string
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
@@ -16,20 +15,8 @@ const getInitialTheme = () => {
   return localStorage.getItem('theme') || 'auto'
 }
 
-const getCurrentTheme = (theme) => {
-  // currentTheme is theme when not auto
-  // if auto, we need to check system preference
-  if (typeof window === 'undefined') {return 'light'}
-  if (theme !== 'auto') {
-    return theme;
-  }
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-}
-
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState(getInitialTheme)
-
-
 
   // 處理主題變化
   useEffect(() => {
@@ -56,9 +43,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     mediaQuery.addEventListener('change', handleChange);
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, [theme]);
-  const currentTheme = getCurrentTheme(theme);
+
   return (
-    <ThemeContext.Provider value={{ theme, setTheme, currentTheme }}>
+    <ThemeContext.Provider value={{ theme, setTheme }}>
       {children}
     </ThemeContext.Provider>
   )

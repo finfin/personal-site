@@ -4,6 +4,7 @@ import { useTheme } from '../provider/theme-provider';
 export function ThemeSelect() {
   const { theme, setTheme } = useTheme();
 
+
   return (
     <select
       onChange={(e) => setTheme(e.target.value)}
