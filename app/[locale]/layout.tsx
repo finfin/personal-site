@@ -10,8 +10,8 @@ import { baseUrl } from '../sitemap'
 import { ThemeProvider } from '../provider/theme-provider';
 import {NextIntlClientProvider} from 'next-intl';
 import {getMessages, getTranslations} from 'next-intl/server';
-import {notFound} from 'next/navigation';
-import {routing} from 'i18n/routing';
+import { notFound } from 'next/navigation';
+import { routing } from 'i18n/routing';
 import { GoogleAnalytics } from '@next/third-parties/google'
 import { Wave } from '@/components/wave';
 
@@ -20,9 +20,9 @@ type ValidLocale = (typeof routing.locales)[number];
 export async function generateMetadata({ params }: { params: { locale: string } }) {
   const { locale } = await params;
 
-  if (!routing.locales.includes(locale as ValidLocale)) {
-    notFound();
-  }
+  // if (!routing.locales.includes(locale as ValidLocale)) {
+  //   notFound();
+  // }
 
   // Providing all messages to the client
   // side is the easiest way to get started
@@ -64,35 +64,6 @@ export async function generateMetadata({ params }: { params: { locale: string } 
     manifest: '/manifest.webmanifest',
   }
 }
-
-
-// export const metadata: Metadata = {
-//   metadataBase: new URL(baseUrl),
-//   title: {
-//     default: 'Things About Web Dev',
-//     template: '%s | Next.js Portfolio Starter',
-//   },
-//   description: 'This is my portfolio.',
-//   openGraph: {
-//     title: 'My Portfolio',
-//     description: 'This is my portfolio.',
-//     url: baseUrl,
-//     siteName: 'My Portfolio',
-//     locale: 'en_US',
-//     type: 'website',
-//   },
-//   robots: {
-//     index: true,
-//     follow: true,
-//     googleBot: {
-//       index: true,
-//       follow: true,
-//       'max-video-preview': -1,
-//       'max-image-preview': 'large',
-//       'max-snippet': -1,
-//     },
-//   },
-// }
 
 const cx = (...classes) => classes.filter(Boolean).join(' ')
 

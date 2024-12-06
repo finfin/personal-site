@@ -10,13 +10,13 @@ export default function LanguageSwitcher() {
         const currentPath = pathname
 
         // 如果當前路徑沒有語言前綴，直接添加
-        if (!currentPath.match(/^\/[a-z-]+\//)) {
+        if (!currentPath.match(/^\/(en|zh-TW)\//)) {
             const newPath = `/${e.target.value}`
             router.push(newPath)
             return
         }
 
-        const newPath = currentPath.replace(/^\/[a-z-]+/, `/${e.target.value}`)
+        const newPath = currentPath.replace(/^\/(en|zh-TW)/, `/${e.target.value}`)
         router.push(newPath)
     }
 

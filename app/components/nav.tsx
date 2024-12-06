@@ -6,13 +6,14 @@ import { ThemeSelect } from './theme-select'
 import LanguageSwitcher from './language-switcher'
 import { useTranslations } from 'next-intl'
 import { useEffect, useState } from 'react'
+import Image from 'next/image';
 
 const navbarItems = {
-    ['/']: {
-        name: 'home',
-    },
     ['/posts']: {
         name: 'post',
+    },
+    ['/about']: {
+      name: 'about',
     },
 }
 
@@ -27,10 +28,15 @@ export function Navbar() {
     }, []);
 
     return (
-        <aside className="tracking-tight bg-light-background-secondary dark:bg-dark-background-secondary py-4 px-4 lg:sticky lg:top-0 z-10">
+        <aside className="tracking-tight bg-light-background-secondary dark:bg-dark-background-secondary px-4 lg:sticky lg:top-0 z-10">
             <div className="max-w-4xl lg:mx-auto  ">
                 <nav className="flex flex-row items-center relative px-0 pb-0 fade md:overflow-auto scroll-pr-6 md:relative">
-                    <div className="flex flex-row space-x-0 pr-10">
+                    <div className="flex flex-row items-center space-x-0 pr-10">
+                      {/* dark logo here using image /image/dark-logo.png */}
+                        <Link className="transition-all hover:text-neutral-800 dark:hover:text-neutral-200 flex align-middle relative py-1 px-2 m-1" href="/">
+                            <Image alt="logo" className='dark:block hidden' height={50} src="/image/dark-logo.png" width={150} />
+                            <Image alt="logo" className='dark:hidden block' height={50} src="/image/light-logo.png" width={150} />
+                        </Link>
                         {Object.entries(navbarItems).map(([path, { name }]) => {
                             return (
                                 <Link

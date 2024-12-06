@@ -1,0 +1,23 @@
+---
+title: 'Browser Default Cache Freshness'
+date: '2024-09-29'
+slug: 'cache-freshness'
+summary: 'How do browsers determine whether to cache resources by default? What happens to our resources when cache settings are not manually configured?'
+type: Post
+language: en
+---
+
+When discussing browser caching, common control mechanisms include cache-control, etag, and last-modified. We use these settings to inform browsers whether a resource is "fresh," and we can handle stale resources accordingly.
+
+So, how do browsers determine resource freshness by default? (This concept is called "cache freshness"). [RFC 7324 4.2.2](https://datatracker.ietf.org/doc/html/rfc7234#section-4.2.2) defines it as follows:
+
+> If the response has a Last-Modified header field (Section 2.2 of \[RFC7232\]), caches are encouraged to use a heuristic expiration value that is no more than some fraction of the interval since that time. A typical setting of this fraction might be 10%.
+
+If the response header contains Last-Modified information, the recommended freshness duration is suggested to be 10% of the time elapsed since the modification. This means if you retrieve a file that was modified ten hours ago, its freshness duration would be one hour. For a file modified ten years ago, the freshness duration would be one year.
+
+However, RFC notes that this freshness logic algorithm is just a recommendation (encouraged). How do browsers actually implement it?
+
+- Chrome / Safari: Follow the RFC-recommended 10%
+- Firefox also uses 10% but with a maximum cap of one week
+
+That means, if you have a file modified ten years ago and want to ensure users get updates, you may face challenges due to the long timeout applied by browsers like Chrome and Safari, which would treat the file as fresh for up to a year. This behavior can make updates troublesome, as users may continue to see outdated content until the cached version expires. To address this, developers often implement measures to force updates, such as appending version identifiers or hashes to resource URLs (e.g., style.css?v=12345) or using explicit cache control headers like Cache-Control: no-cache or max-age. These techniques ensure that updates are promptly delivered and eliminate the need to rely on browser defaults, which may not align with the update frequency of your application.
