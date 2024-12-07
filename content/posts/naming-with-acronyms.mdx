@@ -1,0 +1,88 @@
+---
+title: 'PascalCase camelCase 縮寫的處理方式及其他規則細節'
+date: '2024-12-07'
+slug: 'naming-with-acronyms'
+summary:
+  在 PascalCase 或 camelCase 的規則下，你會如何命名 "xml http request", "new customer id", "supports IPv6 on iOS", "YouTube importer" ？
+type: Post
+language: zh-TW
+---
+
+瀏覽器有一個 API 叫做 XMLHttpRequest ，這 API 的名稱非常特別，XML 是個縮寫，HTTP 也是個縮寫。更特別的是，在這個 API 命名裡面，XML 全大寫，但同為縮寫的 Http 則採用首字大寫的方式。看起來是頗蠢的一個命名。
+
+
+
+直到，你自己遇到的時候。大家先來想想以下變數你會怎麼命名：
+
+xml http request, new customer id, supports IPv6 on iOS, YouTube importer
+
+
+
+大致上會會有兩種處理方式：
+
+1. 盡量維持原來的大小寫
+
+2. 把縮寫看成單字後照原命名規則 (camelCase, PascalCase) 處理
+
+
+
+以 XMLHttpRequest 來說，如果是 PascalCase，維持原來大小寫是 XMLHTTPRequest，照原命名規則為 XmlHttpRequest，看起來都沒啥問題。
+
+但如果是 camelCase 就有趣了，如果是縮寫維持原來大小寫的話，直接跟命名規則衝突，那 xml 該大寫還是小寫？這裡就需要另外一個規則來處理，比如說首字縮寫全小寫如 xmlHTTPRequest，或是第一個字母小寫 xMLHTTPReqeust 之類（很奇怪？還真的有看過…）
+
+如果是用第二種處理方式就簡單得多，因為都是單字：xmlHttpRequest
+
+
+
+甚至有一些特殊名稱是故意用小寫開頭的如 iOS。如果在變數中還是想要維持原來的大小寫常常會跟原來的命名規則衝突。如 iOS Adapter 我想用 PascalCase 可能第一個 i 就需要強制大寫。
+
+
+
+這還沒提到裡面混用數字的 IPv6，有這麼多奇怪的大小寫到底該怎麼處理？
+
+幸好，[Google 已經幫我們想好規則了](https://google.github.io/styleguide/jsguide.html#naming-camel-case-defined)：
+
+1. 轉換為純 ASCII 並移除任何撇號。例如，Müller's algorithm 會變成 Muellers algorithm
+
+2. 將這個結果分成若干單詞，依據空格和任何剩餘的標點符號（通常是連字符）進行分割
+
+3. 如果任何單詞在常用駝峰式命名法中已經有慣用形式，則將其拆開。例如，AdWords 變成 ad words, YouTube 變成 you tube。但像 iOS 這樣的字本身就是一個單詞，就不符合此規則，不需要拆開
+
+4. 把拆好的單字依照命名規則組合起來
+
+
+
+其實規則中沒有特別表示縮寫該怎麼處理，但在步驟二分成單詞時通常我們會把縮寫放成一個單詞如 xml http request 這三個字，後續依照命名規則來組合成 XmlHttpRequest / xmlHttpRequest
+
+
+
+其實命名規則 camelCase PascalCase kebab-case snake_case 都是針對『單字』來規範，所以只要我們能夠先把想要命名的字母轉換為單字，後續就簡單了，如果想維持大小寫的話很容易跟原本命名規則的大小寫規定衝突。
+
+
+
+這樣的作法還有一個好處：不同命名規則間的轉換規則變得很容易。轉換規則這種狀況很容易在系統的邊界遇到，比如串接其他 API，或者是前後端、後端跟資料庫的街口等。
+
+如果取名為 XMLHTTPRequest，縮寫維持大寫雖然看起來比較舒服，但今天後端資料庫欄位用的是 snake_case，我們需要透過一個函式把 XMLHTTPRequest 轉成 snake_case，就會遇到一些麻煩。相較之下 XmlHttpRequest 會好處理得多。
+
+
+
+## 結論
+
+不管原來的字有多奇怪，先想辦法把這個字切成一個一個的單詞，再依據命名規則來組合起來。這樣的方式是最單純且容易切換的。
+
+缺點就是，你需要強迫自己去習慣 ID 變成 Id / URL 變成 Url 這種寫法
+
+最後，附上解答
+
+XML HTTP request → XmlHttpRequest\
+new customer ID → newCustomerId\
+supports IPv6 on iOS? →supportsIpv6OnIos\
+YouTube importer → YouTubeImporter
+
+
+
+## 參考資料
+
+- [https://google.github.io/styleguide/jsguide.html#naming-camel-case-defined](https://google.github.io/styleguide/jsguide.html#naming-camel-case-defined)
+
+- [https://stackoverflow.com/questions/15526107/acronyms-in-camelcase](https://stackoverflow.com/questions/15526107/acronyms-in-camelcase)
