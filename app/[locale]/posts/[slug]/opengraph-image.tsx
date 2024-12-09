@@ -1,7 +1,8 @@
 import { findPostBySlugAndLocale } from '../utils'
 import { ImageResponse } from 'next/og'
-import { readFileSync } from 'fs'
+import { promises, readFileSync } from 'fs'
 import { join } from 'path'
+import { fileURLToPath } from 'url';
 
 // export const runtime = 'edge'
 export const alt = 'Blog Post'
@@ -11,9 +12,7 @@ export const size = {
   height: 630,
 }
 
-// 直接讀取 SVG 內容
-// const backgroundImagePath = path.join(process.cwd(), 'public', 'image', 'dark-hero-background.svg')
-// const svgBackground = readFileSync(backgroundImagePath, 'utf-8')
+const notoSansTCMediumFont = promises.readFile(join(fileURLToPath(import.meta.url), '../../../../assets/fonts/NotoSansTC-Medium.ttf'));
 
 export default async function Image({ params }: { params: { slug: string, locale: string } }) {
   const post = await findPostBySlugAndLocale(params.slug, params.locale)
@@ -71,8 +70,11 @@ export default async function Image({ params }: { params: { slug: string, locale
             objectFit: 'cover',
           }}
         />
-        <div tw="bg-[#242433]/70 p-2 w-full flex justify-center">
-          <h2 tw="text-[44px] font-bold text-white justify-center text-center text-[#e4e1ec]">
+        <div tw="bg-[#242433]/80 px-8 flex justify-center  rounded-xl m-4 min-h-30 items-center">
+          <h2 style={{
+            fontFamily: 'Noto Sans TC',
+            fontWeight: 500,
+          }} tw="text-[44px] font-bold text-white justify-center text-center text-[#e4e1ec]">
             {post.title}
           </h2>
         </div>
@@ -80,6 +82,13 @@ export default async function Image({ params }: { params: { slug: string, locale
     ),
     {
       ...size,
+      fonts: [
+        {
+          name: 'Noto Sans TC',
+          data: await notoSansTCMediumFont,
+          weight: 500,
+        },
+      ],
     }
   )
 }
