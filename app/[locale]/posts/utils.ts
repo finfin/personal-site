@@ -1,56 +1,10 @@
-import fs from 'fs'
-import path from 'path'
+import { allPosts } from 'contentlayer/generated'
 
 type Metadata = {
   title: string
-  publishedAt: string
+  date: string
   summary: string
-  image?: string
-}
-
-function parseFrontmatter(fileContent: string) {
-  const frontmatterRegex = /---\s*([\s\S]*?)\s*---/
-  const match = frontmatterRegex.exec(fileContent)
-  const frontMatterBlock = match![1]
-  const content = fileContent.replace(frontmatterRegex, '').trim()
-  const frontMatterLines = frontMatterBlock.trim().split('\n')
-  const metadata: Partial<Metadata> = {}
-
-  frontMatterLines.forEach((line) => {
-    const [key, ...valueArr] = line.split(': ')
-    let value = valueArr.join(': ').trim()
-    value = value.replace(/^['"](.*)['"]$/, '$1') // Remove quotes
-    metadata[key.trim() as keyof Metadata] = value
-  })
-
-  return { metadata: metadata as Metadata, content }
-}
-
-function getMDXFiles(dir) {
-  return fs.readdirSync(dir).filter((file) => path.extname(file) === '.mdx')
-}
-
-function readMDXFile(filePath) {
-  const rawContent = fs.readFileSync(filePath, 'utf-8')
-  return parseFrontmatter(rawContent)
-}
-
-function getMDXData(dir) {
-  const mdxFiles = getMDXFiles(dir)
-  return mdxFiles.map((file) => {
-    const { metadata, content } = readMDXFile(path.join(dir, file))
-    const slug = path.basename(file, path.extname(file))
-
-    return {
-      metadata,
-      slug,
-      content,
-    }
-  })
-}
-
-export function getBlogPosts() {
-  return getMDXData(path.join(process.cwd(), 'app', '[locale]', 'blog', 'posts'))
+  socialImage?: string
 }
 
 export function formatDate(date: string, includeRelative = false) {
@@ -89,14 +43,14 @@ export function formatDate(date: string, includeRelative = false) {
   return `${fullDate} (${formattedDate})`
 }
 
-interface BlogPost {
+interface Post {
   metadata: Metadata;
   slug: string;
   content: string;
 }
 
 export interface PostsWithPagination {
-  posts: BlogPost[];
+  posts: Post[];
   totalPages: number;
   currentPage: number;
 }
@@ -107,9 +61,20 @@ export function getPaginatedPosts(page: number = 1): PostsWithPagination {
   const startIndex = (page - 1) * POSTS_PER_PAGE;
   const endIndex = startIndex + POSTS_PER_PAGE;
 
-  const sortedPosts = getBlogPosts().sort((a, b) =>
-    new Date(b.metadata.publishedAt).getTime() - new Date(a.metadata.publishedAt).getTime()
-  );
+  const sortedPosts = allPosts
+    .map(post => ({
+      metadata: {
+        title: post.title,
+        date: post.date,
+        summary: post.summary,
+        socialImage: post.socialImage
+      },
+      slug: post.slug,
+      content: post.body.raw
+    }))
+    .sort((a, b) =>
+      new Date(b.metadata.date).getTime() - new Date(a.metadata.date).getTime()
+    );
 
   return {
     posts: sortedPosts.slice(startIndex, endIndex),
@@ -117,3 +82,10 @@ export function getPaginatedPosts(page: number = 1): PostsWithPagination {
     currentPage: page
   };
 }
+
+export function findPostBySlugAndLocale(slug: string, locale: string) {
+  return allPosts.find((post) => post.slug === slug && post.language === locale)
+}
+
+// export allPosts
+export { allPosts }

@@ -1,25 +1,22 @@
 import { baseUrl } from 'app/sitemap'
-import { getBlogPosts } from '@/[locale]/posts/utils'
+import { allPosts } from '@/[locale]/posts/utils'
+import { Post } from 'contentlayer/generated'
 
 export async function GET() {
-  const allBlogs = await getBlogPosts()
-
-  const itemsXml = allBlogs
+  const itemsXml = allPosts
     .sort((a, b) => {
-      if (new Date(a.metadata.publishedAt) > new Date(b.metadata.publishedAt)) {
+      if (new Date(a.date) > new Date(b.date)) {
         return -1
       }
       return 1
     })
     .map(
-      (post) =>
+      (post: Post) =>
         `<item>
-          <title>${post.metadata.title}</title>
-          <link>${baseUrl}/blog/${post.slug}</link>
-          <description>${post.metadata.summary || ''}</description>
-          <pubDate>${new Date(
-            post.metadata.publishedAt
-          ).toUTCString()}</pubDate>
+          <title>${post.title}</title>
+          <link>${baseUrl}/${post.language}/posts/${post.slug}</link>
+          <description>${post.summary || ''}</description>
+          <pubDate>${new Date(post.date).toUTCString()}</pubDate>
         </item>`
     )
     .join('\n')

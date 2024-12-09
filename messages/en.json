@@ -1,11 +1,12 @@
 {
   "metadata": {
-    "title": "Things About Web Development"
+    "title": "Things About Web Development",
+    "description": "\"Things About Web Development\" is a personal website documenting the journey of building a web presence, offering insights and experiences in front-end development."
   },
   "home": {
     "title": "Things About Web Development",
-    "subtitle": "Insights, Tips, and Resources on Web Development",
-    "description": "This site is dedicated to sharing insights, tips, and resources on web development. Whether you're a beginner or an experienced developer, you'll find valuable information to enhance your skills and stay up-to-date with the latest trends in the industry.",
+    "subtitle": "Share my journey, learning and insights in web development",
+    "description": "Here I share the journey of building a web presence, offering insights and experiences in front-end development. ",
     "latest_posts": "Latest Posts",
     "view_all_posts": "View All Posts"
   },

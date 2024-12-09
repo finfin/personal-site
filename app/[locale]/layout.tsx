@@ -6,7 +6,6 @@ import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import Footer from '../components/footer'
 import { Navbar} from '../components/nav'
-import { baseUrl } from '../sitemap'
 import { ThemeProvider } from '../provider/theme-provider';
 import {NextIntlClientProvider} from 'next-intl';
 import {getMessages, getTranslations} from 'next-intl/server';
@@ -21,25 +20,11 @@ type ValidLocale = (typeof routing.locales)[number];
 export async function generateMetadata({ params }: { params: { locale: string } }) {
   const { locale } = await params;
 
-  // if (!routing.locales.includes(locale as ValidLocale)) {
-  //   notFound();
-  // }
-
-  // Providing all messages to the client
-  // side is the easiest way to get started
   const t = await getTranslations({locale, namespace: 'metadata'});
 
   return {
     title: t('title'),
-    description: 'This is my portfolio.',
-    openGraph: {
-      title: 'My Portfolio',
-      description: 'This is my portfolio.',
-      url: baseUrl,
-      siteName: 'My Portfolio',
-      locale: 'en_US',
-      type: 'website',
-    },
+    description: t('description'),
     robots: {
       index: true,
       follow: true,

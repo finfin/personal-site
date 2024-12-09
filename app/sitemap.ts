@@ -1,17 +1,14 @@
 import { allPosts } from '../.contentlayer/generated'
 
-export const baseUrl = 'https://www.thingsaboutweb.dev'
+export const baseUrl = process.env.NODE_ENV === 'production'
+  ? 'https://www.thingsaboutweb.dev'
+  : 'http://localhost:3000'
 
 export default async function sitemap() {
-  const posts = allPosts.map((post) => {
-    // TODO: generate sitemap for every locale
-    // const locales = ['en', 'zh-TW']
-    // const routes = locales.map((locale) => ({
-    //   url: `${baseUrl}/${locale}/${post.path}`,
-    return {
+  const posts = allPosts.map((post) => ({
     url: `${baseUrl}/${post.language}${post.path}`,
     lastModified: new Date().toISOString().split('T')[0],
-  }})
+  }))
 
   const routes = ['', '/posts'].map((route) => ({
     url: `${baseUrl}${route}`,

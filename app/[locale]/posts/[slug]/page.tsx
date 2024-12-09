@@ -1,8 +1,9 @@
 import { notFound } from 'next/navigation'
 import MDXPost from '@/components/mdx-post'
 import { format, parseISO } from 'date-fns'
-import { allPosts } from 'contentlayer/generated'
 import { baseUrl } from 'app/sitemap'
+import { findPostBySlugAndLocale } from '../utils'
+import { allPosts } from 'contentlayer/generated'
 
 type Props = {
   params: Promise<{ slug: string, locale: string }>
@@ -18,49 +19,26 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props) {
   const { slug, locale } = await params;
-  const post = allPosts.find((post) => post.slug === slug && post.language === locale)
+  const post = findPostBySlugAndLocale(slug, locale)
   if (!post) {
     return
   }
 
   const {
     title,
-    date,
     summary,
-    socialImage,
   } = post
-  const ogImage = socialImage
-    ? socialImage
-    : `${baseUrl}/og?title=${encodeURIComponent(title)}`
 
   return {
     title,
-    summary,
-    openGraph: {
-      title,
-      summary,
-      type: 'article',
-      date,
-      url: `${baseUrl}/${post.path}`,
-      images: [
-        {
-          url: ogImage,
-        },
-      ],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title,
-      summary,
-      images: [ogImage],
-    },
+    description: summary,
   }
 }
 
 // TODO: make this page Static Site Generation compatible
 export default async function Blog({ params }: Props ) {
   const { slug, locale } = await params
-  const post = allPosts.find((post) => post.slug === slug && post.language === locale)
+  const post = findPostBySlugAndLocale(slug, locale)
 
   if (!post) {
     notFound()
@@ -98,7 +76,7 @@ export default async function Blog({ params }: Props ) {
           {format(parseISO(post.date), 'LLLL dd, yyyy')}
         </p>
       </div>
-      <article className="prose">
+      <article className="prose prose-neutral dark:prose-invert prose-lg">
         <MDXPost code={post.body.code} />
       </article>
     </section>
