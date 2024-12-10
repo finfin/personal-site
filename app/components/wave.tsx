@@ -11,14 +11,14 @@ export function Wave() {
         className="object-cover -z-10 static hidden dark:block"
         fill
         priority
-        src={'/image/dark-hero-background.svg'}
+        src={'/images/dark-hero-background.svg'}
       />
       <Image
         alt="Light hero background"
         className="object-cover -z-10 static block dark:hidden"
         fill
         priority
-        src={'/image/light-hero-background.svg'}
+        src={'/images/light-hero-background.svg'}
       />
     </section>
   );

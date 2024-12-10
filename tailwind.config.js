@@ -9,6 +9,9 @@ const config = {
             'ul > li::marker': {
               color: 'var(--color-primary)',
             },
+            'ol > li::marker': {
+              color: 'var(--color-primary)',
+            },
             maxWidth: 'initial',
             'code::before': {
               content: '""',
