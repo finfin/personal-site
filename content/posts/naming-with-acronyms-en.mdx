@@ -17,7 +17,7 @@ Naming is hard, really. There is a famous browser API `XMLHttpRequest`, it’s f
 
 
 
-## **Handling Acronyms in Naming Conventions**
+## Handling Acronyms in Naming Conventions
 
 When incorporating acronyms into identifiers, developers generally adopt one of two approaches:
 
@@ -43,13 +43,13 @@ For instance, consider the term "XML HTTP request":
 
 The second approach aligns better with naming conventions, ensuring consistency and readability.
 
-## **Challenges with Special Cases**
+## Challenges with Special Cases
 
 Certain names, like "iOS," intentionally start with a lowercase letter. In such cases, adhering strictly to original capitalization can clash with naming conventions. For example, in PascalCase, "iOS Adapter" would become `IOSAdapter`, which alters the intended capitalization.
 
 Similarly, names containing numbers, such as "IPv6," present challenges. Deciding whether to treat "IPv6" as a single word or split it into "IpV6" affects the final identifier.
 
-## **Google's Guidelines**
+## Google's Guidelines
 
 Fortunately, Google offers a [systematic approach to handle these scenarios](https://google.github.io/styleguide/jsguide.html#naming-camel-case-defined):
 
@@ -67,7 +67,7 @@ Notably, Google's guidelines don't specify exact treatments for acronyms, but th
 
 This method simplifies transitions between different naming conventions (e.g., camelCase to snake_case) and ensures consistency across various codebases. For instance, converting `XmlHttpRequest` to snake_case results in `xml_http_request`, which is straightforward. In contrast, preserving original capitalization can complicate such conversions.
 
-## **Conclusion**
+## Conclusion
 
 When dealing with acronyms in naming conventions:
 
