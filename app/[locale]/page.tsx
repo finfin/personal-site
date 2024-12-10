@@ -36,7 +36,7 @@ export default async function Home() {
       }
 
       <div className="max-w-4xl mx-auto  my-8">
-        <Card className='border-none'>
+        <Card className='border-none shadow-none'>
           <CardHeader className='px-0'>
             <CardTitle>{t('latest_posts')}</CardTitle>
           </CardHeader>
