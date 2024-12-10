@@ -31,18 +31,14 @@ export default async function Home() {
         </div>
       </div>
 
-      {t('description').split('\n').map((line, index) => (
-        <p className="mb-4" key={index}>{line}</p>))
-      }
-
-      <div className="max-w-4xl mx-auto  my-8">
+      <div className="max-w-4xl mx-auto my-6">
         <Card className='border-none shadow-none'>
           <CardHeader className='px-0'>
             <CardTitle>{t('latest_posts')}</CardTitle>
           </CardHeader>
-          <CardContent className='px-0'>
+          <CardContent className='p-0'>
             <Posts posts={posts} />
-            <div className="mt-4 text-center">
+            <div className="my-4 text-center">
               <Link
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                 href="/posts"
