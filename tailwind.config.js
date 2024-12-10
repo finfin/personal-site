@@ -6,6 +6,9 @@ const config = {
       typography: {
         DEFAULT: {
           css: {
+            'ul > li::marker': {
+              color: 'var(--color-primary)',
+            },
             maxWidth: 'initial',
             'code::before': {
               content: '""',

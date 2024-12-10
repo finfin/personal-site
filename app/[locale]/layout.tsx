@@ -72,7 +72,7 @@ export default async function RootLayout({
   return (
     <html
       className={cn(
-        'text-black dark:text-white dark:bg-dark-background-primary bg-light-background-primary',
+        'text-primary bg-background-primary',
         GeistSans.variable,
         GeistMono.variable
       )}

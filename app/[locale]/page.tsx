@@ -25,9 +25,7 @@ export default async function Home() {
       <div className="relative flex flex-col items-center justify-center text-center space-y-6 h-64">
         <div>
 
-          <h1 className="font-bold mb-2 text-5xl bg-gradient-to-r from-dark-background-primary to-dark-background-secondary
-          dark:from-light-background-primary
-          dark:to-light-background-secondary
+          <h1 className="font-bold mb-2 text-5xl bg-gradient-to-r from-heading-primary to-heading-secondary
           text-transparent bg-clip-text animate-gradient-x py-2">{t('title')}</h1>
           <h2 className="text-xl text-muted-foreground mt-4">{t('subtitle')}</h2>
         </div>

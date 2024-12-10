@@ -31,7 +31,7 @@ export function Navbar() {
     }, []);
 
     return (
-        <aside className="tracking-tight bg-light-background-secondary dark:bg-dark-background-secondary px-4 lg:sticky lg:top-0 z-10">
+        <aside className="tracking-tight bg-background-secondary px-4 lg:sticky lg:top-0 z-10">
             <div className="max-w-4xl lg:mx-auto  ">
                 <nav className="flex flex-row items-center relative px-0 pb-0 fade md:overflow-auto scroll-pr-6 md:relative">
                     <div className="flex flex-row items-center space-x-0 pr-10">

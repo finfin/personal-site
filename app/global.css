@@ -3,10 +3,11 @@
 @variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 @theme {
-  --color-dark-background-primary: #242433;
-  --color-dark-background-secondary: #423050;
-  --color-light-background-primary: #e4e1ec;
-  --color-light-background-secondary: #cdbddb;
+  --color-background-primary: #e4e1ec;
+  --color-background-secondary: #cdbddb;
+  --color-primary: var(--color-neutral-800);
+  --color-heading-primary: #242433;
+  --color-heading-secondary: #423050;
 }
 ::selection {
   background-color: #47a3f3;
@@ -25,7 +26,7 @@
 }
 
 :root {
-  &:where([data-theme="dark"]) {
+  &:where([data-theme="dark"], [data-theme="dark"] *) {
     --hljs-bg: #272822;
     --hljs-color: #ddd;
     --hljs-keyword: #f92672;
@@ -34,6 +35,14 @@
     --hljs-string: #a6e22e;
     --hljs-title: white;
     --hljs-comment: #75715e;
+
+    --color-primary: var(--color-neutral-200);
+
+    --color-heading-primary: #e4e1ec;
+    --color-heading-secondary: #cdbddb;
+    --color-background-primary: #242433;
+    --color-background-secondary: #423050;
+
   }
 }
 
