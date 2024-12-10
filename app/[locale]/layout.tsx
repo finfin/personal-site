@@ -38,13 +38,13 @@ export async function generateMetadata({ params }: { params: { locale: string } 
     },
     icons: {
       icon: [
-        {url: '/image/favicon.ico'},
-        {sizes: '32x32', url: '/image/favicon-32x32.png'},
-        {sizes: '16x16', url: '/image/favicon-16x16.png'},
+        {url: '/images/favicon.ico'},
+        {sizes: '32x32', url: '/images/favicon-32x32.png'},
+        {sizes: '16x16', url: '/images/favicon-16x16.png'},
       ],
       other: [{
         rel: 'apple-touch-icon',
-        url: '/image/apple-touch-icon.png',
+        url: '/images/apple-touch-icon.png',
       }]
     },
     manifest: '/manifest.webmanifest',

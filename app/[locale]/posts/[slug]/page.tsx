@@ -76,7 +76,7 @@ export default async function Blog({ params }: Props ) {
           {format(parseISO(post.date), 'LLLL dd, yyyy')}
         </p>
       </div>
-      <article className="relative prose prose-neutral dark:prose-invert prose-lg">
+      <article className="relative prose prose-neutral dark:prose-invert md:prose-lg">
         <MDXPost code={post.body.code} />
       </article>
     </section>

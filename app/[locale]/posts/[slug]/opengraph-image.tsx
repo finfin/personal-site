@@ -1,10 +1,8 @@
 import { findPostBySlugAndLocale } from '../utils'
 import { ImageResponse } from 'next/og'
-import { promises, readFileSync } from 'fs'
-import { join } from 'path'
-import { fileURLToPath } from 'url';
+import { baseUrl } from '@/sitemap';
 
-// export const runtime = 'edge'
+export const runtime = 'edge'
 export const alt = 'Blog Post'
 export const contentType = 'image/png'
 export const size = {
@@ -12,36 +10,33 @@ export const size = {
   height: 630,
 }
 
-const notoSansTCMediumFont = promises.readFile(join(fileURLToPath(import.meta.url), '../../../../assets/fonts/NotoSansTC-Medium.ttf'));
-
 export default async function Image({ params }: { params: { slug: string, locale: string } }) {
+
+  const font = await fetch(
+    new URL('/fonts/NotoSansTC-Medium.ttf', baseUrl)
+  );
+
+  if (!font.ok) {
+    throw new Error('Failed to fetch the font file');
+  }
+
+  const fontData = await font.arrayBuffer();
+
+  // const notoSansTCMediumFont = promises.readFile(join(fileURLToPath(import.meta.url), '../../../../assets/fonts/NotoSansTC-Medium.ttf'));
   const post = await findPostBySlugAndLocale(params.slug, params.locale)
 
   let backgroundImage: string
   try {
     // 從本地 content/images 目錄讀取社交圖片
-    if (!post?.socialImage) {
+    if (!post) {
       throw new Error('Social image not found')
     }
-    const socialImagePath = join(process.cwd(), 'content/images', post.socialImage)
-    const imageData = readFileSync(socialImagePath)
 
-    // 根據檔案副檔名判斷 MIME type
-    const extension = post.socialImage.split('.').pop()?.toLowerCase() || ''
-    const mimeTypes: Record<string, string> = {
-      'jpg': 'image/jpeg',
-      'jpeg': 'image/jpeg',
-      'png': 'image/png',
-      'webp': 'image/webp',
-      'gif': 'image/gif'
-    }
-    const mimeType = mimeTypes[extension] || 'image/png'
+    backgroundImage = post.socialImage ? `${baseUrl}/images/posts/${post.socialImage}` : `${baseUrl}/images/default-og-background.png`
 
-    backgroundImage = `data:${mimeType};base64,${imageData.toString('base64')}`
   } catch (_error) {
     console.error('Failed to fetch remote image', _error)
-    const localImageData = readFileSync(join(process.cwd(), 'app/assets/images/og-background.png'))
-    backgroundImage = `data:image/png;base64,${localImageData.toString('base64')}`
+    backgroundImage = `${baseUrl}/images/default-og-background.png`
   }
 
   if (!post) {
@@ -54,6 +49,7 @@ export default async function Image({ params }: { params: { slug: string, locale
       size
     )
   }
+
 
   return new ImageResponse(
     (
@@ -85,7 +81,7 @@ export default async function Image({ params }: { params: { slug: string, locale
       fonts: [
         {
           name: 'Noto Sans TC',
-          data: await notoSansTCMediumFont,
+          data: fontData,
           weight: 500,
         },
       ],

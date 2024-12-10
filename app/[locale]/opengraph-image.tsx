@@ -1,6 +1,5 @@
 import { ImageResponse } from 'next/og'
-import { readFileSync } from 'fs'
-import { join } from 'path'
+import { baseUrl } from '@/sitemap'
 
 export const alt = 'Blog'
 export const contentType = 'image/png'
@@ -10,14 +9,7 @@ export const size = {
 }
 
 export default async function Image() {
-  let backgroundImage: string
-  try {
-    const localImageData = readFileSync(join(process.cwd(), 'app/assets/images/og-background.png'))
-    backgroundImage = `data:image/png;base64,${localImageData.toString('base64')}`
-  } catch {
-    // 如果無法讀取背景圖片，使用預設背景圖片
-    backgroundImage = ''
-  }
+  const backgroundImage = `${baseUrl}/images/default-og-background.png`
 
   return new ImageResponse(
     (

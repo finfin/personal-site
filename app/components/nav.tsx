@@ -37,8 +37,8 @@ export function Navbar() {
                     <div className="flex flex-row items-center space-x-0 pr-10">
                       {/* dark logo here using image /image/dark-logo.png */}
                         <Link className="transition-all hover:text-neutral-800 dark:hover:text-neutral-200 flex align-middle relative py-1 px-2 m-1 pl-0 ml-0" href="/">
-                          <Image alt="logo" className='dark:block hidden' height={50} src="/image/dark-logo.png" width={150} />
-                          <Image alt="logo" className='dark:hidden block' height={50} src="/image/light-logo.png" width={150} />
+                          <Image alt="logo" className='dark:block hidden' height={50} src="/images/dark-logo.png" width={150} />
+                          <Image alt="logo" className='dark:hidden block' height={50} src="/images/light-logo.png" width={150} />
                         </Link>
                         {navbarItems.map(({ path, name }) => {
                           return (

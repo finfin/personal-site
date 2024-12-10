@@ -20,7 +20,7 @@ export default async function About({ params }) {
         {t('title')}
       </h1>
 
-      <div className='prose'>
+      <div className='prose prose-neutral dark:prose-invert'>
         {aboutContent && <MDXPost code={aboutContent.body.code} />}
       </div>
     </section>
