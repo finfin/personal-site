@@ -3,6 +3,9 @@ import typography from '@tailwindcss/typography'
 const config = {
   theme: {
     extend: {
+      fontFamily: {
+        mono: ['var(--font-fira-code)'],
+      },
       typography: {
         DEFAULT: {
           css: {
@@ -30,6 +33,14 @@ const config = {
             },
           },
         },
+        xl: {
+          css: {
+            lineHeight: '1.6',
+            pre: {
+              fontSize: 'var(--text-base)',
+            },
+          }
+        }
       },
     },
   },

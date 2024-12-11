@@ -1,7 +1,13 @@
 import '../global.css'
 
-import { GeistSans } from 'geist/font/sans'
-import { GeistMono } from 'geist/font/mono'
+import { Fira_Code } from 'next/font/google'
+
+// 初始化 Fira Code 字體
+const firaCode = Fira_Code({
+  subsets: ['latin'],
+  variable: '--font-fira-code',
+})
+
 import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import Footer from '../components/footer'
@@ -81,13 +87,12 @@ export default async function RootLayout({
     <html
       className={cn(
         'text-primary bg-background-primary',
-        GeistSans.variable,
-        GeistMono.variable
+        firaCode.variable
       )}
       lang={locale}
       suppressHydrationWarning
     >
-      <body className="">
+      <body className="font-serif">
         <NextIntlClientProvider messages={messages}>
           <ThemeProvider>
             <Navbar />
