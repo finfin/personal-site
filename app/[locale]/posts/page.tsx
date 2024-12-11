@@ -3,6 +3,14 @@ import { getLocale, getTranslations } from 'next-intl/server';
 import { allPosts } from 'contentlayer/generated'
 import { compareDesc } from 'date-fns'
 
+
+// export async function generateStaticParams() {
+//   return [
+//     { locale: 'en' },
+//     { locale: 'zh-TW' }
+//   ]
+// }
+
 export default async function PostsPage() {
   const locale = await getLocale();
   const t = await getTranslations('post');
@@ -17,9 +25,3 @@ export default async function PostsPage() {
     )
 }
 
-export async function generateStaticParams() {
-    return [
-        { lang: 'en' },
-        { lang: 'zh-TW' }
-    ]
-}
