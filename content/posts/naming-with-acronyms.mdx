@@ -9,13 +9,13 @@ language: zh-TW
 socialImage: naming-with-acronyms.jpg
 ---
 
-瀏覽器有一個 API 叫做 XMLHttpRequest ，這 API 的名稱非常特別，XML 是個縮寫，HTTP 也是個縮寫。更特別的是，在這個 API 命名裡面，XML 全大寫，但同為縮寫的 Http 則採用首字大寫的方式。看起來是頗蠢的一個命名。
+瀏覽器有一個 API 叫做 `XMLHttpRequest` ，這 API 的名稱非常特別，XML 是個縮寫，HTTP 也是個縮寫。更特別的是，在這個 API 命名裡面，XML 全大寫，但同為縮寫的 Http 則採用首字大寫的方式。看起來是頗蠢的一個命名。
 
 
 
 直到，你自己遇到的時候。大家先來想想以下變數你會怎麼命名：
 
-xml http request, new customer id, supports IPv6 on iOS, YouTube importer
+`xml http request`, `new customer id`, `supports IPv6 on iOS`, `YouTube importer`
 
 
 
@@ -27,11 +27,11 @@ xml http request, new customer id, supports IPv6 on iOS, YouTube importer
 
 
 
-以 XMLHttpRequest 來說，如果是 PascalCase，維持原來大小寫是 XMLHTTPRequest，照原命名規則為 XmlHttpRequest，看起來都沒啥問題。
+以 XMLHttpRequest 來說，如果是 PascalCase，維持原來大小寫是 `XMLHTTPRequest`，照原命名規則為 `XmlHttpRequest`，看起來都沒啥問題。
 
-但如果是 camelCase 就有趣了，如果是縮寫維持原來大小寫的話，直接跟命名規則衝突，那 xml 該大寫還是小寫？這裡就需要另外一個規則來處理，比如說首字縮寫全小寫如 xmlHTTPRequest，或是第一個字母小寫 xMLHTTPReqeust 之類（很奇怪？還真的有看過…）
+但如果是 camelCase 就有趣了，如果是縮寫維持原來大小寫的話，直接跟命名規則衝突，那 xml 該大寫還是小寫？這裡就需要另外一個規則來處理，比如說首字縮寫全小寫如 `xmlHTTPRequest`，或是第一個字母小寫 `xMLHTTPReqeust` 之類（很奇怪？還真的有看過…）
 
-如果是用第二種處理方式就簡單得多，因為都是單字：xmlHttpRequest
+如果是用第二種處理方式就簡單得多，因為都是單字：`xmlHttpRequest`
 
 
 
@@ -75,10 +75,10 @@ xml http request, new customer id, supports IPv6 on iOS, YouTube importer
 
 最後，附上解答
 
-XML HTTP request → XmlHttpRequest\
-new customer ID → newCustomerId\
-supports IPv6 on iOS? →supportsIpv6OnIos\
-YouTube importer → YouTubeImporter
+- `XML HTTP request` → `XmlHttpRequest`
+- `new customer ID` → `newCustomerId`
+- `supports IPv6 on iOS` → `supportsIpv6OnIos`
+- `YouTube importer` → `YouTubeImporter`
 
 
 
