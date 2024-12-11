@@ -25,6 +25,14 @@ export async function generateMetadata({ params }: { params: { locale: string } 
   return {
     title: t('title'),
     description: t('description'),
+    metadataBase: new URL('https://www.thingsaboutweb.dev'),
+    openGraph: {
+      title: t('title'),
+      description: t('description'),
+      url: 'https://www.thingsaboutweb.dev',
+      siteName: t('title'),
+      type: 'website',
+    },
     robots: {
       index: true,
       follow: true,
