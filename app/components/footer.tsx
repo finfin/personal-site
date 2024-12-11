@@ -3,6 +3,7 @@ import {
   BrandGithub,
   BrandThreads
 } from '@mynaui/icons-react';
+import { Coffee } from './coffee';
 import { BrandBluesky } from './bluesky';
 import { BrandLinkedin } from './linkedin';
 
@@ -26,20 +27,32 @@ function ArrowIcon() {
 export default function Footer() {
   return (
     <footer className="my-4">
-      <ul className="font-sm mb-8 flex flex-col space-x-0 space-y-2 text-neutral-600 md:flex-row md:space-x-4 md:space-y-0 dark:text-neutral-300">
-        <li>
-          <a
-            className="flex items-center transition-all hover:text-neutral-800 dark:hover:text-neutral-100"
-            href="/rss"
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            <ArrowIcon />
-            <p className="ml-2 h-7">rss</p>
-          </a>
-        </li>
+      <div className="mb-4 flex justify-between items-center">
+        <ul className="font-sm flex flex-col space-x-0 space-y-2 text-neutral-600 md:flex-row md:space-x-4 md:space-y-0 dark:text-neutral-300">
+          <li>
+            <a
+              className="flex items-center transition-all hover:text-neutral-800 dark:hover:text-neutral-100"
+              href="/rss"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              <ArrowIcon />
+              <p className="ml-2 h-7">rss</p>
+            </a>
+          </li>
+        </ul>
 
-      </ul>
+        <a
+          className="flex items-center text-neutral-600 hover:text-neutral-800 dark:text-neutral-300 dark:hover:text-neutral-100 transition-colors"
+          href="https://www.buymeacoffee.com/finfin"
+          rel="noopener noreferrer"
+          target="_blank"
+          title="Buy me a coffee"
+        >
+          <Coffee size={20} />
+          <span className="ml-2">Buy me a tea</span>
+        </a>
+      </div>
 
       <div className="flex justify-between items-center">
         <div className="text-sm text-neutral-600 dark:text-neutral-300">
