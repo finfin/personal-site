@@ -39,6 +39,9 @@ const config = {
             pre: {
               fontSize: 'var(--text-base)',
             },
+            code: {
+              fontSize: 'var(--text-base)',
+            }
           }
         }
       },
