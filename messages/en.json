@@ -20,5 +20,10 @@
     "home": "Home",
     "about": "About",
     "posts": "Posts"
+  },
+  "theme": {
+    "dark": "dark",
+    "light": "light",
+    "system": "auto"
   }
 }

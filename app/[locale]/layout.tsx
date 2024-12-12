@@ -12,7 +12,7 @@ import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import Footer from '../components/footer'
 import { Navbar} from '../components/nav'
-import { ThemeProvider } from '../provider/theme-provider';
+import { ThemeProvider } from 'next-themes'
 import {NextIntlClientProvider} from 'next-intl';
 import {getMessages, getTranslations} from 'next-intl/server';
 import { notFound } from 'next/navigation';
@@ -94,7 +94,7 @@ export default async function RootLayout({
     >
       <body className="font-serif">
         <NextIntlClientProvider messages={messages}>
-          <ThemeProvider>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             <Navbar />
             <main className="max-w-4xl mx-4 lg:mx-auto flex-auto min-w-0 mt-8 flex flex-col px-2 md:px-0">
 

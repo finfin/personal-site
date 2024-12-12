@@ -6,6 +6,7 @@ import {
 import { Coffee } from './coffee';
 import { BrandBluesky } from './bluesky';
 import { BrandLinkedin } from './linkedin';
+import { ThemeSelect } from './theme-select'
 
 function ArrowIcon() {
   return (
@@ -41,17 +42,7 @@ export default function Footer() {
             </a>
           </li>
         </ul>
-
-        <a
-          className="flex items-center text-neutral-600 hover:text-neutral-800 dark:text-neutral-300 dark:hover:text-neutral-100 transition-colors"
-          href="https://www.buymeacoffee.com/finfin"
-          rel="noopener noreferrer"
-          target="_blank"
-          title="Buy me a coffee"
-        >
-          <Coffee size={20} />
-          <span className="ml-2">Buy me a tea</span>
-        </a>
+        <ThemeSelect />
       </div>
 
       <div className="flex justify-between items-center">
@@ -99,6 +90,16 @@ export default function Footer() {
             target="_blank"
           >
             <BrandBluesky size="20" />
+          </a>
+          <a
+            className="flex items-center text-neutral-600 hover:text-neutral-800 dark:text-neutral-300 dark:hover:text-neutral-100 transition-colors"
+            href="https://www.buymeacoffee.com/finfin"
+            rel="noopener noreferrer"
+            target="_blank"
+            title="Buy me a tea"
+          >
+            <Coffee size={20} />
+            <span className="ml-2">Buy me a tea</span>
           </a>
         </div>
       </div>

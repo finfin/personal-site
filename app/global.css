@@ -1,6 +1,5 @@
 @import "tailwindcss";
 @config "../tailwind.config.js";
-@variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 @theme {
   --color-background-primary: #e4e1ec;
@@ -8,6 +7,12 @@
   --color-primary: var(--color-neutral-800);
   --color-heading-primary: #242433;
   --color-heading-secondary: #423050;
+}
+
+@layer base {
+  button {
+    cursor: pointer;
+  }
 }
 ::selection {
   background-color: #47a3f3;
@@ -26,7 +31,7 @@
 }
 
 :root {
-  &:where([data-theme="dark"], [data-theme="dark"] *) {
+  &.dark {
     --hljs-bg: #272822;
     --hljs-color: #ddd;
     --hljs-keyword: #f92672;
@@ -81,7 +86,7 @@ html {
   @apply bg-neutral-50 dark:bg-neutral-900 rounded-lg overflow-x-auto border border-neutral-200 dark:border-neutral-900 py-2 px-3;
 }
 
-.prose code {
+.prose :not(pre) > code {
   @apply px-1 py-0.5 rounded-sm dark:bg-white/10 bg-black/10;
 }
 
