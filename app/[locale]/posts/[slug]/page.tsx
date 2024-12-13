@@ -29,9 +29,22 @@ export async function generateMetadata({ params }: Props) {
     summary,
   } = post
 
+  const alternateLanguages = allPosts
+    .filter(p => p.slug === slug && p.language !== locale)
+    .map(p => ({
+      url: `${baseUrl}/${p.language}/posts/${p.slug}`,
+      hreflang: p.language
+    }));
+  console.log(alternateLanguages)
   return {
     title,
     description: summary,
+    alternates: {
+      canonical: `${baseUrl}/${locale}/posts/${slug}`,
+      languages: Object.fromEntries(
+        alternateLanguages.map(({ url, hreflang }) => [hreflang, url])
+      ),
+    },
   }
 }
 

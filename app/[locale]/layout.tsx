@@ -29,11 +29,15 @@ export async function generateMetadata({ params }: { params: { locale: string } 
   const t = await getTranslations({locale, namespace: 'metadata'});
 
   return {
-    title: t('title'),
+    title: {
+      template: `%s | ${t('title')}`,
+    },
     description: t('description'),
     metadataBase: new URL('https://www.thingsaboutweb.dev'),
     openGraph: {
-      title: t('title'),
+      title: {
+        template: `%s | ${t('title')}`,
+      },
       description: t('description'),
       url: 'https://www.thingsaboutweb.dev',
       siteName: t('title'),
