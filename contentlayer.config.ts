@@ -3,6 +3,7 @@ import { defineDocumentType, makeSource } from 'contentlayer2/source-files'
 import highlight from 'rehype-highlight'
 import rehypeSlug from 'rehype-slug'
 import rehypeAutolinkHeadings from 'rehype-autolink-headings'
+import remarkGfm from 'remark-gfm';
 
 export const Post = defineDocumentType(() => ({
   name: 'Post',
@@ -74,6 +75,7 @@ export default makeSource({
   contentDirPath: 'content',
   documentTypes: [Post, Page],
   mdx: {
+    remarkPlugins: [remarkGfm],
     rehypePlugins: [
       rehypeSlug,
       [rehypeAutolinkHeadings, {

@@ -38,6 +38,7 @@
     "rehype-autolink-headings": "^7.1.0",
     "rehype-highlight": "^7.0.1",
     "rehype-slug": "^6.0.0",
+    "remark-gfm": "^4.0.0",
     "tailwind-merge": "^2.5.5",
     "tailwindcss": "4.0.0-beta.3",
     "typescript": "5.3.3"

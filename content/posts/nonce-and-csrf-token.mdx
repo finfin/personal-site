@@ -1,0 +1,204 @@
+---
+title: 'Nonce 與 CSRF Token 差在哪？應用場景又是什麼？'
+date: '2024-12-20'
+slug: 'nonce-and-csrf-token'
+summary: '了解 Nonce 和 CSRF Token 的差異與應用場景，解析這兩種網頁安全機制如何防止重複請求、重放攻擊與跨站請求偽造，確保應用程式的安全性。'
+type: Post
+language: zh-TW
+---
+
+
+為了防止網路攻擊，**Nonce（Number Used Once）** 和 **CSRF Token （Cross-Site Request Forgery Token）** 是現代網站兩種常見且重要的防護機制。這兩者雖然都與網頁安全性相關，但其設計目標、解決的問題和應用場景卻各有不同。本文會介紹這兩種機制的運作方式，並探討它們的差異以及適用情境。
+
+## Nonce 是什麼？為什麼需要它？
+
+Nonce 是一個僅使用一次的隨機字串，用於確保每個請求或操作的唯一性。它通常由伺服器生成，並附加到每個請求中。透過在伺服器端存儲並驗證 Nonce，能有效防止攻擊者攔截請求後重複執行，確保請求僅執行一次。
+
+舉例來說，使用者在網頁表單中多次點擊提交按鈕可能導致多次訂單生成，而 Nonce 機制能阻止伺服器處理重複請求。同時也可以防止重放攻擊（Replay Attack），這類攻擊通常試圖利用攔截到的合法請求執行多次，造成系統不當操作。
+
+## Nonce 的應用場景
+
+### 場景 1: 避免表單重複提交
+
+在需要提交訂單的場景中，用戶可能不小心多次點擊提交按鈕，而每次提交都會產生一個新的請求，伺服器在沒有驗證機制的情況下，可能會重複處理這些請求，進而導致多筆訂單或是重複執行的任務。
+
+為了解決這個問題，可以使用 Nonce 確保每次表單提交請求的唯一性。伺服器端會生成一個隨機的 Nonce，並將其嵌入到表單中，用戶提交後，伺服器驗證該 Nonce 是否已被使用，若已使用，則拒絕該請求。
+
+**範例情境**：購物網站中，用戶在提交訂單後，可能不小心多次點擊「提交」按鈕。伺服器端利用 Nonce 驗證每次請求是否唯一，確保訂單不會被重複提交。
+
+**實作**：
+
+表單
+```html
+<form method="POST" action="/submit-order">
+  <input type="hidden" name="nonce" value="123456789abcdef">
+  <input type="text" name="orderDetails">
+  <button type="submit">提交訂單</button>
+</form>
+```
+
+伺服器端檢查
+```javascript
+if (serverNonceStore.includes(request.body.nonce) && !isNonceUsed(request.body.nonce)) {
+    processOrder();
+    markNonceAsUsed(request.body.nonce);
+} else {
+    throw new Error("Invalid or reused nonce!");
+}
+```
+
+### 場景 2: 防止重放攻擊
+
+攻擊者可能攔截合法的 API 請求，並多次發送相同的請求以實現惡意操作。為了防止這類重放攻擊，可以使用 Nonce 確保每個請求的唯一性。伺服器通過檢查 Nonce 是否已被使用來判斷請求是否有效。
+
+**範例情境**：假設有一個 RESTful API，執行扣款功能，有可能會被惡意發送同樣扣款請求多次。這時就需要 nonce 來確保最多只會被發送一次。
+
+**實作**：
+
+Request
+```bash
+POST /update-profile HTTP/1.1
+Host: example.com
+Content-Type: application/json
+Authorization: Bearer <access_token>
+
+{
+    "nonce": "abcdef123456",
+    "name": "John Doe",
+    "email": "john.doe@example.com"
+}
+```
+
+伺服器端
+```javascript
+if (serverNonceStore.includes(request.body.nonce) && !isNonceUsed(request.body.nonce)) {
+    processOrder();
+    markNonceAsUsed(request.body.nonce);
+} else {
+    throw new Error("Replay attack detected: Nonce already used!");
+}
+```
+
+可以看到場景 1 與 場景 2 的伺服器端是一樣的邏輯，因為目的都是要避免重複的請求。
+
+### 場景 3: 內容安全策略（CSP）
+
+跨站腳本攻擊（XSS）是網頁應用中常見的安全問題。攻擊者可能注入惡意腳本到網頁中，進而危害用戶資料或操作。使用 Nonce 作為 CSP 的一部分，可以有效限制僅允許特定的腳本執行。
+
+**範例情境**：假設有一個動態生成的頁面，其中需要執行內嵌的 JavaScript，但又希望防止外部注入的惡意腳本執行。此時，伺服器為頁面生成一個隨機的 Nonce，並嵌入到允許執行的腳本標籤中。
+
+**實作**：
+
+伺服器設置 CSP 標頭
+```bash
+Content-Security-Policy: script-src 'self' 'nonce-abcdef123456';
+```
+
+HTML 頁面
+```html
+<script nonce="abcdef123456">
+  console.log('This is a secure script.');
+</script>
+
+<script>
+  console.log('This script will be blocked by CSP.');
+</script>
+```
+
+**結果**：
+
+- 僅有包含正確 Nonce 的內嵌腳本會被執行。
+- 其他內嵌或外部注入的腳本將被 CSP 攔截並阻止。
+- 最後只會印出 `This is a secure script.`
+
+## CSRF Token 是什麼？為什麼需要它？
+
+CSRF Token（Cross-Site Request Forgery Token）是一種專門用於防範跨站請求偽造（CSRF）攻擊的安全措施。目的在於驗證每次請求是否來自用戶的合法操作，而非來自惡意網站的誘導請求。
+
+CSRF 攻擊的典型場景是利用受害者的已登入狀態，在未經授權或不知情的情況下，通過受害者的瀏覽器向受信任的網站發送惡意請求。例如，攻擊者可能會偽造請求進行未經授權的資金轉帳、更改密碼或刪除用戶賬戶等高風險操作。
+
+CSRF Token 通常由伺服器生成並與 session 綁定。伺服器將 Token 發送至用戶瀏覽器，並要求用戶在每次請求中附加此 Token。伺服器在接收請求時會驗證 Token 是否與用戶會話中的值匹配。如果 Token 無效或缺失，請求將被拒絕。
+
+該機制通過驗證請求的合法性，阻止攻擊者利用跨站方式冒充用戶身份進行敏感操作，以提升應用的安全性。
+
+## CSRF Token 的應用場景
+
+### 場景 1: 驗證請求的合法性
+
+用戶進行密碼更改或資料修改等敏感操作時，攻擊者可能通過 CSRF 攻擊利用受害者的身份發起未經授權的請求。為了防止這類操作，伺服器會生成一個 CSRF Token 並進行驗證。
+
+**範例情境**：使用戶在更改密碼時，必須提供 CSRF Token 驗證。
+
+**實作**：
+
+前端表單
+```html
+<form method="POST" action="/change-password">
+  <input type="hidden" name="csrf_token" value="a1b2c3d4e5">
+  <input type="password" name="newPassword">
+  <button type="submit">更改密碼</button>
+</form>
+```
+
+伺服器端
+```javascript
+if (request.body.csrf_token === session.csrf_token) {
+    changePassword(request.body.newPassword);
+} else {
+    throw new Error("CSRF token mismatch!");
+}
+```
+
+### 場景 2: 增加敏感操作的安全性
+
+攻擊者可能利用用戶的已登錄狀態發起資金轉帳等高風險操作。為了防止這類情況，CSRF Token 是一種有效的驗證方式。
+
+**範例情境**：用戶需通過 CSRF Token 保護資金轉帳請求。
+
+**實作**：
+
+前端表單
+```html
+<form method="POST" action="/transfer-funds">
+  <input type="hidden" name="csrf_token" value="abcd1234efgh">
+  <input type="number" name="amount" placeholder="轉帳金額">
+  <input type="text" name="to_account" placeholder="收款帳號">
+  <button type="submit">提交轉帳</button>
+</form>
+```
+
+伺服器端
+```javascript
+if (request.body.csrf_token === session.csrf_token) {
+    processTransfer(request.body.amount, request.body.to_account);
+} else {
+    throw new Error("Invalid CSRF token!");
+}
+```
+
+附註：CSRF 通常依賴於 session，因此有的 CSRF Token 會放在 HTTP 標頭（header）中，或是 `<head>` 下，也可能如範例一樣嵌入在隱藏的表單欄位中。實際存放位置並不關鍵，最重要的是在進行操作時，確保該 Token 能正確傳遞到伺服器，並由伺服器驗證其合法性，就能有效的確保請求的真實性。
+
+
+## 總結
+
+### Nonce 與 CSRF Token 的差異比較
+
+| **特性** | **Nonce** | **CSRF Token** |
+|---|---|---|
+| **主要目標** | 防止重放攻擊、表單重複提交 | 防止跨站請求偽造攻擊 |
+| **用法** | 確保請求的唯一性 | 驗證請求的合法性 |
+| **實現層級** | 常用於 API 或表單提交 | 主要用於表單提交與 API 請求的安全性驗證 |
+| **是否會重複使用** | 不會重複使用（單次有效） | 可能會重複使用（如多次提交表單的 session 中） |
+
+- Nonce 用在確保請求的唯一性，避免重複的請求，或搭配 CSP 確保合法 script 的執行。
+
+- CSRF Token 用在防範跨站請求偽造（Cross-Site Request Forgery），透過驗證每個請求中包含的隨機字串是否與伺服器生成的匹配，確保請求來自合法用戶。
+
+### Nonce 與 CSRF Token 是否可以一起使用？
+
+可以，兩種機制是為了解決不同問題而存在的，並且使用上也不衝突。依據要解決的問題來實作即可。
+
+## 參考資料：
+- [Replay Attack](https://en.wikipedia.org/wiki/Replay_attack)
+- [CSP Nonces](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP)
+- [什麼是 CSRF](https://www.explainthis.io/zh-hant/swe/what-is-csrf)

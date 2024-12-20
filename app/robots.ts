@@ -3,7 +3,10 @@ import { baseUrl } from 'app/sitemap'
 export default function robots() {
   return {
     rules: [
-
+      {
+        userAgent: '*',
+        disallow: ['/images', '/og'],
+      },
       {
         userAgent: 'facebookexternalhit',
         allow: '/',
@@ -19,9 +22,6 @@ export default function robots() {
       {
         userAgent: 'Bingbot',
         allow: '/',
-      },
-      {
-        userAgent: '*',
       },
     ],
     sitemap: `${baseUrl}/sitemap.xml`,

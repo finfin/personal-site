@@ -116,11 +116,11 @@ html {
 }
 
 .prose h2 {
-  @apply text-2xl font-medium mt-6 mb-2;
+  @apply text-3xl font-semibold mt-8 mb-2;
 }
 
 .prose h3 {
-  @apply text-xl font-medium mt-6 mb-2;
+  @apply text-2xl font-semibold mt-8 mb-2;
 }
 
 .prose h4 {
@@ -151,6 +151,10 @@ html {
 
 .prose pre {
   @apply mt-4;
+}
+
+.prose table {
+  @apply my-4 dark:bg-white/10 bg-black/10;
 }
 
 .prose blockquote {
