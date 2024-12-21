@@ -91,7 +91,7 @@ if (isNonceValid(request.body.nonce)) {
 
 ### 特別場景: 內容安全策略（CSP）
 
-Nonce 在 Content Security Policy (CSP) 中的用法有點不同，主要是用於控制 inline script 或樣式的執行。伺服器會生成 Nonce，並將其同時包含在 CSP 標頭和授權的 <script> 或 <style> 標籤中。這個過程與先前介紹的 Nonce 機制類似，但驗證的動作發生在瀏覽器中。瀏覽器會強制執行 CSP 規則，確保只有帶有正確 Nonce 的腳本或樣式被執行，阻止未經授權的內容。
+Nonce 在 Content Security Policy (CSP) 中的用法有點不同，主要是用於控制 inline script 或樣式的執行。伺服器會生成 Nonce，並將其同時包含在 CSP 標頭和授權的 `<script>` 或 `<style>` 標籤中。這個過程與先前介紹的 Nonce 機制類似，但驗證的動作發生在瀏覽器中。瀏覽器會強制執行 CSP 規則，確保只有帶有正確 Nonce 的腳本或樣式被執行，阻止未經授權的內容。
 
 例如，一個顯示使用者特定數據的網頁可能需要動態生成的 inline JavaScript。透過在伺服器生成的 CSP 標頭和授權的腳本中嵌入 Nonce，只有預期的 script 會被執行，而未授權的 script 將被阻止。這確保了關鍵的 inline script 能夠安全地運行，同時避免頁面受到惡意 script 注入的威脅。
 

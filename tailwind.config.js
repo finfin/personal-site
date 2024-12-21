@@ -45,6 +45,7 @@ const config = {
             'thead th, tbody td, tfoot td': {
               paddingTop: 'calc(var(--spacing)* 2)',
               paddingBottom: 'calc(var(--spacing)* 2)',
+              border: '1px solid'
             },
             'thead th:first-child, tbody td:first-child, tfoot td:first-child': {
               paddingInlineStart: 'calc(var(--spacing)* 2)',
