@@ -27,7 +27,7 @@ function ArrowIcon() {
 
 export default function Footer() {
   return (
-    <footer className="my-4">
+    <footer className="border-t border-neutral-200 dark:border-neutral-700 pt-4 my-4">
       <div className="mb-4 flex justify-between items-center">
         <ul className="font-sm flex flex-col space-x-0 space-y-2 text-neutral-600 md:flex-row md:space-x-4 md:space-y-0 dark:text-neutral-300">
           <li>
@@ -45,7 +45,7 @@ export default function Footer() {
         <ThemeSelect />
       </div>
 
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col-reverse md:flex-row justify-between items-center gap-4 md:gap-0">
         <div className="text-sm text-neutral-600 dark:text-neutral-300">
           <p>© {new Date().getFullYear()} Things About Web Dev. All rights reserved.</p>
         </div>

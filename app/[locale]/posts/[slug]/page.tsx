@@ -58,7 +58,7 @@ export default async function Blog({ params }: Props ) {
   }
 
   return (
-    <section className='[view-transition-name:blog-post]'>
+    <section className='[view-transition-name:blog-post] mb-4'>
       <script
         dangerouslySetInnerHTML={{
           __html: JSON.stringify({
@@ -81,7 +81,7 @@ export default async function Blog({ params }: Props ) {
         suppressHydrationWarning
         type="application/ld+json"
       />
-      <h1 className="font-semibold text-4xl">
+      <h1 className="font-semibold text-3xl md:text-4xl">
         {post.title}
       </h1>
       <div className="flex justify-between items-center mt-2 mb-8 text-sm">
