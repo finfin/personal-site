@@ -120,7 +120,7 @@ html {
 }
 
 .prose h3 {
-  @apply text-2xl font-semibold mt-8 mb-2;
+  @apply text-2xl font-medium mt-8 mb-2;
 }
 
 .prose h4 {
