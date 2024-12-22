@@ -5,19 +5,69 @@ slug: 'cache-freshness'
 summary: 'How do browsers determine whether to cache resources by default? What happens to our resources when cache settings are not manually configured?'
 type: Post
 language: en
+socialImage: cache-freshness--banner.jpg
 ---
 
-When discussing browser caching, common control mechanisms include cache-control, etag, and last-modified. We use these settings to inform browsers whether a resource is "fresh," and we can handle stale resources accordingly.
+Browser caching is a powerful mechanism for improving web performance by storing copies of resources locally, reducing the need for repeated network requests. To manage caching behavior, developers commonly use headers like `Cache-Control`, `ETag`, and `Last-Modified`. These headers inform browsers whether a resource is "fresh" and when to fetch an updated version.
 
-So, how do browsers determine resource freshness by default? (This concept is called "cache freshness"). [RFC 7324 4.2.2](https://datatracker.ietf.org/doc/html/rfc7234#section-4.2.2) defines it as follows:
+One critical concept in caching is **cache freshness**—the process by which browsers determine whether a cached resource is still valid. According to [RFC 7234 Section 4.2.2](https://datatracker.ietf.org/doc/html/rfc7234#section-4.2.2), browsers use specific heuristics to calculate freshness when explicit caching rules are not provided.
 
-> If the response has a Last-Modified header field (Section 2.2 of \[RFC7232\]), caches are encouraged to use a heuristic expiration value that is no more than some fraction of the interval since that time. A typical setting of this fraction might be 10%.
 
-If the response header contains Last-Modified information, the recommended freshness duration is suggested to be 10% of the time elapsed since the modification. This means if you retrieve a file that was modified ten hours ago, its freshness duration would be one hour. For a file modified ten years ago, the freshness duration would be one year.
+<div className="relative w-full aspect-[16/9]">
+  <Image src="/images/posts/cache-freshness--banner.jpg" fill className="object-cover"  alt="cache freshness -- dealing with very old resources" />
+</div>
 
-However, RFC notes that this freshness logic algorithm is just a recommendation (encouraged). How do browsers actually implement it?
+## How Browsers Determine Resource Freshness by Default
 
-- Chrome / Safari: Follow the RFC-recommended 10%
-- Firefox also uses 10% but with a maximum cap of one week
+When a resource includes a `Last-Modified` header, browsers can use the time since the resource was last modified to compute a heuristic expiration time. RFC 7234 suggests the following approach:
 
-That means, if you have a file modified ten years ago and want to ensure users get updates, you may face challenges due to the long timeout applied by browsers like Chrome and Safari, which would treat the file as fresh for up to a year. This behavior can make updates troublesome, as users may continue to see outdated content until the cached version expires. To address this, developers often implement measures to force updates, such as appending version identifiers or hashes to resource URLs (e.g., style.css?v=12345) or using explicit cache control headers like Cache-Control: no-cache or max-age. These techniques ensure that updates are promptly delivered and eliminate the need to rely on browser defaults, which may not align with the update frequency of your application.
+> If the response has a `Last-Modified` header, caches are encouraged to use a heuristic expiration value that is no more than some fraction of the interval since that time. A typical setting for this fraction might be **10%**.
+
+While this heuristic provides a simple guideline, the RFC emphasizes that it is a **recommendation, not a mandate**, and browser implementations can vary.
+
+## How Major Browsers Handle Cache Freshness
+
+Here's how popular browsers implement cache freshness logic:
+- **Chrome and Safari**: Follow the RFC-recommended 10% rule.
+- **Firefox**: Also uses the 10% rule but applies a maximum cap of **one week**. This means that even if a file was last modified years ago, Firefox will treat it as fresh for no longer than one week.
+
+
+The default behavior can pose challenges for developers, especially when updating resources that haven't been modified for a long time or are rarely changed. For instance:
+- A CSS file (`style.css`) modified 10 years ago might be considered fresh for up to ***1 YEAR*** by Chrome and Safari. This could lead to users seeing outdated styles until the cache expires.
+- In Firefox, though the same file would be treated as fresh for a maximum of 1 week, it might still be too long in some scenarios.
+
+## Solutions to Control Cache Behavior
+
+To address these challenges, developers often take explicit measures to ensure that updates reach users promptly. Here are some common techniques:
+
+1. **Versioned URLs**:
+   Append version identifiers or hashes to resource URLs. This creates unique URLs for updated resources, bypassing cached versions.
+   Example:
+   ```html
+   <link rel="stylesheet" href="style.css?v=12345">
+   ```
+   When the file changes, you update the version query parameter (e.g., `?v=12346`).
+
+2. **Cache-Control Headers**:
+   Use explicit `Cache-Control` directives to control how long resources are cached.
+   Examples:
+   - Prevent caching:
+     ```
+     Cache-Control: no-cache
+     ```
+   - Set a specific expiration time:
+     ```
+     Cache-Control: max-age=3600
+     ```
+
+3. **ETag Validation**:
+   Utilize `ETag` headers to allow browsers to validate cached resources with the server.
+   Example:
+   ```
+   ETag: "abc123"
+   ```
+   The server sends a `304 Not Modified` response if the resource has not changed.
+
+## Key Takeaway
+
+When updating legacy or rarely modified resources, it is especially important to pay attention to those without explicit cache rules, as browser defaults may cause users to see outdated content for extended periods.
