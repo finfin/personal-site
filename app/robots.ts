@@ -5,7 +5,13 @@ export default function robots() {
     rules: [
       {
         userAgent: '*',
-        disallow: ['/images', '/og'],
+        disallow: [
+          '/image',
+          '/og',
+          '/*/opengraph-image',
+          '/_next',
+          '/manifest.webmanifest'
+        ],
       },
       {
         userAgent: 'facebookexternalhit',
