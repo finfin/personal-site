@@ -183,14 +183,18 @@ const SnowflakeCursor = ({
     }
 
     function addParticle(x: number, y: number) {
-      // 使用 requestAnimationFrame 來延遲添加粒子
+      if (!canvasImagesRef.current.length) {return;}
+
+      const img = canvasImagesRef.current[Math.floor(Math.random() * canvasImagesRef.current.length)];
+      if (img) {
+        particlesRef.current.push(new Particle(x, y, img, speed, life, size));
+      }
+    }
+
+    function addParticleWithRate(x: number, y: number) {
       requestAnimationFrame(() => {
-        if (rate > Math.random() && canvasImagesRef.current.length > 0 &&
-            particlesRef.current.length < MAX_PARTICLES) {
-          const img = canvasImagesRef.current[Math.floor(Math.random() * canvasImagesRef.current.length)];
-          if (img) {
-            particlesRef.current.push(new Particle(x, y, img, speed, life, size));
-          }
+        if (rate > Math.random() && particlesRef.current.length < MAX_PARTICLES) {
+          addParticle(x, y);
         }
       });
     }
@@ -223,17 +227,23 @@ const SnowflakeCursor = ({
       }
     }
 
-    function onTouchMove(e: TouchEvent) {
+    function onTouchEnd(e: TouchEvent) {
       if (!canvasRef.current) {return;}
 
-      if (e.touches.length > 0) {
-        for (let i = 0; i < e.touches.length; i++) {
-          const { x, y } = getRelativePosition(
-            { x: e.touches[i].clientX, y: e.touches[i].clientY },
-            canvasRef.current
-          )
-          addParticle(x, y)
-        }
+      e.preventDefault();
+
+      const touch = e.changedTouches[0];
+      if (touch) {
+        const { x, y } = getRelativePosition(
+          { x: touch.clientX, y: touch.clientY },
+          canvasRef.current
+        );
+
+        // 在觸控點周圍直接生成雪花，不需要機率檢查
+        const randomOffset = 20;
+        const randomX = x + (Math.random() - 0.5) * randomOffset;
+        const randomY = y + (Math.random() - 0.5) * randomOffset;
+        addParticle(randomX, randomY);
       }
     }
 
@@ -244,19 +254,17 @@ const SnowflakeCursor = ({
         { x: e.clientX, y: e.clientY },
         canvasRef.current
       )
-      addParticle(x, y)
+      addParticleWithRate(x, y);
     }
 
     function onScroll() {
       if (!canvasRef.current) {return;}
 
-      // 在視窗範圍內隨機生成雪花
-      const numFlakes = 5; // 每次滾動生成的雪花數量
+      const numFlakes = 5;
       for (let i = 0; i < numFlakes; i++) {
         const x = Math.random() * window.innerWidth;
-        // 只在螢幕上半部生成雪花（0 到 innerHeight/2 的範圍）
         const y = Math.random() * (window.innerHeight / 2);
-        addParticle(x, y);
+        addParticleWithRate(x, y);
       }
     }
 
@@ -266,8 +274,7 @@ const SnowflakeCursor = ({
       const isTouchDevice = window.matchMedia('(pointer: coarse)').matches;
 
       if (isTouchDevice) {
-        containerRef.current.addEventListener('touchend', onTouchMove);
-        containerRef.current.addEventListener('touchstart', onTouchMove);
+        containerRef.current.addEventListener('touchend', onTouchEnd, { passive: false });
       } else {
         containerRef.current.addEventListener('mousemove', onMouseMove);
       }
@@ -334,8 +341,7 @@ const SnowflakeCursor = ({
       if (containerRef.current) {
         const isTouchDevice = window.matchMedia('(pointer: coarse)').matches;
         if (isTouchDevice) {
-          containerRef.current.removeEventListener('touchend', onTouchMove);
-          containerRef.current.removeEventListener('touchstart', onTouchMove);
+          containerRef.current.removeEventListener('touchend', onTouchEnd);
         } else {
           containerRef.current.removeEventListener('mousemove', onMouseMove);
         }
