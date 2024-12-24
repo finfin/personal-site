@@ -13,6 +13,17 @@ const IMAGE_URLS = [
   'https://i.imgur.com/KYoL6oi.png',
 ]
 
+/**
+ * 定義雪花粒子的介面
+ * @interface ParticleType
+ * @property {number} x - 粒子的 X 座標
+ * @property {number} y - 粒子的 Y 座標
+ * @property {HTMLImageElement} img - 粒子的圖片元素
+ * @property {number} speed - 粒子的移動速度
+ * @property {number} life - 粒子的生命週期（秒）
+ * @property {number} size - 粒子的大小（像素）
+ * @property {number} lifeSpan - 當前剩餘生命值
+ */
 interface ParticleType {
   x: number;
   y: number;
@@ -33,6 +44,8 @@ class Particle implements ParticleType {
   size: number;
   lifeSpan: number;
   velocity: { x: number; y: number };
+  createdAt: number;
+  lastUpdate: number;
 
   constructor(x: number, y: number, img: HTMLImageElement, speed: number, life: number, size: number) {
     this.x = x;
@@ -41,19 +54,27 @@ class Particle implements ParticleType {
     this.speed = speed;
     this.life = life;
     this.size = size;
-    this.lifeSpan = life * 60;
+    this.lifeSpan = life;
+    this.createdAt = performance.now();
     this.velocity = {
-      x: (Math.random() - 0.5) * this.speed,
-      y: Math.random() * this.speed
+      x: ((Math.random() - 0.5) * 0.5) * this.speed,
+      y: ((1 + Math.random()) / 2) * this.speed
     };
+    this.lastUpdate = this.createdAt;
   }
 
   update(context: CanvasRenderingContext2D) {
-    this.x += this.velocity.x;
-    this.y += this.velocity.y;
-    this.lifeSpan--;
+    const now = performance.now();
+    const deltaTime = (now - this.lastUpdate) / 1000;
+    this.lastUpdate = now;
 
-    const scale = Math.max(0, this.lifeSpan / (this.life * 60));
+    const elapsed = (now - this.createdAt) / 1000;
+    this.lifeSpan = Math.max(0, this.life - elapsed);
+
+    this.x += this.velocity.x * deltaTime * 60;
+    this.y += this.velocity.y * deltaTime * 60;
+
+    const scale = Math.max(0, this.lifeSpan / this.life);
     const currentSize = this.size * scale;
 
     context.globalAlpha = scale;
@@ -80,6 +101,16 @@ function getRelativePosition(position: Position, canvas: HTMLCanvasElement): Pos
   return { x, y }
 }
 
+/**
+ * 雪花游標組件屬性
+ * @interface SnowflakeCursorProps
+ * @property {HTMLElement} [container] - 容器元素，默認為 document.body
+ * @property {string[]} [images] - 雪花圖片URL數組
+ * @property {number} [rate=1] - 產生雪花的機率 (0-1)
+ * @property {number} [size=30] - 雪花大小（像素）
+ * @property {number} [life=2] - 雪花存在時間（秒）
+ * @property {number} [speed=0.5] - 雪花移動速度
+ */
 interface SnowflakeCursorProps {
   container?: HTMLElement;
   images?: string[];
@@ -88,6 +119,8 @@ interface SnowflakeCursorProps {
   life?: number;
   speed?: number;
 }
+
+const MAX_PARTICLES = 500; // 限制最大粒子數量
 
 const SnowflakeCursor = ({
   container,
@@ -108,7 +141,8 @@ const SnowflakeCursor = ({
     const hasWrapperEl = containerRef.current !== document.body;
 
     function addParticle(x: number, y: number) {
-      if (rate > Math.random() && canvasImagesRef.current.length > 0) {
+      if (rate > Math.random() && canvasImagesRef.current.length > 0 &&
+          particlesRef.current.length < MAX_PARTICLES) {
         const img = canvasImagesRef.current[Math.floor(Math.random() * canvasImagesRef.current.length)];
         if (img) {
           particlesRef.current.push(new Particle(x, y, img, speed, life, size));
@@ -123,14 +157,12 @@ const SnowflakeCursor = ({
 
       contextRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
 
+      // 先過濾掉已經結束生命週期的粒子
+      particlesRef.current = particlesRef.current.filter(particle => particle.lifeSpan > 0);
+
+      // 更新剩餘的粒子
       for (let i = 0; i < particlesRef.current.length; i++) {
         particlesRef.current[i].update(contextRef.current);
-      }
-
-      for (let i = particlesRef.current.length - 1; i >= 0; i--) {
-        if (particlesRef.current[i].lifeSpan < 0) {
-          particlesRef.current.splice(i, 1);
-        }
       }
     }
 
@@ -170,18 +202,32 @@ const SnowflakeCursor = ({
       addParticle(x, y)
     }
 
+    function onScroll() {
+      if (!canvasRef.current) {return;}
+
+      // 在視窗範圍內隨機生成雪花
+      const numFlakes = 5; // 每次滾動生成的雪花數量
+      for (let i = 0; i < numFlakes; i++) {
+        const x = Math.random() * window.innerWidth;
+        // 只在螢幕上半部生成雪花（0 到 innerHeight/2 的範圍）
+        const y = Math.random() * (window.innerHeight / 2);
+        addParticle(x, y);
+      }
+    }
+
     function bindEvents() {
       if (!containerRef.current) {return;}
 
-      const isTouchDevice = window.matchMedia('(pointer: coarse)').matches
+      const isTouchDevice = window.matchMedia('(pointer: coarse)').matches;
 
       if (isTouchDevice) {
-        containerRef.current.addEventListener('touchmove', onTouchMove)
-        containerRef.current.addEventListener('touchstart', onTouchMove)
+        containerRef.current.addEventListener('touchend', onTouchMove);
+        containerRef.current.addEventListener('touchstart', onTouchMove);
       } else {
-        containerRef.current.addEventListener('mousemove', onMouseMove)
+        containerRef.current.addEventListener('mousemove', onMouseMove);
       }
-      window.addEventListener('resize', onWindowResize)
+      window.addEventListener('resize', onWindowResize);
+      window.addEventListener('scroll', onScroll);
     }
 
     function loop() {
@@ -192,7 +238,6 @@ const SnowflakeCursor = ({
     function init() {
       const canvas = document.createElement('canvas');
       const context = canvas.getContext('2d');
-
       if (!context) {return;}
 
       canvasRef.current = canvas;
@@ -238,22 +283,49 @@ const SnowflakeCursor = ({
       }
     })
 
-    // 清理函數
+    // 修改清理函數
     return () => {
+      // 停止動畫循環
+      if (window.requestAnimationFrame) {
+        window.cancelAnimationFrame(requestAnimationFrame(loop));
+      }
+
+      // 清理 canvas
       if (canvasRef.current) {
         canvasRef.current.remove();
+        canvasRef.current = null;
       }
+
+      // 清理 context
+      if (contextRef.current) {
+        contextRef.current = null;
+      }
+
+      // 清理粒子陣列
+      if (particlesRef.current) {
+        particlesRef.current = [];
+      }
+
+      // 清理圖片陣列
+      if (canvasImagesRef.current) {
+        canvasImagesRef.current = [];
+      }
+
+      // 移除事件監聽器
       window.removeEventListener('resize', onWindowResize);
 
       if (containerRef.current) {
         const isTouchDevice = window.matchMedia('(pointer: coarse)').matches;
         if (isTouchDevice) {
-          containerRef.current.removeEventListener('touchmove', onTouchMove);
+          containerRef.current.removeEventListener('touchend', onTouchMove);
           containerRef.current.removeEventListener('touchstart', onTouchMove);
         } else {
           containerRef.current.removeEventListener('mousemove', onMouseMove);
         }
+        containerRef.current = null;
       }
+
+      window.removeEventListener('scroll', onScroll);
     }
   }, [container, images, rate, size, life, speed])
 

@@ -108,10 +108,10 @@ export default async function RootLayout({
               <Footer />
               <Analytics />
               <SnowflakeCursor
-                life={30}
-                rate={0.3}
+                life={10}
+                rate={0.03}
                 size={30}
-                speed={0.3}
+                speed={1}
               />
             </main>
           </ThemeProvider>
