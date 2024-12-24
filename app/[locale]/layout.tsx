@@ -12,7 +12,7 @@ import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import Footer from '../components/footer'
 import { Navbar} from '../components/nav'
-import SnowflakeCursor from '../components/SnowFlakeCursor'
+import SnowFlakeEffect from '../components/SnowFlakeEffect'
 import { ThemeProvider } from 'next-themes'
 import {NextIntlClientProvider} from 'next-intl';
 import {getMessages, getTranslations} from 'next-intl/server';
@@ -107,11 +107,11 @@ export default async function RootLayout({
               {children}
               <Footer />
               <Analytics />
-              <SnowflakeCursor
+              <SnowFlakeEffect
                 life={10}
-                rate={0.05}
+                rate={0.03}
                 size={30}
-                speed={1}
+                speed={0.5}
               />
             </main>
           </ThemeProvider>

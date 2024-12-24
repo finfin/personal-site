@@ -123,7 +123,7 @@ interface SnowflakeCursorProps {
 
 const MAX_PARTICLES = 500; // 限制最大粒子數量
 
-const SnowflakeCursor = ({
+const SnowFlakeEffect = ({
   container,
   images = IMAGE_URLS,
   rate = 1,
@@ -188,6 +188,10 @@ const SnowflakeCursor = ({
       const img = canvasImagesRef.current[Math.floor(Math.random() * canvasImagesRef.current.length)];
       if (img) {
         particlesRef.current.push(new Particle(x, y, img, speed, life, size));
+        // 如果當前沒有運行動畫循環，就啟動它
+        if (!animationFrameRef.current) {
+          loop();
+        }
       }
     }
 
@@ -201,7 +205,7 @@ const SnowflakeCursor = ({
 
     function updateParticles() {
       if (!contextRef.current || !canvasRef.current || particlesRef.current.length === 0) {
-        return;
+        return false;  // 返回 false 表示沒有粒子需要更新
       }
 
       contextRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
@@ -213,6 +217,8 @@ const SnowflakeCursor = ({
       for (let i = 0; i < particlesRef.current.length; i++) {
         particlesRef.current[i].update(contextRef.current);
       }
+
+      return particlesRef.current.length > 0;  // 返回是否還有活著的粒子
     }
 
     function onWindowResize() {
@@ -283,7 +289,11 @@ const SnowflakeCursor = ({
     }
 
     function loop() {
-      updateParticles();
+      // 如果沒有粒子需要更新，就停止動畫循環
+      if (!updateParticles()) {
+        animationFrameRef.current = undefined;
+        return;
+      }
       animationFrameRef.current = requestAnimationFrame(loop);
     }
 
@@ -356,10 +366,10 @@ const SnowflakeCursor = ({
 }
 
 // 包裝導出的組件
-export default function WrappedSnowflakeCursor(props: SnowflakeCursorProps) {
+export default function WrappedSnowFlakeEffect(props: SnowflakeCursorProps) {
   return (
     <ErrorBoundary>
-      <SnowflakeCursor {...props} />
+      <SnowFlakeEffect {...props} />
     </ErrorBoundary>
   );
 }
