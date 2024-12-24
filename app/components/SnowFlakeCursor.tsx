@@ -232,7 +232,7 @@ const SnowflakeCursor = ({
 
     // 載入圖片並初始化
     Promise.all(images.map(url => loadImage(url))).then((results) => {
-      canvasImagesRef.current = results.filter(result => result !== null)
+      canvasImagesRef.current = results.filter((result): result is HTMLImageElement => result !== null)
       if (results.length) {
         init()
       }
