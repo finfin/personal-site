@@ -109,7 +109,7 @@ export default async function RootLayout({
               <Analytics />
               <SnowflakeCursor
                 life={10}
-                rate={0.03}
+                rate={0.05}
                 size={30}
                 speed={1}
               />

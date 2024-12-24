@@ -138,9 +138,49 @@ const SnowflakeCursor = ({
   const containerRef = useRef<HTMLElement | null>(null);
   const animationFrameRef = useRef<number>();
 
+  // Canvas 初始化
   useEffect(() => {
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    if (!context) {return;}
+
+    canvasRef.current = canvas;
+    contextRef.current = context;
+
+    canvas.style.top = '0px';
+    canvas.style.left = '0px';
+    canvas.style.pointerEvents = 'none';
+    canvas.style.position = 'fixed';
+    document.body.appendChild(canvas);
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    return () => {
+      if (canvasRef.current) {
+        canvasRef.current.remove();
+        canvasRef.current = null;
+      }
+      if (contextRef.current) {
+        contextRef.current = null;
+      }
+    };
+  }, []);
+
+  // 主要邏輯
+  useEffect(() => {
+    if (!canvasRef.current || !contextRef.current) {return;}
+
     containerRef.current = container || document.body;
     const hasWrapperEl = containerRef.current !== document.body;
+
+    // 如果有容器，重新設置 canvas 位置
+    if (hasWrapperEl && containerRef.current) {
+      canvasRef.current.style.position = 'absolute';
+      containerRef.current.appendChild(canvasRef.current);
+      containerRef.current.style.position = 'relative';
+      canvasRef.current.width = containerRef.current.clientWidth;
+      canvasRef.current.height = containerRef.current.clientHeight;
+    }
 
     function addParticle(x: number, y: number) {
       // 使用 requestAnimationFrame 來延遲添加粒子
@@ -240,35 +280,6 @@ const SnowflakeCursor = ({
       animationFrameRef.current = requestAnimationFrame(loop);
     }
 
-    function init() {
-      const canvas = document.createElement('canvas');
-      const context = canvas.getContext('2d');
-      if (!context) {return;}
-
-      canvasRef.current = canvas;
-      contextRef.current = context;
-
-      canvas.style.top = '0px';
-      canvas.style.left = '0px';
-      canvas.style.pointerEvents = 'none';
-
-      if (hasWrapperEl && containerRef.current) {
-        canvas.style.position = 'absolute';
-        containerRef.current.appendChild(canvas);
-        containerRef.current.style.position = 'relative';
-        canvas.width = containerRef.current.clientWidth;
-        canvas.height = containerRef.current.clientHeight;
-      } else {
-        canvas.style.position = 'fixed';
-        document.body.appendChild(canvas);
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-      }
-
-      bindEvents();
-      loop();
-    }
-
     function loadImage(url: string): Promise<HTMLImageElement | null> {
       return new Promise(((resolve) => {
         const img = new Image()
@@ -280,11 +291,12 @@ const SnowflakeCursor = ({
       }))
     }
 
-    // 載入圖片並初始化
+    // 載入圖片並開始動畫
     Promise.all(images.map(url => loadImage(url))).then((results) => {
       canvasImagesRef.current = results.filter((result): result is HTMLImageElement => result !== null)
       if (results.length) {
-        init()
+        bindEvents();
+        loop();
       }
     })
 
@@ -332,9 +344,9 @@ const SnowflakeCursor = ({
 
       window.removeEventListener('scroll', onScroll);
     }
-  }, [container, images, rate, size, life, speed])
+  }, [container, images, rate, size, life, speed]);
 
-  return null
+  return null;
 }
 
 // 包裝導出的組件
