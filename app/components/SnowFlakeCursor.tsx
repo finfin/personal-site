@@ -13,7 +13,6 @@ const IMAGE_URLS = [
   'https://i.imgur.com/KYoL6oi.png',
 ]
 
-// 添加 Particle 類型定義
 interface ParticleType {
   x: number;
   y: number;
@@ -25,16 +24,47 @@ interface ParticleType {
   update: (context: CanvasRenderingContext2D) => void;
 }
 
-// 修改 loadImage 函數的類型
-function loadImage(url: string): Promise<HTMLImageElement | null> {
-  return new Promise(((resolve) => {
-    const img = new Image()
-    img.onload = function onloadHandler() {
-      resolve(img)
-    }
-    img.onerror = () => resolve(null)
-    img.src = url
-  }))
+class Particle implements ParticleType {
+  x: number;
+  y: number;
+  img: HTMLImageElement;
+  speed: number;
+  life: number;
+  size: number;
+  lifeSpan: number;
+  velocity: { x: number; y: number };
+
+  constructor(x: number, y: number, img: HTMLImageElement, speed: number, life: number, size: number) {
+    this.x = x;
+    this.y = y;
+    this.img = img;
+    this.speed = speed;
+    this.life = life;
+    this.size = size;
+    this.lifeSpan = life * 60;
+    this.velocity = {
+      x: (Math.random() - 0.5) * this.speed,
+      y: Math.random() * this.speed
+    };
+  }
+
+  update(context: CanvasRenderingContext2D) {
+    this.x += this.velocity.x;
+    this.y += this.velocity.y;
+    this.lifeSpan--;
+
+    const scale = Math.max(0, this.lifeSpan / (this.life * 60));
+    const currentSize = this.size * scale;
+
+    context.globalAlpha = scale;
+    context.drawImage(
+      this.img,
+      this.x - currentSize / 2,
+      this.y - currentSize / 2,
+      currentSize,
+      currentSize
+    );
+  }
 }
 
 // 添加位置介面
@@ -77,54 +107,11 @@ const SnowflakeCursor = ({
     containerRef.current = container || document.body;
     const hasWrapperEl = containerRef.current !== document.body;
 
-    class Particle implements ParticleType {
-      x: number;
-      y: number;
-      img: HTMLImageElement;
-      speed: number;
-      life: number;
-      size: number;
-      lifeSpan: number;
-      velocity: { x: number; y: number };
-
-      constructor(x: number, y: number, img: HTMLImageElement) {
-        this.x = x;
-        this.y = y;
-        this.img = img;
-        this.speed = speed;
-        this.life = life;
-        this.size = size;
-        this.lifeSpan = life * 60;
-        this.velocity = {
-          x: (Math.random() - 0.5) * this.speed,
-          y: Math.random() * this.speed
-        };
-      }
-
-      update(context: CanvasRenderingContext2D) {
-        this.x += this.velocity.x;
-        this.y += this.velocity.y;
-        this.lifeSpan--;
-
-        const scale = Math.max(0, this.lifeSpan / (life * 60));
-        const currentSize = this.size * scale;
-
-        context.globalAlpha = scale;
-        context.drawImage(
-          this.img,
-          this.x - currentSize / 2,
-          this.y - currentSize / 2,
-          currentSize,
-          currentSize
-        );
-      }
-    }
-
     function addParticle(x: number, y: number) {
       if (rate > Math.random() && canvasImagesRef.current.length > 0) {
         const img = canvasImagesRef.current[Math.floor(Math.random() * canvasImagesRef.current.length)];
         if (img) {
-          particlesRef.current.push(new Particle(x, y, img));
+          particlesRef.current.push(new Particle(x, y, img, speed, life, size));
         }
       }
     }
@@ -230,6 +217,17 @@ const SnowflakeCursor = ({
 
       bindEvents();
       loop();
+    }
+
+    function loadImage(url: string): Promise<HTMLImageElement | null> {
+      return new Promise(((resolve) => {
+        const img = new Image()
+        img.onload = function onloadHandler() {
+          resolve(img)
+        }
+        img.onerror = () => resolve(null)
+        img.src = url
+      }))
     }
 
     // 載入圖片並初始化
