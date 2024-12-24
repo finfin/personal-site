@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
+import { ErrorBoundary } from './ErrorBoundary'
 
 const IMAGE_URLS = [
   'https://i.imgur.com/ATIK70z.png',
@@ -135,19 +136,23 @@ const SnowflakeCursor = ({
   const particlesRef = useRef<ParticleType[]>([]);
   const canvasImagesRef = useRef<HTMLImageElement[]>([]);
   const containerRef = useRef<HTMLElement | null>(null);
+  const animationFrameRef = useRef<number>();
 
   useEffect(() => {
     containerRef.current = container || document.body;
     const hasWrapperEl = containerRef.current !== document.body;
 
     function addParticle(x: number, y: number) {
-      if (rate > Math.random() && canvasImagesRef.current.length > 0 &&
-          particlesRef.current.length < MAX_PARTICLES) {
-        const img = canvasImagesRef.current[Math.floor(Math.random() * canvasImagesRef.current.length)];
-        if (img) {
-          particlesRef.current.push(new Particle(x, y, img, speed, life, size));
+      // 使用 requestAnimationFrame 來延遲添加粒子
+      requestAnimationFrame(() => {
+        if (rate > Math.random() && canvasImagesRef.current.length > 0 &&
+            particlesRef.current.length < MAX_PARTICLES) {
+          const img = canvasImagesRef.current[Math.floor(Math.random() * canvasImagesRef.current.length)];
+          if (img) {
+            particlesRef.current.push(new Particle(x, y, img, speed, life, size));
+          }
         }
-      }
+      });
     }
 
     function updateParticles() {
@@ -178,7 +183,7 @@ const SnowflakeCursor = ({
       }
     }
 
-    function onTouchMove(e) {
+    function onTouchMove(e: TouchEvent) {
       if (!canvasRef.current) {return;}
 
       if (e.touches.length > 0) {
@@ -192,7 +197,7 @@ const SnowflakeCursor = ({
       }
     }
 
-    function onMouseMove(e) {
+    function onMouseMove(e: MouseEvent) {
       if (!canvasRef.current) {return;}
 
       const { x, y } = getRelativePosition(
@@ -231,8 +236,8 @@ const SnowflakeCursor = ({
     }
 
     function loop() {
-      updateParticles()
-      requestAnimationFrame(loop)
+      updateParticles();
+      animationFrameRef.current = requestAnimationFrame(loop);
     }
 
     function init() {
@@ -286,8 +291,8 @@ const SnowflakeCursor = ({
     // 修改清理函數
     return () => {
       // 停止動畫循環
-      if (window.requestAnimationFrame) {
-        window.cancelAnimationFrame(requestAnimationFrame(loop));
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
       }
 
       // 清理 canvas
@@ -332,4 +337,11 @@ const SnowflakeCursor = ({
   return null
 }
 
-export default SnowflakeCursor
+// 包裝導出的組件
+export default function WrappedSnowflakeCursor(props: SnowflakeCursorProps) {
+  return (
+    <ErrorBoundary>
+      <SnowflakeCursor {...props} />
+    </ErrorBoundary>
+  );
+}
