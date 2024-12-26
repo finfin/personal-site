@@ -10,10 +10,11 @@ export default async function sitemap() {
     lastModified: new Date().toISOString().split('T')[0],
   }))
 
-  const routes = ['', '/posts'].map((route) => ({
+  const routes = ['', 'en', 'zh-TW'].map((route) => ({
     url: `${baseUrl}${route}`,
     lastModified: new Date().toISOString().split('T')[0],
   }))
+
 
   return [...routes, ...posts]
 }

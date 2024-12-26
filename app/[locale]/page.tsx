@@ -4,6 +4,15 @@ import { Link } from 'i18n/routing'
 import { compareDesc } from 'date-fns'
 import { allPosts } from 'contentlayer/generated'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/card'
+import { Metadata } from 'next'
+
+export const generateMetadata = async (): Promise<Metadata> => {
+  const t = await getTranslations('home');
+
+  return {
+    title: t('title'),
+  }
+}
 
 export async function generateStaticParams() {
   return [
