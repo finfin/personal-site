@@ -100,7 +100,7 @@ In v4, we define our dark variant behavior alongside our Tailwind import, in the
 
 ```css
 @import "tailwindcss";
-@variant dark (&:where([data-theme="dark"]));
+@variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 ```
 
 Instead of relying heavily on the JavaScript configuration file, v4 moves configuration options directly into CSS. For example, we can now define custom colors as CSS variables (`--color-primary: #ff0000;`), configure variants using `@variant` directives.

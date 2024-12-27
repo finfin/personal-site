@@ -96,7 +96,7 @@ module.exports = {
 
 ```css
 @import "tailwindcss";
-@variant dark (&:where([data-theme="dark"]));
+@variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 ```
 
 v4 將設定直接移至 CSS 中，而非使用獨立的 `tailwind.config.js`。例如，我們現在可以使用 CSS 變數定義自訂顏色（`--color-primary: #ff0000;`），使用 `@variant` 指令設定深色模式。
