@@ -21,6 +21,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
   }
 
   componentDidCatch(error: Error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to initialize component:', error);
   }
 

@@ -9,6 +9,7 @@ interface PostsProps {
 
 function PostCard({post} : {post: Post}) {
   const {path, date, title, summary, slug} = post
+
   return (
     <Link href={path} key={slug}>
       <Card className="transition-colors dark:bg-black/10 bg-white/30 hover:bg-white/50 hover:dark:bg-black/30 ">

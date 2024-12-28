@@ -30,10 +30,10 @@ export const CodePen: FunctionComponent<ICodePenProps> = ({
     height={height}
     scrolling="no"
     src={`https://codepen.io/team/codepen/embed${
-    clickToLoad ? '/preview' : ''
+      clickToLoad ? '/preview' : ''
     }/${codePenId}?height=${height}&theme-id=${theme}&default-tab=${tabs}${editable ? '&editable=true' : ''}`}
     style={{
-    width: '100%',
+      width: '100%',
     }}
     title={`codepen-${codePenId}`}
   />

@@ -5,6 +5,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import js from '@eslint/js';
 import { FlatCompat } from '@eslint/eslintrc';
+import stylistic from '@stylistic/eslint-plugin'
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -25,6 +26,7 @@ export default [...fixupConfigRules(compat.extends(
 )), {
     plugins: {
         react: fixupPluginRules(react),
+        '@stylistic': stylistic
     },
 
     languageOptions: {
@@ -95,5 +97,6 @@ export default [...fixupConfigRules(compat.extends(
 
         'react-hooks/rules-of-hooks': 'error',
         'react-hooks/exhaustive-deps': 0,
+        '@stylistic/indent': ['error', 2],
     },
 }];

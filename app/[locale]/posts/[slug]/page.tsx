@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: Props) {
       url: `${baseUrl}/${p.language}/posts/${p.slug}`,
       hreflang: p.language
     }));
-  console.log(alternateLanguages)
+
   return {
     title,
     description: summary,
