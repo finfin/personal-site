@@ -4,6 +4,7 @@ import highlight from 'rehype-highlight'
 import rehypeSlug from 'rehype-slug'
 import rehypeAutolinkHeadings from 'rehype-autolink-headings'
 import remarkGfm from 'remark-gfm';
+import rehypeImgSize from 'rehype-img-size';
 
 export const Post = defineDocumentType(() => ({
   name: 'Post',
@@ -77,6 +78,7 @@ export default makeSource({
   mdx: {
     remarkPlugins: [remarkGfm],
     rehypePlugins: [
+      // [rehypeImgSize, { dir: 'public' }],
       rehypeSlug,
       [rehypeAutolinkHeadings, {
         behavior: 'prepend',
@@ -86,6 +88,7 @@ export default makeSource({
         },
       }],
       highlight,
+
     ],
   },
 })

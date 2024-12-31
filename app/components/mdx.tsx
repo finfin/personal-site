@@ -64,6 +64,15 @@ function createHeading(level) {
   return Heading
 }
 
+function img({ src, width, height, alt, ...props }) {
+  console.log(props);
+  return (
+    <figure className={'relative w-full aspect-(--image-aspect) max-h-[70vh] rounded-lg'} style={{'--image-aspect': `${height}/${width}`} as React.CSSProperties }>
+      <Image alt={alt} layout="fill" objectFit="contain" src={src} />
+    </figure>
+  )
+}
+
 export const mdxComponents = {
   h1: createHeading(1),
   h2: createHeading(2),
@@ -72,6 +81,7 @@ export const mdxComponents = {
   h5: createHeading(5),
   h6: createHeading(6),
   Image: RoundedImage,
+  img: img,
   a: CustomLink,
   Table,
   CodePen
