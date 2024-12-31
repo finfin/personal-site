@@ -19,9 +19,7 @@ Nonce 是一個僅使用一次的隨機字串，用於確保每個請求或操�
 
 Nonce 有點像是是活動入場券。每張票都有唯一的編號，僅能使用一次來進入活動場地。當票在入口被掃描後，系統會將其標記為已使用，確保相同的票無法再次使用進入。
 
-<div className="relative w-full aspect-[7/5]">
-  <Image src="/images/posts/nonce-and-csrf-token--nonce.svg" fill className="object-contain"  alt="" />
-</div>
+![nonce-flow](/images/posts/nonce-and-csrf-token--nonce.svg)
 
 ## Nonce 的應用場景
 
@@ -127,6 +125,9 @@ CSRF 攻擊的典型場景是利用受害者的已登入狀態，在未經授權
 CSRF Token 通常由伺服器生成並與 session 綁定。伺服器將 Token 發送至用戶瀏覽器，並要求用戶在每次請求中附加此 Token。伺服器在接收請求時會驗證 Token 是否與用戶會話中的值匹配。如果 Token 無效或缺失，請求將被拒絕。
 
 該機制通過驗證請求的合法性，阻止攻擊者利用跨站方式冒充用戶身份進行敏感操作，以提升應用的安全性。
+
+![CSRF Token Flow](/images/posts/nonce-and-csrf-token--csrf-token.svg)
+
 
 ## CSRF Token 的應用場景
 

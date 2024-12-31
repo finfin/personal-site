@@ -64,11 +64,10 @@ function createHeading(level) {
   return Heading
 }
 
-function img({ src, width, height, alt, ...props }) {
-  console.log(props);
+function img({ src, width, height, alt }) {
   return (
-    <figure className={'relative w-full aspect-(--image-aspect) max-h-[70vh] rounded-lg'} style={{'--image-aspect': `${height}/${width}`} as React.CSSProperties }>
-      <Image alt={alt} layout="fill" objectFit="contain" src={src} />
+    <figure className={'relative w-full aspect-(--image-aspect) max-h-(--image-max-height) rounded-lg'} style={{'--image-aspect': `${width}/${height}`, '--image-max-height': `min(70vh, ${height}px)`} as React.CSSProperties }>
+      <Image alt={alt} className="object-contain rounded-sm" fill src={src} />
     </figure>
   )
 }

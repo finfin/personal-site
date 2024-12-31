@@ -57,6 +57,7 @@ export default async function Blog({ params }: Props ) {
     notFound()
   }
 
+
   return (
     <section className='[view-transition-name:blog-post] mb-4'>
       <script

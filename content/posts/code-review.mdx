@@ -8,7 +8,7 @@ language: zh-TW
 socialImage: 'code-review--banner.jpg'
 ---
 
-在帶領產品團隊幾年後，深深覺得 Code Review 是很好用的工具，但同時又有很多可以改進的地方。所以，這篇就以我自身多年來的經驗，整合一些研究的資料，分享給大家。
+在帶領產品團隊幾年後，深深覺得 Code Review 是很好用的工具，但同時又有很多坑要踩。所以，這篇就以自己多年來的經驗，整合一些研究的資料，分享給大家。
 
 ## 軟體開發中的常見問題
 
@@ -145,9 +145,7 @@ Code Review 的執行方式可以粗略分為 **同步** 和 **非同步** 兩�
 越複雜的變更越需要人為的直接參與，確保有足夠深度的討論與檢驗。而越緊急的則是需要加快審查速度，比較簡單的任務如果有通過測試且有信心，那不審查直接上線有何不可？
 
 
-<div className="relative w-full aspect-[932/665] max-h-[70vh]">
-  <Image alt="Code Review 形式象限圖" layout="fill" objectFit="contain" src="/images/posts/code-review--1.png" />
-</div>
+![Code Review 形式象限圖](/images/posts/code-review--1.png)
 
 ---
 
@@ -156,9 +154,7 @@ Code Review 的執行方式可以粗略分為 **同步** 和 **非同步** 兩�
 Code Review 涉及多個層面，以下逐一介紹不同的層面，以及每個層面的審查重點
 
 
-<div className="relative w-full aspect-[1783/1532] max-h-[70vh]">
-  <Image alt="審查時的不同層面與要點" layout="fill" objectFit="contain" src="/images/posts/code-review--2.png" />
-</div>
+![審查時的不同層面與要點](/images/posts/code-review--2.png)
 
 ### 程式碼規範
 
@@ -170,9 +166,7 @@ Code Review 涉及多個層面，以下逐一介紹不同的層面，以及每�
 
 樣式規則部分可以高度自動化，例如透過靜態程式碼分析工具檢查格式及簡單的命名規範，比如是否有遵照 CamelCase 來命名。比較難自動化的是可讀性的部分，這部份會需要人工審查來處理。好消息是部分可以交給 AI 來處理，Copilot / Cursor / Windsurf 都有類似的功能，如圖是我使用 cursor chat 『檢查檔案內的程式碼的可讀性』
 
-<div className="relative w-full aspect-[1398/790] max-h-[70vh]">
-  <Image alt="Cursor 命名 Review" layout="fill" objectFit="contain" src="/images/posts/code-review--3.png" />
-</div>
+![Cursor 命名 Review](/images/posts/code-review--3.png)
 
 ---
 
@@ -246,9 +240,7 @@ Code Review 涉及多個層面，以下逐一介紹不同的層面，以及每�
 
 最近開始使用了一款叫 **Code Rabbit AI** 的工具，它是一個免費的開源工具，且整合起來相當簡單。透過這類工具，我們可以提升 Code Review 的效率，對於基礎問題的審查很有幫助。
 
-<div className="relative w-full aspect-[752/500] max-h-[70vh]">
-  <Image alt="審查時的不同層面與要點" layout="fill" objectFit="contain" src="/images/posts/code-review--4.png" />
-</div>
+![CodeRabbitAI Review](/images/posts/code-review--4.png)
 
 以下是一些關於使用 AI 工具的要點與觀察：
 
@@ -354,9 +346,7 @@ API 原則可以建立團隊互信，能讓 Code Review 溝通更為順暢，減
 
 講到這邊就很想拿大神來當案例，我們來看一下大神的 code review （翻譯版本）：
 
-<div className="relative w-full aspect-[2160/1888] max-h-[70vh]">
-  <Image alt="案例解析" layout="fill" objectFit="contain" src="/images/posts/code-review--5.png" />
-</div>
+![案例解析](/images/posts/code-review--5.png)
 
 我們用前面提到的幾點來檢視這個 Code Review Comment：
 
@@ -374,9 +364,7 @@ API 原則可以建立團隊互信，能讓 Code Review 溝通更為順暢，減
 
 前面我們討論了 Reviewer 可以做的事情，包含 Review 本身的執行以及 Reviewer 與開發者的知識交流。現在我們再把範圍拉大，從整體開發流程的角度來看，還有哪些可以優化的地方？
 
-<div className="relative w-full aspect-[2538/1204] max-h-[70vh]">
-  <Image alt="開發流程與 Code REview" layout="fill" objectFit="contain" src="/images/posts/code-review--6.png" />
-</div>
+![開發流程與 Code Review](/images/posts/code-review--6.png)
 
 
 ## 在功能規劃階段把規格定義與紀錄清楚
@@ -391,9 +379,7 @@ API 原則可以建立團隊互信，能讓 Code Review 溝通更為順暢，減
 
 ## PR 大小 vs Review 效用
 
-<div className="relative w-full aspect-[1196/653] max-h-[70vh]">
-  <Image alt="PR 大小 vs Review 效用" layout="fill" objectFit="contain" src="/images/posts/code-review--7.png" />
-</div>
+![PR 大小 vs Review 效用](/images/posts/code-review--7.png)
 
 從這張圖中可以看到，**PR 包含的文件數量與其效用密度之間呈現負相關趨勢**。當 PR 涉及的文件數量增加時，Review 的有效性開始下降。合理的推論是：大型的 PR 讓 Reviewer 無法全面理解，進一步降低了回饋所能提供的價值。
 
@@ -401,9 +387,7 @@ API 原則可以建立團隊互信，能讓 Code Review 溝通更為順暢，減
 
 ## PR 大小 vs Review 耗時
 
-<div className="relative w-full aspect-[1920/1340] max-h-[70vh]">
-  <Image alt="審查時的不同層面與要點" layout="fill" objectFit="contain" src="/images/posts/code-review--8.webp" />
-</div>
+![PR 大小 vs Review 耗時](/images/posts/code-review--8.webp)
 
 第二張圖表分成兩個階段，在 PR 修改行數小於兩千時，**修改行數越多，Review 和合併所需的時間就越長**。當變更行數小於 50 時，平均合併時間僅需不到 2 天（約 36 小時），但當行數達到 500-1000 時，平均耗時攀升至近 4 天。不過當行數超過兩千，合併的時間反而不再增加。這有幾種可能：
 
@@ -479,9 +463,7 @@ I want you to performing a code review, ensure the following checklist is satisf
 
 - **產生 PR Description （GitHub Copilot）：**
 
-<div className="relative w-full aspect-[1090/695] max-h-[70vh]">
-  <Image alt="產生 PR Description" layout="fill" objectFit="contain" src="/images/posts/code-review--9.png" />
-</div>
+![產生 PR Description](/images/posts/code-review--9.png)
 
 - **產生規格文件 / 測試案例：** 工程師可以產的有比如像是 API 說明、假資料等，甚至進一步產生一些測試案例，幫助測試或驗證
 

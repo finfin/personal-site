@@ -14,7 +14,6 @@ socialImage: dark-mode-with-tailwind-v4-nextjs.png
 
 我們的目標是建立一個主題選擇功能，當使用者造訪網站時，將有三種主題選項可供選擇：淺色、深色和自動（跟隨系統設定）。這個行為借鑑了 [Stack Overflow 的主題選擇系統](https://stackoverflow.com/users/preferences/)，這是一個常見，已逐漸被大眾接受的外觀主題設定方式。
 
-![](./%E6%88%AA%E5%9C%96%202024-11-29%20%E4%B8%8A%E5%8D%889.20.18.png)
 
 這個機制預設使用自動模式，會根據使用者的裝置主題偏好進行調整。使用者可以透過選擇淺色或深色模式來覆蓋此設定，且他們的選擇會被記住，以確保一致的使用體驗。
 
@@ -46,7 +45,6 @@ export default {
 
 ## 第零步：運用 Tailwind 的預設深色模式
 
-![](./Step%200.gif)
 
 我們透過 [Tailwind 的 `dark` variant ](https://tailwindcss.com/docs/v4-beta#configuring-dark-mode)提供內建的深色模式支援。當使用像 `text-black dark:text-white` 這樣的 class 時，Tailwind 會根據使用者的系統偏好自動在這些樣式之間切換。
 
@@ -77,7 +75,6 @@ Tailwind 會自動生成使用 `prefers-color-scheme` 媒體查詢的 CSS。例�
 
 ## 第一步：自訂主題控制
 
-![](./2024-11-29%2013.54.46.gif)
 
 這一步，我們將新增下拉選單來選擇主題。這涉及三個關鍵部分：自訂 Tailwind 的主題屬性、建立主題管理系統，以及主題選擇的元件。
 
@@ -316,7 +313,6 @@ export function ThemeProvider({ children }) {
 
 要注意 `matchMedia` 取得的是瀏覽器回報的主題偏好，而這不一定是直接從作業系統獲取。舉例來說，Arc 瀏覽器可以有自己的主題設定，這會覆蓋系統偏好。這也就是說，在「自動」模式下，主題會依據使用者在瀏覽器設定的偏好來顯示，如下圖。
 
-![](./Nov%2029%202024.gif)
 
 ## 額外補充：使用 next-themes 函式庫
 
