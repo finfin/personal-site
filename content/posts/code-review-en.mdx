@@ -1,0 +1,469 @@
+---
+title: 'Things About Code Review: Balancing Code Quality and Development Speed'
+date: '2025-01-01'
+slug: 'code-review'
+summary: 'Code Review，不只是找 bug，而是促進團隊合作、分享知識與提升技術成長的關鍵過程。該如何兼顧效率與品質，讓審查成為團隊的助力，而非負擔？'
+type: Post
+language: en
+socialImage: 'code-review--banner.jpg'
+---
+
+After leading product teams for several years, I’ve come to deeply appreciate Code Review as an effective tool, though it comes with its fair share of pitfalls. Drawing from my experience and research, I’ve compiled some insights to share with you.
+
+## Common Challenges in Software Development
+
+During the software development process, many of us encounter situations like these:
+
+- **Team members taking leave or being absent**: Development or review schedules get delayed due to unexpected absences.
+- **Reduced code maintainability**: As new features are added, code complexity increases, and development time gets prolonged.
+- **Lower-than-expected output quality**: Features often launch with bugs. **QA, PMs, managers, clients, and users** all ask the same question: “Why does our product have so many issues?”
+- **Developers lacking confidence in their code**: They might worry about missing requirements or potential system failures due to edge cases. This not only affects individual efficiency but can also slow down the entire team.
+
+## Adding a Gatekeeper: Code Review
+
+To address these challenges, many teams choose to implement Code Review. Here’s what most people expect Code Review to achieve:
+
+### What We Hope Code Review Can Accomplish
+
+- **Foster teamwork and knowledge sharing**:
+   - Increase the team’s bus factor by ensuring more members are familiar with critical code.
+   - Help new developers quickly adapt to the team’s style and best practices.
+- **Improve code quality and maintainability**:
+   - Ensure code adheres to team standards.
+   - Reduce technical debt, making future maintenance easier.
+- **Ensure specifications are met and reduce bugs**:
+   - Verify that implementations align with requirements, avoiding missed details.
+   - Identify potential issues through multiple sets of eyes.
+- **Boost deployment confidence**:
+   - With team-wide endorsement, deployments become more reassuring.
+   - Especially in cross-departmental collaborations, Code Review helps minimize iterative fixes caused by oversight, strengthening team trust.
+
+## The Current State and Challenges of Code Review
+
+While the idea is appealing, the reality is often much tougher. Here are some common challenges:
+
+### Time-Consuming
+
+Code Review is an extremely time-intensive task. For most teams, it takes an average of **6 hours per developer per week**, and my personal record was spending over 30 hours in a week just on reviews. This means dedicating several hours every workday to reviewing others’ code, leaving little time to focus on one’s own development progress.
+
+### PRs Take Days to Merge
+
+Due to the time-consuming nature of reviews, the entire Pull Request (PR) process often stretches out over several days or more. This is particularly true for **large and complex PRs**. As the time from opening to merging a PR increases, the rhythm of development iterations slows down as well.
+
+### Limited Effectiveness in Identifying Issues
+
+Research shows that **only 14% of review feedback addresses actual issues**. This indicates that while a significant amount of time is spent on Code Review, its direct impact on reducing errors is limited.
+
+At this point, let’s pause and reflect on an important question:
+
+## What Is the Essence of Code Review?
+
+Here’s my answer:
+
+> **The essence of Code Review is to enhance output quality and the team’s technical level through the exchange of knowledge and perspectives.**
+
+This sounds ideal. Developers hope that reviews can genuinely improve code quality. However, on the other hand, the resources invested in Code Review pose a significant burden on development teams.
+
+## Balancing Code Quality and Development Efficiency in Code Review
+
+Now, let’s return to the core topic of this article: improving code quality through Code Review while minimizing its impact on development efficiency. Here, we’ll break Code Review down into three levels:
+
+1. **Review Execution**: This focuses on how Code Review is conducted, including choosing the right format, balancing synchronous and asynchronous methods, defining the scope of reviews, and identifying key review points.
+
+2. **Knowledge Exchange**: Beyond execution, Code Review is a process that fosters interaction and knowledge transfer between reviewers and developers. At this level, we need to consider how to improve efficiency in communication and ensure smooth knowledge flow.
+
+3. **Overall Development Process**: From a broader perspective, this level examines Code Review within the context of the entire development workflow, identifying areas for optimization. This might include shifting tasks earlier in the process, working with smaller task units, or leveraging automation tools to streamline reviews.
+
+These three levels decompose Code Review into points, lines, and planes. The **review execution** level is the point, the **knowledge exchange** level connects the points into lines, and the **overall development process** forms the complete plane. In the following sections, we’ll explore the key aspects and implementation strategies for each of these levels.
+
+---
+
+## Review Execution
+
+The way Code Review is conducted directly impacts its efficiency and effectiveness. It can be further broken down into ***review formats*** and ***review focus areas***.
+
+---
+
+## Review Formats
+
+The execution of Code Review can be broadly categorized into **synchronous** and **asynchronous** approaches, each suited for specific scenarios and offering unique characteristics.
+
+### Synchronous Formats
+
+Synchronous Code Reviews are conducted in real-time, requiring the simultaneous participation of two or more people:
+
+- **Pair Programming**: Two people work together in real-time, with one writing the code and the other reviewing and providing feedback on the spot.
+
+- **Live Review**: A real-time session where the developer and reviewer collaborate to review and discuss the code, quickly resolving issues and ensuring code quality through immediate interaction.
+
+- **Code Review Meeting**: A team-wide review meeting where key code changes are discussed in-depth to gather multiple perspectives and improve the overall quality of outputs.
+
+- **Code Walkthrough**: A more knowledge-sharing-oriented activity, where the developer explains the code’s logic and functionality step-by-step. Team members mainly observe and ask questions to enhance their understanding and learn from the code.
+
+Synchronous reviews are characterized by their immediacy and interactivity, making them ideal for quickly resolving issues or engaging in deep discussions. However, they require participants to align their schedules, increasing time costs.
+
+### Asynchronous Formats
+
+Asynchronous Code Reviews don’t require participants to be present at the same time. All reviews and feedback are conducted through digital mediums, such as:
+
+- **PR Review**: Developers submit a Pull Request (PR), and reviewers can examine the code changes, leave comments, and discuss at their convenience.
+
+Asynchronous reviews offer high flexibility, making them suitable for distributed teams and cross-time-zone collaborations. However, the lack of real-time interaction can limit discussions, especially for complex changes.
+
+---
+
+### The Core Difference Between Synchronous and Asynchronous Reviews
+
+Synchronous formats emphasize real-time interaction, making them suitable for complex or urgent changes. Asynchronous formats, on the other hand, focus on flexibility, allowing participants to complete reviews at their own pace. Both have their specific use cases. Below is a comparison table outlining the characteristics and applications of various review formats.
+
+### Comparison Table: Features and Applications of Different Code Review Formats
+
+| **Format** | **Core Characteristics** | **Use Cases** | **Advantages** | **Disadvantages** |
+|---|---|---|---|---|
+| **Pair Programming** | Synchronous collaboration where two developers work together, with one writing code and the other reviewing and providing feedback in real-time. | - Complex feature development<br/>- High-risk code implementation<br/>- Onboarding new developers | - Instant feedback for quick problem resolution<br/>- Reduces code defects<br/>- Promotes knowledge sharing | - Requires synchronized schedules<br/>- High demands on time and manpower |
+| **Live Review** | Real-time code review where the reviewer and developer discuss code details directly. | - Urgent changes, quick validation<br/>- Complex code requiring detailed discussion<br/>- Mentorship for newcomers | - Immediate interaction reduces communication overhead<br/>- Ideal for addressing high-complexity issues<br/>- Builds team trust | - Consumes time for multiple participants |
+| **Code Review Meeting** | A formal code review involving the entire team, focusing on critical code changes for in-depth discussion. | - Significant architectural or design changes<br/>- High-risk features<br/>- Team knowledge sharing | - Multiple perspectives for comprehensive checks<br/>- Encourages team learning<br/>- Enhances design transparency | - Very high time costs |
+| **Code Walkthrough** | A synchronous activity where developers explain the code’s logic and design step-by-step while reviewers ask questions and provide suggestions. | - Mentorship for newcomers<br/>- Understanding complex code<br/>- Familiarizing team members with new system modules | - Supports growth of new team members<br/>- Helps the team understand complex system logic<br/>- Encourages developers to reflect on their code design | - More teaching-focused, less efficient than targeted code reviews<br/>- Can consume significant time |
+| **PR Review** | Asynchronous code review conducted via tools (e.g., GitHub/GitLab), where reviewers examine changes and leave comments. | - Reviewing routine development changes<br/>- Distributed or cross-time-zone teams | - Flexible timing<br/>- Review records available for future reference<br/>- Can integrate with automation tools (e.g., CI/CD) for higher efficiency | - Lack of real-time interaction may hinder communication<br/>- Complex changes may be harder to understand |
+
+---
+
+## Choosing the Right Format
+
+When conducting Code Reviews, you can determine the most suitable review format based on the "complexity" and "urgency" of the development task. These tasks can be categorized into four quadrants to guide the decision-making process.
+
+The more complex the change, the greater the need for direct human involvement to ensure thorough discussion and examination. Conversely, the more urgent the task, the faster the review needs to proceed. For simpler tasks that have passed testing and are deemed reliable, why not skip the review and deploy directly?
+
+![Code Review Format Quadrant](/images/posts/code-review--13.png)
+
+---
+## Review Layers and Key Focus Areas
+
+Code Review encompasses multiple layers. Below is an overview of the different layers and their key review points.
+
+![Review Layers and Key Focus Areas](/images/posts/code-review--12.png)
+
+### Coding Guideline
+
+Coding guideline is aimed at maintaining project consistency so all developers can quickly understand and extend the code. Key points include:
+
+- **Follow project code style and naming conventions**: Ensure code is cleanly formatted and consistent.
+- **Readability**: Code should be clear and simple, enabling others to understand it quickly. This includes naming variables in a way that clearly reflects their purpose or intent.
+
+Code style rules can largely be automated using static code analysis tools to check formatting and simple naming conventions, such as ensuring variables are named in CamelCase. However, readability often requires manual review. The good news is that some of this work can be offloaded to AI tools like Copilot, Cursor, or Windsurf. For instance, the following image shows how I used Cursor Chat to "check the readability of code within a file."
+
+![Cursor Naming Review](/images/posts/code-review--11.png)
+
+---
+
+### Testing
+
+Testing is a form of self-review and includes the following key focus areas:
+
+- Ensuring tests align with requirements and cover all specified aspects.
+- Verifying that all tests pass, particularly for reasonable tests targeting new features.
+- Checking edge-case tests to ensure extreme or abnormal scenarios are handled correctly.
+- Addressing non-functional requirements (NFRs), such as performance, stability, and security testing.
+
+Testing is typically integrated with CI/CD tools for automation.
+
+---
+### Documentation
+
+Good documentation is essential for team knowledge sharing:
+
+- **Thorough documentation of new features**: Background, purpose, design logic, and implementation details should be clearly recorded.
+- **Relating documentation updated**: This includes README files, API documentation, user guides, etc., ensuring they reflect the current state.
+- **Readability and accessibility of documentation**: Documentation should be understandable and searchable when needed.
+
+Code is often the single source of truth for engineers, but documentation may be scattered across different locations. Thus, it’s crucial to ensure documentation is both comprehensive and **easy to find** and **up-to-date**. Missing documents provide no value, and outdated information can lead to incorrect development directions. While automation for documentation is limited, AI combined with document templates can help generate drafts.
+
+---
+
+### Implementation
+
+Implementation is naturally a focal point of Code Review, with the following key areas of focus:
+
+- **Fulfilling functional requirements**: Ensuring all specified needs are met without omissions.
+- **Correct and concise logic**: Avoid unnecessary complexity.
+- **Robustness**: Handle unexpected inputs, edge cases, and failures gracefully without crashing.
+- **Secure**: Considered risks such as SQL injection, XSS, etc.
+- **Observability**: Including sufficient logs, traces, or metrics to support maintenance and status monitoring.
+
+Implementation have various levels of complexity, thus manual involvement is often required. The good news is that AI review tools (or simple prompts) can handle reviews of lower complexity.
+
+---
+
+### Boundaries
+
+Boundaries refer to the areas outside the scope of the current changes that might be affected by them — this includes systems, external resources, or users. For instance, changing a database attribute affects the database table, its associated data model, anyone using the model, and any other areas interacting with the database attribute. Changing a button affects the page and users interacting with it. Review focus areas include:
+
+- **Minimizing impact**: Ensure the boundaries are simplified and dependencies are reduced while meeting requirements.
+- **Consistency and the Principle of Least Surprise**: Ensure developers interacting with the boundaries can quickly understand their behavior.
+- **Hiding internal implementation details**: Expose only the necessary functions or interfaces to the outside.
+- **Existing systems working properly**: Ensure all affected parts function correctly.
+
+Think of adding a subway line to a metropolis. The construction scope, integration with existing structures, coordination with current roads, and even the connection between stations and traffic flow are all boundary issues. The more complex the functionality and changes, the more intricate the boundaries become. Fortunately, much of this complexity can be shifted left(earlier) in the development process, which will be further discussed in the "Development Process" section.
+
+---
+The higher layers of these five aspects are easier to automate. Ideally, we should automate the top layers as much as possible and focus our efforts on the last two: implementation and boundary reviews.
+
+## AI Code Review Tools
+
+Recently, I started using a tool called **Code Rabbit AI**. It's a cool AI Code Review tool, and very easy to integrate. Tools like this can improve the efficiency of Code Reviews and are particularly helpful for finding foundational issues.
+
+![CodeRabbitAI Review](/images/posts/code-review--4.png)
+
+There’s so much to discuss about AI tools that it’s worth dedicating an entire article to the topic. Here are some key observations and tips for using AI tools:
+
+- **Thorough but Junior-Level Reviews**
+   AI can efficiently and instantly help detect syntax errors, semantic issues, simple logical mistakes, and API usage inconsistencies. These alone can elevate the basic quality of the code.
+- **Clear Specifications Are Key**
+   Like humans, AI tools perform better when given clear specifications. Well-defined spec sheets or requirement documents significantly enhance the relevance and quality of AI output.
+- **Don’t Expect a SENIOR AI to Save You**
+   AI typically struggles with complex functionalities, architectural designs, or system-level problems. For core architecture-related reviews, manual input is still essential.
+- **Control Scope**
+   When the number of files or the scope of changes is too large, the quality of AI suggestions may decrease. Setting reasonable change boundaries ensures the tool remains effective.
+
+AI can save time by handling minor issues, which is one of its key benefits — it takes on the burden of highlighting small, tedious details that might seem nitpicky if pointed out by human reviewers.
+
+## Improving Review Execution Efficiency
+
+Here’s a summary of actionable steps for improving execution efficiency:
+
+- **Choose the Right Code Review Format**
+   For urgent and complex tasks, synchronous formats like Live Reviews or Pair Programming are ideal, while for routine changes, asynchronous PR Reviews offer more flexibility.
+- **Utilize Automation Tools**
+   Incorporate automated processes like static code analysis, unit testing, and integration testing into CI/CD pipelines to ensure basic code quality is verified before submission.
+- **Leverage AI-Assisted Reviews**
+   AI serves as a versatile assistant, reducing the time engineers spend on straightforward logic and allowing them to focus on discussing more complex and valuable functionalities.
+- **Focus on Implementation and Boundary Reviews**
+   Reviewers should concentrate on assessing the implementation and boundaries, especially areas that are too complex for automated tools to handle.
+
+---
+
+## Knowledge Exchange
+
+Correct understanding leads to effective feedback.
+
+> The greatest challenge in Code Review is understanding the content and the reasons behind the changes.
+
+The essence of Code Review lies in enhancing the team's technical capabilities and output quality through knowledge exchange. However, this exchange is inherently challenging. Research shows that reviewers often spend significant time digesting the background information of a PR (Pull Request), especially when changes involve complex logic or multiple modules. A lack of sufficient context can easily lead to misplaced review focus or unconstructive feedback. This is particularly true in large teams or long-term projects where reviewers have varying levels of background knowledge, making clear and specific descriptions crucial for understanding.
+
+Here are some practical actions reviewers can take:
+
+- **Read PR Descriptions and Commit Histories**\
+   Ensure you understand the goals and scope of the changes, focusing on valuable aspects of the review to avoid wasting time on irrelevant details.
+- **Refer to Tests and Related Documentation**\
+   Use test cases and specification documents to understand the design objectives and expected behavior of the changes.
+- **Ask Questions and Request Additional Context**\
+   When encountering unclear or hard-to-understand areas, reviewers should ask questions and request clarification instead of making assumptions or skipping over details.
+- **Choose Effective Methods for Gaining Information**\
+   Depending on the complexity of the changes, use appropriate review formats — for instance, asynchronous methods for smaller changes, and synchronous formats like Live Reviews or Code Walkthroughs for complex changes.
+- **Document Key Information During Discussions**\
+   Record important background information or decision rationale during the review process for future reference. This benefits not only the reviewer but also helps other team members understand the considerations behind the changes.
+
+These practices help reviewers quickly obtain accurate context within limited time, improving the quality of their feedback.
+
+## Key Point 1: More Efficient Information Sharing
+
+- **Visuals > Spoken > Text**\
+   Code Review doesn’t need to rely solely on text feedback. For especially complex changes, invite the developer to conduct a Code Walkthrough, explaining logic line by line or illustrating the entire functionality flow.
+- **Face-to-Face > Online**\
+   Face-to-face communication is more efficient, as it captures body language and physical nuances, enabling immediate feedback and interaction, reducing misunderstandings.
+- **Synchronous > Asynchronous**\
+   Synchronous methods like Live Reviews or Pair Programming enable more precise and immediate information exchange, avoiding delays or information gaps often caused by asynchronous communication.
+- **Positive Tone > Negative**\
+   Using a positive or constructive tone enhances the acceptance of reviews and improves communication outcomes. Instead of merely pointing out problems, suggest alternatives or highlight learning opportunities. Research shows that reviews with **positive or neutral tones** are considered effective 80% of the time, compared to only 57% for reviews with negative tones.
+- **Link Code to Related Documentation**\
+   This aligns with the "findability" principle mentioned earlier. The faster reviewers can locate relevant information, the quicker they can make informed judgments.
+
+## Key Point 2: The API Principle
+
+API here stands for **Assume Positive Intent**. This principle encourages us to assume that everyone wants to do their best and to interpret their actions or intentions in a positive light. This is especially critical in text-heavy asynchronous Code Reviews, where the lack of tone or context can lead to misunderstandings.
+
+When we assume others have good intentions, we are more inclined to help them achieve their goals, leading to more constructive feedback. For example, we naturally help children explore the world, such as learning to walk (goal), by offering support and encouragement. In contrast, if we view someone as an adversary, we’re more likely to hope for their failure and withhold assistance.
+
+The API Principle builds trust within teams, making Code Review communications smoother and reducing conflicts caused by tone or misunderstandings.
+
+## Key Point 3: Be Clear and Actionable
+
+Suggestions should clearly identify problems while guiding actionable solutions. However, what’s considered "clear and actionable" varies by individual. Consider these two pieces of feedback:
+
+1. "Consider addressing some edge cases."
+2. "In the `calculateCAGR` function, consider adding checks for whether `starting_value` and `ending_value` are zero. Currently, the function throws a `ZeroDivisionError` when inputs are zero."
+
+For experienced developers, feedback like #1 may suffice. However, for newcomers or colleagues unfamiliar with the code, feedback like #2, with more details, is necessary. Effective reviews should adapt to the audience, helping team members of varying experience levels better understand and apply the suggestions.
+
+---
+
+## Case Analysis
+
+At this point, let’s use the well-known case as an example in our discussion.
+
+![Case Analysis](/images/posts/code-review--10.png)
+
+Let’s evaluate this Code Review comment using the points we discussed earlier:
+
+- **Efficient Information Sharing**: The reviewer is the creator.
+- **API Principle**: Extremely aggressive in tone.
+- **Clear and Actionable**: The feedback provides explicit steps for improvement.
+
+Now, here’s the question: from a Code Review perspective, is this type of feedback good or bad? How does it impact code quality and the team dynamic — positively or negatively?
+
+---
+## Development Process Perspective
+
+Previously, we discussed what reviewers can do, including the execution of reviews and knowledge exchange between reviewers and developers. Now, let’s zoom out and look at the overall development process — what optimizations can be made from this broader perspective?
+
+![Development Process and Code Review](/images/posts/code-review--6.png)
+
+## Clearly Define and Document Specifications During the Planning Phase
+
+Both the execution and knowledge exchange sections emphasized the importance of **specifications**. The planning phase is a critical stage for influencing development efficiency and quality. If requirements are clearly defined and specifications are thoroughly documented during this phase, unnecessary discussions and revisions during Code Review can be minimized. For example, if the specifications already detail the API input/output formats, error-handling logic, and performance requirements, reviewers can focus on validating the implementation against these requirements instead of debating the details of the requirements themselves.
+
+Defining specifications early has another benefit: it helps identify unnecessary features. If a feature is deemed non-essential during the planning phase, it won’t be implemented, and there’s no need to spend time reviewing it.
+
+> The Best Code is No Code At All.
+
+As a reminder, **documentation findability** is crucial. During development, ensure that code, documents, and specifications are tightly linked. This not only facilitates the current Code Review process but also helps team members better understand the system in the future. This can include linking related documents directly in the code or converting specifications into test cases. Doing so allows reviewers and developers to quickly reference the context and rationale behind changes, greatly improving communication efficiency and confidence.
+
+Next, let’s examine two statistical charts to understand the relationship between change size and review efficiency.
+
+## PR Size vs. Review Effectiveness
+
+![Change Size vs. Review Effectiveness](/images/posts/code-review--7.png)
+
+This chart shows that **there is a negative correlation between the number of files changed and its review effectiveness density**. As the number of files increases, the effectiveness of the review decreases. A reasonable explanation is that large scope overwhelm reviewers, making it harder for them to fully understand the changes and reducing the value of their feedback.
+
+---
+
+## PR Size vs. Review Duration
+
+![PR Size vs. Review Duration](/images/posts/code-review--8.webp)
+
+Now let's see the second chart, the PR merge time peaks at around 2,000. When the number of modified lines in a PR is under 2,000, **the more lines modified, the longer the review and merge process takes**. For PRs with fewer than 50 lines, the average merge time is less than 2 days (about 36 hours). However, for PRs with 500-1,000 lines, the average time climbs to nearly 4 days. Interestingly, when the number of lines exceeds 2,000, the merge time stops increasing. This could be due to several reasons:
+
+1. Large PRs might involve formatting changes, requiring minimal review.
+2. PRs with over 2,000 lines might be too challenging to review thoroughly, leading reviewers to skip them altogether.
+
+> Ask a programmer to review 10 lines of code, he'll find 10 issues.
+> Ask him to do 500 lines and he'll say it looks good.
+
+Overall, for changes exceeding 100 lines, the average merge time rises to 4 days — a concerning statistic for development speed.
+
+---
+
+## Reduce Pull Requests Size
+
+The larger the scope of changes, the bigger the PR becomes. This often requires more complex architecture, detailed specifications, and significantly more time to understand and review. So, can we reverse this trend? By breaking down features into smaller tasks and PRs, we can reduce the scope of changes, simplify the architecture and specifications, and shorten the time needed for reviews.
+
+Follow these steps to reduce PR size:
+
+1. **Make Specifications and Documentation Clear**\
+   Reiterating the importance of proper planning: clear and detailed planning ensures that subsequent implementation has a solid foundation and is easier to split into smaller tasks and delegate.
+2. **Break Requirements into Simple Tasks**\
+   Divide requirements into small, manageable development tasks that can be completed in half a day. This helps developers stay focused and avoids submitting large-scale changes all at once. For example, a feature could be broken down into separate PRs for the UI, API integration, and backend implementation. This approach not only simplifies reviews but also makes the context of each PR more explicit.
+3. **Clarify Task Dependencies**\
+   Clearly define the dependencies between tasks to ensure the sequence of execution is logical and efficient. For example, if the backend API implementation is a prerequisite for frontend development, the backend PR must be prioritized and completed first. This ensures that the frontend team can proceed without unnecessary delays caused by waiting for backend changes.
+4. **Implement: One Task, One PR**\
+   Follow the "one task, one PR" principle to keep each PR’s scope manageable and clear. This approach reduces the cognitive load for each review and minimizes the risk of errors or misunderstandings caused by intertwined tasks. Consider leveraging **Stacked PRs** for better task separation.
+5. **Target: LOC < 500**\
+   Studies show that when a PR’s lines of code (LOC) are fewer than 500, reviewers are most efficient and accurate. Therefore, we should aim to limit each PR’s changes to this range. This constraint can reduce the reviewer’s workload and ensure higher-quality reviews.
+
+---
+
+## Self Review: Pre-Review Preparation
+
+The person who understands a PR best is its author. Self Review, in theory, costs less than having a Reviewer perform the audit. Therefore, consider conducting a Self Review before submitting your code for Code Review. This not only improves the quality of the PR but also reduces the workload for the Reviewer.
+
+There are two approaches to Self Review:
+
+1. Act as if you are the Reviewer and carefully review your own PR.
+2. Use AI coding tools to assist with the review:\
+   Tools like Copilot, Cursor, or Windsurf now offer chat functionalities. You can use these tools to have AI review your code or even suggest real-time modifications.
+
+Here are some sample prompts for reviewing implementation and boundaries:
+
+```text
+I want you to perform a code review, ensuring the following checklist is satisfied:
+
+1. **Fulfilling functional requirements**: Ensuring all specified needs are met without omissions.
+2. **Correct and concise logic**: Avoid unnecessary complexity.
+3. **Robustness**: Handle unexpected inputs, edge cases, and failures gracefully without crashing.
+4. **Secure**: Considered risks such as SQL injection, XSS, etc.
+5. **Observability**: Including sufficient logs, traces, or metrics to support maintenance and status monitoring.
+```
+
+---
+
+### Boundary Review Prompt
+
+```text
+I want you to perform a code review, ensuring the following checklist is satisfied:
+
+1. **Minimizing impact**: Ensure the interface are simplified and dependencies are reduced while meeting requirements.
+2. **Consistency and the Principle of Least Surprise**: Ensure developers interacting with the interface can quickly understand their behavior.
+3. **Hiding internal implementation details**: Expose only the necessary functions or interfaces to the outside.
+4. **Existing systems working properly**: Ensure all affected parts function correctly.
+```
+
+*Note: In these prompts, the term **`interface`** is used to describe boundaries because it is easier to identify and assess within the editor. Making "interface" a more practical term for this context.*
+
+## Other Ways AI Tools Can Help
+
+Beyond assisting with Self Review, AI tools can contribute to other stages of development and Code Review, making the process more efficient:
+
+- **Generate PR Descriptions (GitHub Copilot):**
+   ![Generate PR Description](/images/posts/code-review--9.png)
+- **Generate Specifications / Test Cases:**
+   Engineers can use AI to produce artifacts such as API documentation, mock data, or even test cases to assist with testing or validation.
+- **Create Explanations:**
+   Visualize code workflows, explain complex logic, and provide additional context to make understanding easier.
+
+---
+
+## **Final Thoughts**
+
+> You Don’t Always Need Code Review
+
+While Code Review is an essential practice for improving code quality, it’s not always necessary to invest resources in it. Here are scenarios where skipping or simplifying Code Review might be appropriate:
+
+- **High Confidence, High Test Coverage:**
+   If the project has comprehensive test coverage and there’s confidence in the deployment process, reliance on Code Review can be reduced.
+- **Small-Scale, Low-Risk Changes:**
+   Changes such as modifying text, configuration files, or non-critical parts of the codebase can be self-reviewed and deployed directly by developers.
+- **Experimental Features:**
+   Some experimental features may be short-lived or rewritten soon. In such cases, Code Review may not be a worthwhile investment.
+
+---
+
+To summarize, here are some key points about Code Review:
+
+1. **Choose the Right Format:**
+   For complex changes, opt for synchronous reviews to maximize effectiveness. For routine changes, asynchronous PR Reviews allow team members to work at their own pace.
+2. **Leverage Automation:**
+   Tools like static code analysis, automated testing, and CI/CD pipelines are standard in modern development. Additionally, AI-assisted Code Review can help detect basic issues.
+3. **Focus on High-Value Areas:**
+   Direct review efforts toward the architecture, interfaces, and core logic of the code. Simple issues, such as coding style, can be handled by automation tools.
+4. **Define Clear Specifications and Requirements:**
+   During the planning phase, clearly define requirements and create supporting documentation. A well-defined goal reduces misunderstandings, minimizes non-compliant behaviors (bugs), and helps reviewers focus on whether changes meet the requirements.
+5. **Reduce Task Scope and PR Size:**
+   Break tasks into manageable units and limit each PR to fewer than 500 lines of code. This reduces review time and improves review quality.
+6. **Self Review First:**
+   Conduct a self-check before submission, using AI tools if needed, to ensure the PR meets basic quality standards.
+
+---
+
+I cannot stress this enough: Code Review is more than just a quality improvement tool—it’s a powerful process for building team cohesion and facilitating knowledge sharing. I hope these insights have given you new perspectives and practical approaches to enhance your Code Review practices. If you’d like to continue the conversation, feel free to connect with me on social media!
+
+## References
+
+- [A Survey on Modern Code Review: Progresses, Challenges and Opportunities](https://arxiv.org/abs/2405.18216)
+- [Automating Code Review Activities by Large-Scale Pre-training](https://arxiv.org/abs/2203.09095)
+- [An Empirical Study on Code Review Activity Prediction and Its Impact in Practice](https://arxiv.org/abs/2404.10703)
+- [Code Review Automation: Strengths and Weaknesses of the State of the Art](https://arxiv.org/abs/2401.05136)
+- [Types of Code Reviews: Improve Performance, Velocity, and Quality](https://graphite.dev/blog/types-of-code-review)
+- [The Code Review Pyramid](https://www.morling.dev/blog/the-code-review-pyramid/)
+- [Stacked PR](https://blog.logrocket.com/using-stacked-pull-requests-in-github/)
+- [API Principle](https://www.axios.com/2022/06/03/simple-workplace-principle-assume-positive-intent)
