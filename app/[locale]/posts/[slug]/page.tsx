@@ -39,6 +39,9 @@ export async function generateMetadata({ params }: Props) {
   return {
     title,
     description: summary,
+    openGraph: {
+      description: summary,
+    },
     alternates: {
       canonical: `${baseUrl}/${locale}/posts/${slug}`,
       languages: Object.fromEntries(

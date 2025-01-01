@@ -2,7 +2,7 @@
 title: 'Things About Code Review: Balancing Code Quality and Development Speed'
 date: '2025-01-01'
 slug: 'code-review'
-summary: 'Code Review，不只是找 bug，而是促進團隊合作、分享知識與提升技術成長的關鍵過程。該如何兼顧效率與品質，讓審查成為團隊的助力，而非負擔？'
+summary: 'Code Review is essential for teamwork and growth, yet often feels slow and burdensome. How can we balance efficiency and quality to turn it into a team strength?'
 type: Post
 language: en
 socialImage: 'code-review--banner.jpg'
@@ -25,16 +25,16 @@ To address these challenges, many teams choose to implement Code Review. Here’
 
 ### What We Hope Code Review Can Accomplish
 
-- **Foster teamwork and knowledge sharing**:
+1. **Foster teamwork and knowledge sharing**:
    - Increase the team’s bus factor by ensuring more members are familiar with critical code.
    - Help new developers quickly adapt to the team’s style and best practices.
-- **Improve code quality and maintainability**:
+2. **Improve code quality and maintainability**:
    - Ensure code adheres to team standards.
    - Reduce technical debt, making future maintenance easier.
-- **Ensure specifications are met and reduce bugs**:
+3. **Ensure specifications are met and reduce bugs**:
    - Verify that implementations align with requirements, avoiding missed details.
    - Identify potential issues through multiple sets of eyes.
-- **Boost deployment confidence**:
+4. **Boost deployment confidence**:
    - With team-wide endorsement, deployments become more reassuring.
    - Especially in cross-departmental collaborations, Code Review helps minimize iterative fixes caused by oversight, strengthening team trust.
 
@@ -82,9 +82,7 @@ These three levels decompose Code Review into points, lines, and planes. The **r
 
 The way Code Review is conducted directly impacts its efficiency and effectiveness. It can be further broken down into ***review formats*** and ***review focus areas***.
 
----
-
-## Review Formats
+## Different Review Formats
 
 The execution of Code Review can be broadly categorized into **synchronous** and **asynchronous** approaches, each suited for specific scenarios and offering unique characteristics.
 
@@ -126,7 +124,6 @@ Synchronous formats emphasize real-time interaction, making them suitable for co
 | **Code Walkthrough** | A synchronous activity where developers explain the code’s logic and design step-by-step while reviewers ask questions and provide suggestions. | - Mentorship for newcomers<br/>- Understanding complex code<br/>- Familiarizing team members with new system modules | - Supports growth of new team members<br/>- Helps the team understand complex system logic<br/>- Encourages developers to reflect on their code design | - More teaching-focused, less efficient than targeted code reviews<br/>- Can consume significant time |
 | **PR Review** | Asynchronous code review conducted via tools (e.g., GitHub/GitLab), where reviewers examine changes and leave comments. | - Reviewing routine development changes<br/>- Distributed or cross-time-zone teams | - Flexible timing<br/>- Review records available for future reference<br/>- Can integrate with automation tools (e.g., CI/CD) for higher efficiency | - Lack of real-time interaction may hinder communication<br/>- Complex changes may be harder to understand |
 
----
 
 ## Choosing the Right Format
 
@@ -244,7 +241,9 @@ Here’s a summary of actionable steps for improving execution efficiency:
 
 ## Knowledge Exchange
 
-Correct understanding leads to effective feedback.
+Now that we’ve covered **Review Execution**, let’s shift our focus to **Knowledge Exchange** — the critical interactions between developers and reviewers.
+
+### Correct understanding leads to effective feedback.
 
 > The greatest challenge in Code Review is understanding the content and the reasons behind the changes.
 
@@ -280,7 +279,7 @@ These practices help reviewers quickly obtain accurate context within limited ti
 
 ## Key Point 2: The API Principle
 
-API here stands for **Assume Positive Intent**. This principle encourages us to assume that everyone wants to do their best and to interpret their actions or intentions in a positive light. This is especially critical in text-heavy asynchronous Code Reviews, where the lack of tone or context can lead to misunderstandings.
+[API here stands for **Assume Positive Intent**](https://www.axios.com/2022/06/03/simple-workplace-principle-assume-positive-intent). This principle encourages us to assume that everyone wants to do their best and to interpret their actions or intentions in a positive light. This is especially critical in text-heavy asynchronous Code Reviews, where the lack of tone or context can lead to misunderstandings.
 
 When we assume others have good intentions, we are more inclined to help them achieve their goals, leading to more constructive feedback. For example, we naturally help children explore the world, such as learning to walk (goal), by offering support and encouragement. In contrast, if we view someone as an adversary, we’re more likely to hope for their failure and withhold assistance.
 
@@ -295,7 +294,6 @@ Suggestions should clearly identify problems while guiding actionable solutions.
 
 For experienced developers, feedback like #1 may suffice. However, for newcomers or colleagues unfamiliar with the code, feedback like #2, with more details, is necessary. Effective reviews should adapt to the audience, helping team members of varying experience levels better understand and apply the suggestions.
 
----
 
 ## Case Analysis
 
@@ -367,7 +365,7 @@ Follow these steps to reduce PR size:
 3. **Clarify Task Dependencies**\
    Clearly define the dependencies between tasks to ensure the sequence of execution is logical and efficient. For example, if the backend API implementation is a prerequisite for frontend development, the backend PR must be prioritized and completed first. This ensures that the frontend team can proceed without unnecessary delays caused by waiting for backend changes.
 4. **Implement: One Task, One PR**\
-   Follow the "one task, one PR" principle to keep each PR’s scope manageable and clear. This approach reduces the cognitive load for each review and minimizes the risk of errors or misunderstandings caused by intertwined tasks. Consider leveraging **Stacked PRs** for better task separation.
+   Follow the "one task, one PR" principle to keep each PR’s scope manageable and clear. This approach reduces the cognitive load for each review and minimizes the risk of errors or misunderstandings caused by intertwined tasks. Consider [leveraging **Stacked PRs**](https://blog.logrocket.com/using-stacked-pull-requests-in-github/) for better task separation.
 5. **Target: LOC < 500**\
    Studies show that when a PR’s lines of code (LOC) are fewer than 500, reviewers are most efficient and accurate. Therefore, we should aim to limit each PR’s changes to this range. This constraint can reduce the reviewer’s workload and ensure higher-quality reviews.
 
@@ -445,7 +443,7 @@ To summarize, here are some key points about Code Review:
 2. **Leverage Automation:**
    Tools like static code analysis, automated testing, and CI/CD pipelines are standard in modern development. Additionally, AI-assisted Code Review can help detect basic issues.
 3. **Focus on High-Value Areas:**
-   Direct review efforts toward the architecture, interfaces, and core logic of the code. Simple issues, such as coding style, can be handled by automation tools.
+   Direct review efforts toward the architecture, boundaries, and core logic of the code. Simple issues, such as coding style, can be handled by automation tools.
 4. **Define Clear Specifications and Requirements:**
    During the planning phase, clearly define requirements and create supporting documentation. A well-defined goal reduces misunderstandings, minimizes non-compliant behaviors (bugs), and helps reviewers focus on whether changes meet the requirements.
 5. **Reduce Task Scope and PR Size:**
@@ -455,7 +453,7 @@ To summarize, here are some key points about Code Review:
 
 ---
 
-I cannot stress this enough: Code Review is more than just a quality improvement tool—it’s a powerful process for building team cohesion and facilitating knowledge sharing. I hope these insights have given you new perspectives and practical approaches to enhance your Code Review practices. If you’d like to continue the conversation, feel free to connect with me on social media!
+I cannot stress this enough: Code Review is more than just a quality improvement tool — it’s a powerful process for building team cohesion and facilitating knowledge sharing. I hope these insights have given you new perspectives and practical approaches to enhance your Code Review practices. If you’d like to continue the conversation, feel free to connect with me on social media!
 
 ## References
 
@@ -465,5 +463,3 @@ I cannot stress this enough: Code Review is more than just a quality improvement
 - [Code Review Automation: Strengths and Weaknesses of the State of the Art](https://arxiv.org/abs/2401.05136)
 - [Types of Code Reviews: Improve Performance, Velocity, and Quality](https://graphite.dev/blog/types-of-code-review)
 - [The Code Review Pyramid](https://www.morling.dev/blog/the-code-review-pyramid/)
-- [Stacked PR](https://blog.logrocket.com/using-stacked-pull-requests-in-github/)
-- [API Principle](https://www.axios.com/2022/06/03/simple-workplace-principle-assume-positive-intent)
