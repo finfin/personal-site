@@ -47,7 +47,7 @@ export default function Footer() {
 
       <div className="flex flex-col-reverse md:flex-row justify-between items-center gap-4 md:gap-0">
         <div className="text-sm text-neutral-600 dark:text-neutral-300">
-          <p>© {new Date().getFullYear()} Things About Web Dev. All rights reserved.</p>
+          <p>© 2024-present Things About Web Dev. All rights reserved.</p>
         </div>
 
         <div className="flex items-center gap-4">
