@@ -1,0 +1,209 @@
+---
+title: '抽象概念視覺化：如何呈現沒有實體的抽象概念'
+date: '2025-01-06'
+slug: 'drawing-the-invisible'
+summary: '世界很複雜，數位世界又因為非實體的本質多了另一層讓人不容易想像的維度，透過介紹『隱喻』這個方法，希望讓大家在理解與介紹概念時，可以多一個工具來使用，減低溝通以及學習的成本'
+type: Post
+language: zh-TW
+socialImage: 'drawing-the-invisible--banner.jpg'
+---
+
+## 譯者前言
+
+在學習程式與電腦科學的過程中，我們常常遇到一些「看不見、摸不著」的概念，往往需要透過各種比喻與想像，才能讓我們的大腦抓住其中的原理。本篇翻譯文章源自 Maggie Appleton 的系列著作[How to Draw Invisible Programming Concepts — Part One](https://maggieappleton.com/drawinginvisibles1) 的第一部分，主題聚焦在「A Metaphorical Introduction 關於隱喻的介紹」。整個系列以「如何將抽象概念轉化為更直觀的視覺形式」為核心價值，透過繪圖與具象化的方式，呈現數位世界裡的無形要素。而我也認為，這樣將抽象概念轉換成更容易理解的輸出過程，不僅能協助他人吸收，更能加深自身對概念的掌握。透過這種「視覺化」與「敘述化」的過程，我們會更深入思考：為什麼需要這樣的隱喻？那些抽象概念究竟包含了哪些脈絡？這正如費曼學習法所強調的，若能向他人以簡單明瞭的方式解說，便代表我們真的理解了其中的原理。
+
+作者 Maggie Appleton 是一位於 [egghead.io](https://egghead.io) 任職的設計師，個人網站 https://maggieappleton.com/ 有各種使用精美插畫做圖解的技術文章。
+
+
+## 簡介
+
+這幾年我（以下的我都是原作）都在 egghead 擔任 art director & lead illustrator，這間公司專注於網頁開發的教學上。內容的呈現包含了影片、code challenge、文章、圖解說明、工作坊等。既然是網頁開發，內容不外乎圍繞著 JavaScript, React, GraphQL, Vue, HTML, CSS 等與網頁相關的技術。
+
+我的工作就是把這些抽象的、難以理解的程式概念，轉變成為人們容易理解的視覺內容。呈現方式可能是：插畫、動畫、圖解說明、圖表，ZOOM 上的比手畫腳等等等。
+
+這其中包含了課程的插畫，比如以下這些：
+
+![](/images/posts/drawing-the-invisible--1.png)
+
+還有這些
+
+![Pasted 2025-01-06-09-17-34.png](/images/posts/drawing-the-invisible--2.png)
+
+![Pasted 2025-01-06-09-17-34.png](/images/posts/drawing-the-invisible--3.png)
+
+![Pasted 2025-01-06-09-17-34.png](/images/posts/drawing-the-invisible--4.png)
+
+![Pasted 2025-01-06-09-17-34.png](/images/posts/drawing-the-invisible--5.png)
+
+![Pasted 2025-01-06-09-17-34.png](/images/posts/drawing-the-invisible--6.png)
+
+![Pasted 2025-01-06-09-17-34.png](/images/posts/drawing-the-invisible--7.png)
+
+在畫了超過 150 個插畫之後，開始對自己在做什麼有了一些理解。
+
+## 我們在做什麼？
+
+我們拿 [Mike Sherov](https://twitter.com/mikesherov) 的 [Web Security Essentials](https://egghead.io/courses/web-security-essentials-mitm-csrf-and-xss) 來做案例研究。這是一門教授你如何保護網站，處理常見攻擊方式例如中間人攻擊、XSS、cookie hijacking 的課程。
+
+第一步，就是把我們的目標定義清楚。在此案例中，我們的目標是：
+
+> *Create an illustration that clearly communicates the idea of “Web Security”\
+> 製作一個明確傳達『網路安全』概念的插畫*
+
+儘管是個很明確直白的目標，但這可以讓我們在過程中不至於偏離主題。這個目標下，由於『網路安全』沒有一個實體的形象，這也一切問題的起點。
+
+## 當他不是個（實體的）『東西』時，該如何畫出這『東西』
+
+好問題，令人癡迷的問題。
+
+繪畫本身就有其難度，把狗畫得像狗、手畫的像手都需要大量的訓練、練習以及耐心。在這案例裡，我們需要先搞懂要畫的『東西』是什麼，讓繪畫這件事情又多了另一個層面的挑戰。
+
+要如何把模糊的、時時刻刻都在變動的抽象概念『網路安全』濃縮變成單一的插圖呢？簡單來說的話，我們需要依靠文化符號以及視覺隱喻（cultural symbols & visual metaphor），當然，這背後還有許多功伕要做。
+
+好的、有意義的插圖可以拆分成四個層級，想像成一個蛋糕：
+
+![Pasted 2025-01-06-09-17-34.jpeg](/images/posts/drawing-the-invisible--8.jpg)
+
+我們從建立堅實的視覺隱喻基礎 (meaningful visual metaphor) 開始，畫出明確的物件 (drawing)，再來是思考這些物件的組合 (composition) ，最上層則是顏色與光影。
+
+### 說說工具
+
+看到這裡你一定會問，最上面的櫻桃與奶油是什麼？
+
+『那要用什麼工具』
+
+這是一個在任何領域都會被問到的問題，為了產出所需要的工具。這是我的工具：
+
+![Pasted 2025-01-06-09-17-34.jpeg](/images/posts/drawing-the-invisible--9.jpg)
+
+我在 iPad Pro 12.5" 上使用 Procreate 來腦力激盪以及素描。當這階段完成時，會進到電腦 Macbook Pro 2015 + [Wacom Cintiq 22HD](https://www.wacom.com/en-us/products/pen-displays/cintiq-22-hd) 螢幕，用 AI & PS 來處理。
+
+這些工具是成品出色不可或缺的一部分，但此篇文章的焦點並不在這（有興趣的話可以到 [這裡](https://maggieappleton.com/resources) 看看）。第四部分會針對『工作流程』有更多的著墨，但現在，讓我們回到主題『如何畫出不可見的東西』。
+
+## 第一部分： 建立隱喻
+
+讓我們從蛋糕的最底部開始，構築堅實的『隱喻』。隱喻其實就是我們想要把非實體、抽象概念轉化為可視的物品的一個過程，隱喻是這個轉化的基石。
+
+畫一個橘子很直覺。要畫自由、金融危機、種族對立、團隊合作、資料庫管理、資本主義、生產力這些名詞就是另一回事了，這時我們需要隱喻。
+
+## 所以，什麼是隱喻？
+
+想好好的發揮隱喻的效用，首先就是要知道隱喻是什麼。
+
+> *以理解一個事物的方式來理解另一個事物*
+
+隱喻的超能力即是讓我們用我們已經理解的事物，套用一樣的邏輯讓我們去理解另一個不理解的事物。
+
+![Pasted 2025-01-06-09-17-34.jpeg](/images/posts/drawing-the-invisible--10.jpg)
+
+我們可能不懂 B，但我們懂 A，那麼投射 (map) A 身上的一些特性到 B 上，就至少有個起始的理解了。比如，講到量子位元我們可以[這樣比喻](https://www.wired.com/video/watch/5-levels-4)：一個旋轉中的硬幣，可能是正面也可能是反面，但基本上就是兩個都存在。透過這樣的比喻也許就可以讓接收方更容易想像與理解量子電腦的運作原理。
+
+有時候，我們對 B 的認知是足夠的，但如果從 A 的角度來觀看 B 可能又會有另一種體會。在這我們稱 A 為『來源』，B 則為『對象』，來源即是我們觀看對象的觀景框，限制了我們會如何觀看對象 B。
+
+![Pasted 2025-01-06-09-17-34.jpeg](/images/posts/drawing-the-invisible--11.jpg)
+
+如同窗框一樣，來源 A 所形成的觀景框給我們一個觀看 B 的固定的角度，那些在觀景角度之外的會被遮擋，而我們會專注於觀景角度內的內容。換句話說，A 與 B 共有的特色會被看到，而其他特色則會被隱藏。
+
+![Pasted 2025-01-06-09-17-34.jpeg](/images/posts/drawing-the-invisible--12.jpg)
+
+舉個例子，我們常常用『金錢』的概念來描述『時間』：
+
+> *That delayed flight cost me an hour.\
+> Can I steal a few minutes of your time?\
+> I don’t know if spending all day on that is worth my while.*
+
+> *延遲的航班『花』了我一個小時\
+> 可以跟你『借個』幾分鐘嗎？\
+> 我不知道『耗費』整天在這上面是不是個好主意*
+
+時間就是金錢這樣的隱喻強調了時間與金錢類似的特性
+
+![Pasted 2025-01-06-09-17-34.jpeg](/images/posts/drawing-the-invisible--13.jpg)
+
+- 可數的物質
+- 有價值、有限的資源
+- 可以給予他人、或從他人那邊取得
+
+當然，時間有許多金錢沒有的特性，比如不可逆，金錢也有時間沒有的特性，比如不同區域會有不同幣值。隱喻也與『文化』有很深的相依，金錢與時間的連結，若是放到一個非資本主義的文化中，也許就不是那麼的明顯。
+
+因此，也不需要只用一個『來源』事物來描述對象。以時間來說，『流逝』是把時間拿來跟水做比喻，時間過的『飛快』則是把時間拿來跟移動的物件作比較。用許多不同的隱喻就像是你有許多觀景框，從不同角度來了解同樣的抽象概念。
+
+> *Which metaphor we pick depends on what qualities we want to highlight or hide. We focus us on what’s important about the target, and downplay irrelevant details.\
+> 隱喻的選擇取決於我們想強調或忽略的特質。我們應該關注在對象（在當前情境下）的重要特質，並且避免其他不重要的細節耗費我們的注意力。*
+
+這也是為什麼隱喻是用來解釋複雜概念的好工具。透過隱喻的選擇與調整，我們可以控制要表達的概念的範疇、精細度，並且把不相干的雜訊都去除掉。
+
+隱喻是我們認知成長的重要工具，除了用在複雜概念的解釋、舊概念的不同角度不同隱喻重新詮釋，基本上可以用在快速認知原本不理解的概念上。
+
+```
+註：有些理解力／學習力強的人，其實就是活用這樣的方法，把原本就懂的邏輯套用到新事物，所以可以對一件事情很快就上手。
+```
+
+## 程式概念與隱喻 Programming the Metaphors
+
+在程式的世界裡，隱喻顯得更為重要，因為：
+
+1. 數位概念從根本上就是抽象的、不可見的
+2. 是非常新的概念，這幾十年才有的，因此少有相對應的符號、象徵物
+
+以下主題你會怎麼表現呢？
+
+- [Use TypeScript to develop React Applications](https://egghead.io/courses/use-typescript-to-develop-react-applications)
+
+- [Build a Server-rendered ReactJS Application with Next.js v4](https://egghead.io/courses/build-a-server-rendered-reactjs-application-with-next-js-v4)
+
+- [State Monad in JavaScript](https://egghead.io/courses/state-monad-in-javascript)
+
+光是理解這些名詞可能就要花些時間，對吧？我們想透過許多複雜的指令來控制電腦執行任務，因而發明了程式語言：用來抽象／簡化這些命令的中介工具。`let fruit = 'apple'` 這樣的程式碼，對應到的是實體機器上的指令、電流。程式碼是抽象後的結果，電流則是實際產生動作的執行者，這個就叫做『抽象化』。
+
+有趣的是，抽象化常常與隱喻脫離不了關係。在程式語言中，抽象化的概念還是需要有個名詞，比如 React “Hooks”、”Thread” 等等，我們借用名詞的隱喻，來抽象化程式語言所做的事情，讓我們可以往上提升一層，在操作機器的同時不用去煩惱底層的細節。
+
+![Pasted 2025-01-06-09-17-34.jpeg](/images/posts/drawing-the-invisible--14.jpg)
+
+## 練習以隱喻看世界
+
+雖然說是個強大的方法，但有了方法沒有素材是行不通的。看到這裡的讀者想必已經意識到隱喻的存在。在此之前我們的大腦對於隱喻都是很自動、下意識地處理，但接下來，是時候練習去分辨出生活中的隱喻了。
+
+這裡就來些範例，以下的插圖 『 🎯 』 代表了『對象』，而『 ⛲️ 』 代表隱喻來源。
+
+![Pasted 2025-01-06-09-17-34.jpeg](/images/posts/drawing-the-invisible--15.jpg)
+
+
+### 政治嗜好 [Political Hobbyism](https://chasematt.com/NYT-Sunday-Review-Hobbyism)
+
+- 政治行動 🎯 如同透過大聲公 ⛲️ 說話
+- （被動的）嗜好 🎯則像是躺在沙發上 ⛲️
+
+![Pasted 2025-01-06-09-17-34.jpeg](/images/posts/drawing-the-invisible--16.jpg)
+
+
+### 瓜地馬拉漫長的訴訟過程 **[Prolonged Prosecutions in Guatemalan Courts](https://chasematt.com/Human-Rights-Watch)**
+
+- 司法機關 🎯 是個天秤 ⛲️
+- 漫長且貪腐的法庭過程 🎯 則呈現出糾結在一團的混亂 ⛲️
+
+![Pasted 2025-01-06-09-17-34.png](/images/posts/drawing-the-invisible--17.png)
+
+### [CSS Selectors in Depth | ](https://egghead.io/courses/css-selectors-in-depth)[egghead.io](egghead.io)
+
+- 網頁 🎯 是我們正在蓋的房屋 ⛲️
+- 頁面上的各個元素 🎯 就如同房屋的不同部位 ⛲️
+- 用 CSS 來選擇元素並上色 🎯 就如同選擇房屋的不同部位做各自的上色 ⛲️
+
+---
+
+學會如何建立好的隱喻不只對插畫有用，也可以用在教學、文件上。做得好的話也可以讓概念可以更容易與非技術人員解釋。終極目標大概就是，你可以讓你爸媽理解你在做什麼。（而不只是『弄電腦的』『畫畫的』）
+
+## 後記
+
+雖然通篇在講的是程式的概念，範例也都是程式相關，但這只是隱喻的其中一種應用，實際上同樣的方法可以用來解釋任何概念，尤其是那些抽象或是不容易理解的複雜概念。比如：『搜尋』、『設定』、『登入登出』、『金融危機』、『種族衝突』等等。也就是說，隱喻用得好，可以降低溝通與學習的成本。
+
+這篇是第一部分，下一階段預計是建立隱喻的技巧，但此文已經一年前，作者都沒後續更新了（汗），不過這篇的內容還是很值得所有數位相關人員一看。想看第二部的[幫忙敲碗（？？？）](https://twitter.com/Mappletons)
+
+### 參考資料
+
+- [隱喻 — 維基百科，自由的百科全書](https://zh.wikipedia.org/zh-tw/%E9%9A%90%E5%96%BB)
+
+- https://alumni.media.mit.edu/~mt/thesis/mt-thesis.html
+
+- https://chasematt.com/
