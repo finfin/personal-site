@@ -14,10 +14,11 @@
     cursor: pointer;
   }
 }
-::selection {
+::selection, ::target-text {
   background-color: #47a3f3;
   color: #fefefe;
 }
+
 
 :root {
   --hljs-bg: #ffffff;
@@ -29,6 +30,7 @@
   --hljs-title: #6f42c1;
   --hljs-comment: #6a737d;
 }
+
 
 :root {
   &.dark {
