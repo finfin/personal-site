@@ -1,6 +1,7 @@
-import { baseUrl } from 'app/sitemap'
+import { baseUrl } from '@/sitemap'
 import { allPosts } from '@/[locale]/posts/utils'
 import { Post } from 'contentlayer/generated'
+import { escapeXml } from '@/lib/utils'
 
 export async function GET() {
   const itemsXml = allPosts
@@ -11,22 +12,25 @@ export async function GET() {
       return 1
     })
     .map(
-      (post: Post) =>
-        `<item>
-          <title>${post.title}</title>
+      (post: Post) => {
+
+
+        return `<item>
+          <title>${escapeXml(post.title)}</title>
           <link>${baseUrl}/${post.language}/posts/${post.slug}</link>
-          <description>${post.summary || ''}</description>
+          <description>${escapeXml(post.summary || '')}</description>
           <pubDate>${new Date(post.date).toUTCString()}</pubDate>
         </item>`
+      }
+
     )
     .join('\n')
-
   const rssFeed = `<?xml version="1.0" encoding="UTF-8" ?>
   <rss version="2.0">
     <channel>
-        <title>My Portfolio</title>
+        <title>Things About Web Development</title>
         <link>${baseUrl}</link>
-        <description>This is my portfolio RSS feed</description>
+        <description>RSS feed of things about web development</description>
         ${itemsXml}
     </channel>
   </rss>`
