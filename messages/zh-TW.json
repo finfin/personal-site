@@ -25,5 +25,15 @@
     "dark": "深色",
     "light": "淺色",
     "system": "自動"
+  },
+  "PaletteGenerator": {
+    "hueSwatch": "Hue Swatch",
+    "lightnessSwatch": "Lightness Swatch",
+    "chromaSwatch": "Chroma Swatch",
+    "analogous": "Analogous",
+    "triadic": "Triadic",
+    "lightness": "Lightness",
+    "chroma": "Chroma",
+    "hue": "Hue"
   }
 }
