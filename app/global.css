@@ -1,3 +1,4 @@
+/* @tailwind base */
 @import "tailwindcss";
 @config "../tailwind.config.js";
 
@@ -7,6 +8,8 @@
   --color-primary: var(--color-neutral-800);
   --color-heading-primary: #242433;
   --color-heading-secondary: #423050;
+  --selection-background-color-lightness: 40%;
+  --selection-color-lightness: 30%;
 }
 
 @layer base {
@@ -14,10 +17,8 @@
     cursor: pointer;
   }
 }
-::selection, ::target-text {
-  background-color: #47a3f3;
-  color: #fefefe;
-}
+
+
 
 
 :root {
@@ -49,7 +50,8 @@
     --color-heading-secondary: #cdbddb;
     --color-background-primary: #242433;
     --color-background-secondary: #423050;
-
+    --selection-background-color-lightness: 60%;
+    --selection-color-lightness: 85%;
   }
 }
 
@@ -166,6 +168,54 @@ html {
     @apply m-0;
   }
 }
+
+/* https://frontendmasters.com/blog/rainbow-selection-in-css/ */
+.prose {
+  > :nth-child(6n)::selection,
+  > :nth-child(6n) ::selection,
+  > :nth-child(6n)::target-text,
+  > :nth-child(6n) ::target-text {
+    color: oklch(var(--selection-color-lightness) 0.111 0);
+    background: oklch(var(--selection-background-color-lightness) 0.111 0 / 35%);
+  }
+  > :nth-child(6n+1)::selection,
+  > :nth-child(6n+1) ::selection,
+  > :nth-child(6n+1)::target-text,
+  > :nth-child(6n+1) ::target-text {
+    color: oklch(var(--selection-color-lightness) 0.111 60);
+    background: oklch(var(--selection-background-color-lightness) 0.111 60 / 35%);
+  }
+  > :nth-child(6n+2)::selection,
+  > :nth-child(6n+2) ::selection,
+  > :nth-child(6n+2)::target-text,
+  > :nth-child(6n+2) ::target-text {
+    color: oklch(var(--selection-color-lightness) 0.111 120);
+    background: oklch(var(--selection-background-color-lightness) 0.111 120 / 35%);
+  }
+  > :nth-child(6n+3)::selection,
+  > :nth-child(6n+3) ::selection,
+  > :nth-child(6n+3)::target-text,
+  > :nth-child(6n+3) ::target-text {
+    color: oklch(var(--selection-color-lightness) 0.111 180);
+    background: oklch(var(--selection-background-color-lightness) 0.111 180 / 35%);
+  }
+  > :nth-child(6n+4)::selection,
+  > :nth-child(6n+4) ::selection,
+  > :nth-child(6n+4)::target-text,
+  > :nth-child(6n+4) ::target-text {
+    color: oklch(var(--selection-color-lightness) 0.111 240);
+    background: oklch(var(--selection-background-color-lightness) 0.111 240 / 35%);
+  }
+  > :nth-child(6n+5)::selection,
+  > :nth-child(6n+5) ::selection,
+  > :nth-child(6n+5)::target-text,
+  > :nth-child(6n+5) ::target-text {
+    color: oklch(var(--selection-color-lightness) 0.111 300);
+    background: oklch(var(--selection-background-color-lightness) 0.111 300 / 35%);
+  }
+  
+}
+
 
 pre::-webkit-scrollbar {
   display: none;
