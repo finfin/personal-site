@@ -2,6 +2,12 @@
 @import "tailwindcss";
 @config "../tailwind.config.js";
 
+@property --selection-hue {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 300;
+}
+
 @theme {
   --color-background-primary: #e4e1ec;
   --color-background-secondary: #cdbddb;
@@ -171,49 +177,65 @@ html {
 
 /* https://frontendmasters.com/blog/rainbow-selection-in-css/ */
 .prose {
-  > :nth-child(6n)::selection,
-  > :nth-child(6n) ::selection,
-  > :nth-child(6n)::target-text,
-  > :nth-child(6n) ::target-text {
-    color: oklch(var(--selection-color-lightness) 0.111 0);
-    background: oklch(var(--selection-background-color-lightness) 0.111 0 / 35%);
+
+  > :nth-child(6n+1) {
+    &::selection,
+    & ::selection,
+    &::target-text,
+    & ::target-text {
+      --selection-hue: 0;
+    }
   }
-  > :nth-child(6n+1)::selection,
-  > :nth-child(6n+1) ::selection,
-  > :nth-child(6n+1)::target-text,
-  > :nth-child(6n+1) ::target-text {
-    color: oklch(var(--selection-color-lightness) 0.111 60);
-    background: oklch(var(--selection-background-color-lightness) 0.111 60 / 35%);
+
+  > :nth-child(6n+2) {
+    &::selection,
+    & ::selection,
+    &::target-text,
+    & ::target-text {
+      --selection-hue: 60;
+    }
   }
-  > :nth-child(6n+2)::selection,
-  > :nth-child(6n+2) ::selection,
-  > :nth-child(6n+2)::target-text,
-  > :nth-child(6n+2) ::target-text {
-    color: oklch(var(--selection-color-lightness) 0.111 120);
-    background: oklch(var(--selection-background-color-lightness) 0.111 120 / 35%);
+
+  > :nth-child(6n+3) {
+    &::selection,
+    & ::selection,
+    &::target-text,
+    & ::target-text {
+      --selection-hue: 120;
+    }
   }
-  > :nth-child(6n+3)::selection,
-  > :nth-child(6n+3) ::selection,
-  > :nth-child(6n+3)::target-text,
-  > :nth-child(6n+3) ::target-text {
-    color: oklch(var(--selection-color-lightness) 0.111 180);
-    background: oklch(var(--selection-background-color-lightness) 0.111 180 / 35%);
+
+  > :nth-child(6n+4) {
+    &::selection,
+    & ::selection,
+    &::target-text,
+    & ::target-text {
+      --selection-hue: 180;
+    }
   }
-  > :nth-child(6n+4)::selection,
-  > :nth-child(6n+4) ::selection,
-  > :nth-child(6n+4)::target-text,
-  > :nth-child(6n+4) ::target-text {
-    color: oklch(var(--selection-color-lightness) 0.111 240);
-    background: oklch(var(--selection-background-color-lightness) 0.111 240 / 35%);
+
+  > :nth-child(6n+5) {
+    &::selection,
+    & ::selection,
+    &::target-text,
+    & ::target-text {
+      --selection-hue: 240;
+    }
   }
-  > :nth-child(6n+5)::selection,
-  > :nth-child(6n+5) ::selection,
-  > :nth-child(6n+5)::target-text,
-  > :nth-child(6n+5) ::target-text {
-    color: oklch(var(--selection-color-lightness) 0.111 300);
-    background: oklch(var(--selection-background-color-lightness) 0.111 300 / 35%);
+
+  > :nth-child(6n) {
+    &::selection,
+    & ::selection,
+    &::target-text,
+    & ::target-text {
+      --selection-hue: 300;
+    }
   }
-  
+}
+
+::selection, ::target-text {
+  color: oklch(var(--selection-color-lightness) 0.111 var(--selection-hue));
+  background: oklch(var(--selection-background-color-lightness) 0.111 var(--selection-hue) / 35%);
 }
 
 
