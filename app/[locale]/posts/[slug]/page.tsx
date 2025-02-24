@@ -5,6 +5,7 @@ import { baseUrl } from 'app/sitemap'
 import { findPostBySlugAndLocale } from '../utils'
 import { allPosts } from 'contentlayer/generated'
 
+
 type Props = {
   params: Promise<{ slug: string, locale: string }>
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
@@ -99,3 +100,5 @@ export default async function Blog({ params }: Props ) {
     </section>
   )
 }
+
+export const dynamic = 'force-static'
