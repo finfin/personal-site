@@ -1,7 +1,5 @@
 import '../global.css'
-
 import { Fira_Code } from 'next/font/google'
-
 // 初始化 Fira Code 字體
 const firaCode = Fira_Code({
   subsets: ['latin'],
@@ -106,6 +104,7 @@ export default async function RootLayout({
 
               <Wave />
               {children}
+
               <Footer />
               <Analytics />
             </main>
