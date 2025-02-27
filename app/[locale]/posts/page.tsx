@@ -3,7 +3,7 @@ import { getLocale, getTranslations } from 'next-intl/server';
 import { allPosts } from 'contentlayer/generated'
 import { compareDesc } from 'date-fns'
 
-export const dynamic = 'force-static'
+
 
 // export async function generateStaticParams() {
 //   return [
