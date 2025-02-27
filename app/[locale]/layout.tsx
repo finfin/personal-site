@@ -16,14 +16,16 @@ import { ThemeProvider } from 'next-themes'
 import {NextIntlClientProvider} from 'next-intl';
 import {getMessages, getTranslations} from 'next-intl/server';
 import { notFound } from 'next/navigation';
+import {setRequestLocale} from 'next-intl/server';
 import { routing } from 'i18n/routing';
 import { GoogleAnalytics } from '@next/third-parties/google'
 import { Wave } from '@/components/wave';
 import { cn } from '@/lib/utils'
+import { PageProps } from '@/types'
 
 type ValidLocale = (typeof routing.locales)[number];
 
-export async function generateMetadata({ params }: { params: { locale: string } }) {
+export async function generateMetadata({ params }: PageProps<{ locale: string }>) {
   const { locale } = await params;
 
   const t = await getTranslations({locale, namespace: 'metadata'});
@@ -72,10 +74,8 @@ export async function generateMetadata({ params }: { params: { locale: string } 
 export default async function RootLayout({
   children,
   params,
-}: {
-  children: React.ReactNode
-  params: { locale: string }
-}) {
+}: PageProps<{ locale: string }>
+) {
 
   const { locale } = await params;
   // Ensure that the incoming `locale` is valid
@@ -83,6 +83,8 @@ export default async function RootLayout({
     notFound();
   }
 
+  // https://next-intl.dev/docs/getting-started/app-router/with-i18n-routing#add-setrequestlocale-to-all-relevant-layouts-and-pages
+  setRequestLocale(locale);
   // Providing all messages to the client
   // side is the easiest way to get started
   const messages = await getMessages();
@@ -97,7 +99,7 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <body className="font-serif">
-        <NextIntlClientProvider messages={messages}>
+        <NextIntlClientProvider locale={locale} messages={messages}>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             <Navbar />
             <main className="max-w-4xl mx-4 lg:mx-auto flex-auto min-w-0 mt-8 flex flex-col px-2 md:px-0">

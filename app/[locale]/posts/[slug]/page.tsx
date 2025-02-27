@@ -4,12 +4,10 @@ import { format, parseISO } from 'date-fns'
 import { baseUrl } from 'app/sitemap'
 import { findPostBySlugAndLocale } from '../utils'
 import { allPosts } from 'contentlayer/generated'
+import { setRequestLocale } from 'next-intl/server'
+import { PageProps } from '@/types'
 
-
-type Props = {
-  params: Promise<{ slug: string, locale: string }>
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
-}
+export const dynamic = 'force-static'
 
 export async function generateStaticParams() {
   return allPosts.map((post) => ({
@@ -18,7 +16,7 @@ export async function generateStaticParams() {
   }))
 }
 
-export async function generateMetadata({ params }: Props) {
+export async function generateMetadata({ params }: PageProps<{slug: string, locale: string}>) {
   const { slug, locale } = await params;
   const post = findPostBySlugAndLocale(slug, locale)
   if (!post) {
@@ -53,14 +51,14 @@ export async function generateMetadata({ params }: Props) {
 }
 
 // TODO: make this page Static Site Generation compatible
-export default async function Blog({ params }: Props ) {
+export default async function Blog({ params }: PageProps<{slug: string, locale: string}>) {
   const { slug, locale } = await params
   const post = findPostBySlugAndLocale(slug, locale)
 
   if (!post) {
     notFound()
   }
-
+  setRequestLocale(locale);
 
   return (
     <section className='[view-transition-name:blog-post] mb-4'>
@@ -101,4 +99,3 @@ export default async function Blog({ params }: Props ) {
   )
 }
 
-export const dynamic = 'force-static'

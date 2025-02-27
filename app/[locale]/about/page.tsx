@@ -1,6 +1,7 @@
 import {getTranslations} from 'next-intl/server';
 import { getAboutContent } from '@/lib/contentLayerAdapter';
 import MDXPost from '@/components/mdx-post'
+import { PageProps } from '@/types'
 
 export async function generateStaticParams() {
   return [
@@ -9,7 +10,7 @@ export async function generateStaticParams() {
   ]
 }
 
-export default async function About({ params }) {
+export default async function About({ params }: PageProps<{ locale: string }>) {
   const t = await getTranslations('about');
   const { locale } = await params;
   const aboutContent = getAboutContent(locale);
