@@ -20,6 +20,7 @@ import { routing } from 'i18n/routing';
 import { GoogleAnalytics } from '@next/third-parties/google'
 import { Wave } from '@/components/wave';
 import { cn } from '@/lib/utils'
+import {setRequestLocale} from 'next-intl/server'
 
 type ValidLocale = (typeof routing.locales)[number];
 
@@ -83,6 +84,7 @@ export default async function RootLayout({
     notFound();
   }
 
+  setRequestLocale(locale);
   // Providing all messages to the client
   // side is the easiest way to get started
   const messages = await getMessages();
@@ -97,7 +99,7 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <body className="font-serif">
-        <NextIntlClientProvider messages={messages}>
+        <NextIntlClientProvider locale={locale} messages={messages}>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             <Navbar />
             <main className="max-w-4xl mx-4 lg:mx-auto flex-auto min-w-0 mt-8 flex flex-col px-2 md:px-0">
