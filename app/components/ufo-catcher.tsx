@@ -1,4 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+'use client';
+
+import React, { useEffect, useRef, useState } from 'react';
 
 const UFOCatcher = () => {
   const [clawPosition, setClawPosition] = useState({ x: 50, y: 0 });
@@ -7,7 +9,7 @@ const UFOCatcher = () => {
   const gameAreaRef = useRef(null);
 
   const handleKeyPress = (e) => {
-    if (isDropping) return;
+    if (isDropping) {return;}
 
     switch (e.key) {
       case 'ArrowLeft':
@@ -68,7 +70,7 @@ const UFOCatcher = () => {
   }, [isDropping]);
 
   return (
-    <div ref={gameAreaRef} className="game-area">
+    <div className="game-area" ref={gameAreaRef}>
       <div
         className="claw"
         style={{ left: `${clawPosition.x}%`, top: `${clawPosition.y}%` }}

@@ -19,7 +19,8 @@
   "navbar": {
     "home": "Home",
     "about": "About",
-    "posts": "Posts"
+    "posts": "Posts",
+    "playgrounds": "Playgrounds"
   },
   "theme": {
     "dark": "dark",
