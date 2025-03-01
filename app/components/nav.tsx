@@ -14,6 +14,10 @@ const navbarItems = [
   {
     path: '/about',
     name: 'about',
+  },
+  {
+    path: '/playgrounds',
+    name: 'playgrounds',
   }
 ]
 
