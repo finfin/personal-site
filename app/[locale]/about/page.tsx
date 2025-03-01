@@ -13,8 +13,8 @@ export async function generateStaticParams() {
 }
 
 export default async function About({ params }: PageProps<{ locale: string }>) {
-  const t = await getTranslations('about');
   const { locale } = await params;
+  const t = await getTranslations('about');
   const aboutContent = getAboutContent(locale);
 
   return (
