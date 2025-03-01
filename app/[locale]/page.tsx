@@ -1,10 +1,14 @@
 import { Posts } from '../components/posts';
-import {getLocale, getTranslations} from 'next-intl/server';
+import {getTranslations, setRequestLocale} from 'next-intl/server';
 import { Link } from 'i18n/routing'
 import { compareDesc } from 'date-fns'
 import { allPosts } from 'contentlayer/generated'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/card'
 import { Metadata } from 'next'
+import { PageProps } from '@/lib/types';
+
+
+export const dynamic = 'force-static'
 
 export const generateMetadata = async (): Promise<Metadata> => {
   const t = await getTranslations('home');
@@ -21,8 +25,9 @@ export async function generateStaticParams() {
   ]
 }
 
-export default async function Home() {
-  const locale = await getLocale();
+export default async function Home({ params }: PageProps<{ locale: string }>) {
+  const { locale } = await params;
+  setRequestLocale(locale);
   const t = await getTranslations('home');
   const posts = allPosts
     .sort((a, b) => compareDesc(new Date(a.date), new Date(b.date)))

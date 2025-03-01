@@ -1,11 +1,21 @@
 import { Posts } from '@/components/posts';
-import { getLocale, getTranslations } from 'next-intl/server';
+import { getTranslations } from 'next-intl/server';
 import { allPosts } from 'contentlayer/generated'
 import { compareDesc } from 'date-fns'
+import { PageProps } from '@/lib/types';
 
 
-export default async function PostsPage() {
-  const locale = await getLocale();
+export const dynamic = 'force-static'
+
+export async function generateStaticParams() {
+  return [
+    { locale: 'en' },
+    { locale: 'zh-TW' }
+  ]
+}
+
+export default async function PostsPage({ params }: PageProps<{ locale: string }>) {
+  const { locale } = await params;
   const t = await getTranslations('post');
   const posts = allPosts.sort((a, b) => compareDesc(new Date(a.date), new Date(b.date))).filter((post) => post.language === locale);
   return (
