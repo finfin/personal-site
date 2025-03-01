@@ -18,7 +18,7 @@ export default function Stopwatch() {
   const [laps, setLaps] = useState<Lap[]>([])
 
   // 參考值 (避免閉包問題)
-  const animationRef = useRef<number>()
+  const animationRef = useRef<number | undefined>(undefined)
   const startTimeRef = useRef(0)
   const accumulatedTimeRef = useRef(0)
 

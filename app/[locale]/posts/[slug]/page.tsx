@@ -4,13 +4,11 @@ import { format, parseISO } from 'date-fns'
 import { baseUrl } from 'app/sitemap'
 import { findPostBySlugAndLocale } from '../utils'
 import { allPosts } from 'contentlayer/generated'
+import { PageProps } from '@/lib/types'
 
 export const dynamic = 'force-static'
 
-type Props = {
-  params: Promise<{ slug: string, locale: string }>
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
-}
+type Params = { slug: string, locale: string }
 
 export async function generateStaticParams() {
   return allPosts.map((post) => ({
@@ -19,7 +17,7 @@ export async function generateStaticParams() {
   }))
 }
 
-export async function generateMetadata({ params }: Props) {
+export async function generateMetadata({ params }: PageProps<Params>) {
   const { slug, locale } = await params;
   const post = findPostBySlugAndLocale(slug, locale)
   if (!post) {
@@ -54,7 +52,7 @@ export async function generateMetadata({ params }: Props) {
 }
 
 // TODO: make this page Static Site Generation compatible
-export default async function Blog({ params }: Props ) {
+export default async function Blog({ params }: PageProps<Params> ) {
   const { slug, locale } = await params
   const post = findPostBySlugAndLocale(slug, locale)
 

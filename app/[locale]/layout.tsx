@@ -21,10 +21,12 @@ import { GoogleAnalytics } from '@next/third-parties/google'
 import { Wave } from '@/components/wave';
 import { cn } from '@/lib/utils'
 import {setRequestLocale} from 'next-intl/server'
+import { LayoutProps } from '@/lib/types'
 
 type ValidLocale = (typeof routing.locales)[number];
+type Params = { locale: string };
 
-export async function generateMetadata({ params }: { params: { locale: string } }) {
+export async function generateMetadata({ params }: LayoutProps<Params>) {
   const { locale } = await params;
 
   const t = await getTranslations({locale, namespace: 'metadata'});
@@ -73,10 +75,7 @@ export async function generateMetadata({ params }: { params: { locale: string } 
 export default async function RootLayout({
   children,
   params,
-}: {
-  children: React.ReactNode
-  params: { locale: string }
-}) {
+}: LayoutProps<Params> & { children: React.ReactNode }) {
 
   const { locale } = await params;
   // Ensure that the incoming `locale` is valid
