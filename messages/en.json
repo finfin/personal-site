@@ -26,7 +26,12 @@
   "navbar": {
     "home": "Home",
     "about": "About",
-    "posts": "Posts"
+    "posts": "Posts",
+    "playground": "Playground"
+  },
+  "playground": {
+    "emojicodex": "Emoji Codec",
+    "relative-color-palette": "Relative Color Palette"
   },
   "theme": {
     "dark": "dark",
