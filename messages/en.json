@@ -16,6 +16,13 @@
   "post": {
     "title": "Posts"
   },
+  "emojicodex": {
+    "title": "Emoji Codec",
+    "description": "Explore how complex emojis are composed from individual Unicode characters",
+    "composition": "Composition",
+    "decomposition": "Decomposition", 
+    "learning": "Learning"
+  },
   "navbar": {
     "home": "Home",
     "about": "About",

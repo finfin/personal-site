@@ -16,6 +16,13 @@
   "post": {
     "title": "文章列表"
   },
+  "emojicodex": {
+    "title": "表情符號編解碼器",
+    "description": "探索複合表情符號如何由獨立的 Unicode 字符組成",
+    "composition": "組合",
+    "decomposition": "分解",
+    "learning": "學習"
+  },
   "navbar": {
     "home": "首頁",
     "about": "關於",
