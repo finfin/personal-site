@@ -21,6 +21,23 @@ export default function EmojiArchitectPage() {
       <div className="min-h-screen">
         <CompositionMode />
       </div>
+
+      {/* References */}
+      <div className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700 px-4 sm:px-0">
+        <h2 className="text-xl font-semibold mb-4">References</h2>
+        <ul className="space-y-2">
+          <li>
+            <a
+              className="text-blue-600 dark:text-blue-400 hover:underline"
+              href="https://www.unicode.org/reports/tr51/"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              Unicode Technical Report #51: Unicode Emoji
+            </a>
+          </li>
+        </ul>
+      </div>
     </main>
   );
 }
