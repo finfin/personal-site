@@ -10,7 +10,7 @@ export default async function sitemap() {
     lastModified: new Date().toISOString().split('T')[0],
   }))
 
-  const routes = ['', '/en', '/zh-TW', '/en/posts', '/zh-TW/posts', '/en/about', '/zh-TW/about'].map((route) => ({
+  const routes = ['', '/en', '/zh-TW', '/en/posts', '/zh-TW/posts', '/en/about', '/zh-TW/about', '/en/emojiarchitect', '/zh-TW/emojiarchitect'].map((route) => ({
     url: `${baseUrl}${route}`,
     lastModified: new Date().toISOString().split('T')[0],
   }))

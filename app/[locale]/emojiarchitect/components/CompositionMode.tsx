@@ -73,22 +73,24 @@ export default function CompositionMode() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Multi-Select Emoji Composition</CardTitle>
-          <CardDescription>
-            Select base emojis to see all complex emojis containing them.
-            For example: Select 👩 + <div className='inline'>🏻</div> to see 👩🏽‍❤️‍💋‍👨🏻 and other combinations.
-          </CardDescription>
+      <Card className="sm:border sm:shadow-sm border-0 shadow-none">
+        <CardHeader className="px-0 py-4 sm:p-6">
+          <div className="px-4 sm:px-0">
+            <CardTitle>Multi-Select Emoji Composition</CardTitle>
+            <CardDescription>
+              Select base emojis to see all complex emojis containing them.
+              For example: Select 👩 + <div className='inline'>🏻</div> to see 👩🏽‍❤️‍💋‍👨🏻 and other combinations.
+            </CardDescription>
+          </div>
         </CardHeader>
       </Card>
 
       {/* Selection Summary */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex items-center justify-between">
+      <Card className="sm:border sm:shadow-sm border-0 shadow-none">
+        <CardContent className="px-0 py-6 sm:p-6 sm:pt-0">
+          <div className="flex items-center justify-between px-4 sm:px-0">
             <div className="space-y-2">
               <h3 className="font-medium">Selected Components</h3>
               <div className="flex flex-wrap gap-2 min-h-[32px]">
@@ -133,21 +135,24 @@ export default function CompositionMode() {
         </CardContent>
       </Card>
 
-      <div className="grid lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* Base Emoji Selection */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Select Base Emojis</CardTitle>
-            <CardDescription>Click to add/remove emojis from your selection</CardDescription>
+        <Card className="sm:border sm:shadow-sm border-0 shadow-none">
+          <CardHeader className="px-0 py-4 sm:p-6">
+            <div className="px-4 sm:px-0">
+              <CardTitle>Select Base Emojis</CardTitle>
+              <CardDescription>Click to add/remove emojis from your selection</CardDescription>
+            </div>
           </CardHeader>
-          <CardContent>
-            {/* Category Filter */}
-            <div className="mb-4">
-              <div className="flex flex-wrap gap-2">
+          <CardContent className="px-0 py-6 sm:p-6 sm:pt-0">
+            <div className="px-4 sm:px-0">
+              {/* Category Filter */}
+              <div className="mb-4">
+                <div className="flex overflow-x-auto gap-2 pb-2 scrollbar-hide">
                 {categories.map(category => (
                   <Button
                     className={cn(
-                      'text-xs',
+                      'text-xs whitespace-nowrap flex-shrink-0 min-w-fit px-3',
                       activeCategory === category && 'dark:bg-white/10 bg-black/10 hover:bg-white/50 hover:dark:bg-black/30 text-primary-foreground'
                     )}
                     key={category}
@@ -162,7 +167,7 @@ export default function CompositionMode() {
             </div>
 
             {/* Emoji Grid */}
-            <div className="grid grid-cols-8 gap-2 max-h-96 overflow-y-auto p-1">
+            <div className="grid grid-cols-6 md:grid-cols-8 gap-2 max-h-96 overflow-y-auto p-1">
               {filteredBaseEmojis.map((emoji: BaseEmoji) => {
                 const isSelected = selectedEmojis.includes(emoji.codePoint);
                 const isPossible = selectedEmojis.length === 0 || possibleComponents.has(emoji.codePoint);
@@ -171,7 +176,7 @@ export default function CompositionMode() {
                 return (
                   <button
                     className={cn(
-                      'aspect-square flex items-center justify-center text-2xl rounded-md border-2 transition-all',
+                      'aspect-square flex items-center justify-center text-xl sm:text-2xl rounded-md border-2 transition-all min-h-[44px] touch-manipulation',
                       isSelected
                         ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30'
                         : isDisabled
@@ -189,42 +194,46 @@ export default function CompositionMode() {
               })}
             </div>
 
-            <p className='text-xs text-gray-500 mt-2'>
-              {(() => {
-                const enabledCount = filteredBaseEmojis.filter(emoji =>
-                  selectedEmojis.length === 0 || possibleComponents.has(emoji.codePoint) || selectedEmojis.includes(emoji.codePoint)
-                ).length;
-                const totalCount = filteredBaseEmojis.length;
+              <p className='text-xs text-gray-500 mt-2'>
+                {(() => {
+                  const enabledCount = filteredBaseEmojis.filter(emoji =>
+                    selectedEmojis.length === 0 || possibleComponents.has(emoji.codePoint) || selectedEmojis.includes(emoji.codePoint)
+                  ).length;
+                  const totalCount = filteredBaseEmojis.length;
 
-                if (selectedEmojis.length === 0) {
-                  return `Showing ${totalCount} emojis${activeCategory !== 'all' ? ` in ${activeCategory}` : ''}`;
-                }
-                return `Showing ${enabledCount} of ${totalCount} compatible emojis${activeCategory !== 'all' ? ` in ${activeCategory}` : ''}`;
-              })()}
-            </p>
+                  if (selectedEmojis.length === 0) {
+                    return `Showing ${totalCount} emojis${activeCategory !== 'all' ? ` in ${activeCategory}` : ''}`;
+                  }
+                  return `Showing ${enabledCount} of ${totalCount} compatible emojis${activeCategory !== 'all' ? ` in ${activeCategory}` : ''}`;
+                })()}
+              </p>
+            </div>
           </CardContent>
         </Card>
 
         {/* Complex Emoji Results */}
-        <Card>
-          <CardHeader>
-            <CardTitle>
-              Complex Emojis
-              {selectedEmojis.length > 0 && (
-                <span className='text-sm font-normal text-gray-600 dark:text-gray-400'>
-                  ({stats.totalMatches})
-                </span>
-              )}
-            </CardTitle>
-            <CardDescription>
-              {selectedEmojis.length === 0
-                ? 'All available complex emojis'
-                : 'Emojis containing your selected components'
-              }
-            </CardDescription>
+        <Card className="sm:border sm:shadow-sm border-0 shadow-none">
+          <CardHeader className="px-0 py-4 sm:p-6">
+            <div className="px-4 sm:px-0">
+              <CardTitle>
+                Complex Emojis
+                {selectedEmojis.length > 0 && (
+                  <span className='text-sm font-normal text-gray-600 dark:text-gray-400'>
+                    ({stats.totalMatches})
+                  </span>
+                )}
+              </CardTitle>
+              <CardDescription>
+                {selectedEmojis.length === 0
+                  ? 'All available complex emojis'
+                  : 'Emojis containing your selected components'
+                }
+              </CardDescription>
+            </div>
           </CardHeader>
-          <CardContent>
-            {matchingComplexEmojis.length === 0 ? (
+          <CardContent className="px-0 py-6 sm:p-6 sm:pt-0">
+            <div className="px-4 sm:px-0">
+              {matchingComplexEmojis.length === 0 ? (
               <div className="text-center py-8 text-gray-500">
                 {selectedEmojis.length === 0
                   ? 'Select base emojis to filter complex emojis'
@@ -290,7 +299,8 @@ export default function CompositionMode() {
                   </div>
                 </div>
               </div>
-            )}
+              )}
+            </div>
           </CardContent>
         </Card>
       </div>
