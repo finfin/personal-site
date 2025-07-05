@@ -175,8 +175,8 @@ export default function CompositionMode() {
                       isSelected
                         ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30'
                         : isDisabled
-                        ? 'border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 opacity-40 cursor-not-allowed'
-                        : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 hover:scale-110'
+                          ? 'border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 opacity-40 cursor-not-allowed'
+                          : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 hover:scale-110'
                     )}
                     disabled={isDisabled}
                     key={emoji.codePoint}

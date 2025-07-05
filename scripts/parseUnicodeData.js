@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 
 /**
- * 🎯 Simple Multi-Select Emoji Parser
+ * 🏗️ Emoji Architect Parser
  * 
  * Creates:
  * 1. List of all individual emojis used in sequences
@@ -28,9 +28,9 @@ class SimpleEmojiParser {
   async parseUnicodeData() {
     console.log('🚀 Starting simple emoji parsing...');
     
-    const inputPath = path.join(__dirname, '../app/[locale]/emojicodex/data/unicode-emoji-data.txt');
-    const emojiListPath = path.join(__dirname, '../app/[locale]/emojicodex/data/unicode-emoji-list.txt');
-    const outputPath = path.join(__dirname, '../app/[locale]/emojicodex/data/unicodeEmojiData.json');
+    const inputPath = path.join(__dirname, '../app/[locale]/emojiarchitect/data/unicode-emoji-data.txt');
+    const emojiListPath = path.join(__dirname, '../app/[locale]/emojiarchitect/data/unicode-emoji-list.txt');
+    const outputPath = path.join(__dirname, '../app/[locale]/emojiarchitect/data/unicodeEmojiData.json');
     
     try {
       // Load official emoji ordering and categories
@@ -466,7 +466,7 @@ async function main() {
     const parser = new SimpleEmojiParser();
     const result = await parser.parseUnicodeData();
     
-    console.log('\n🎉 Simple emoji parsing completed!');
+    console.log('\n🎉 Emoji Architect parsing completed!');
     console.log(`📋 Output structure:`);
     console.log(`   • ${result.baseEmojis.length} individual emojis for selection`);
     console.log(`   • ${result.complexEmojis.length} complex emoji combinations`);

@@ -3,8 +3,8 @@
 import { useTranslations } from 'next-intl';
 import CompositionMode from './components/CompositionMode';
 
-export default function EmojiCodexPage() {
-  const t = useTranslations('emojicodex');
+export default function EmojiArchitectPage() {
+  const t = useTranslations('emojiarchitect');
 
   return (
     <main className="container mx-auto p-4 max-w-4xl font-sans">

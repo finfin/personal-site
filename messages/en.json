@@ -16,8 +16,8 @@
   "post": {
     "title": "Posts"
   },
-  "emojicodex": {
-    "title": "Emoji Codec",
+  "emojiarchitect": {
+    "title": "Emoji Architect",
     "description": "Explore how complex emojis are composed from individual Unicode characters",
     "composition": "Composition",
     "decomposition": "Decomposition", 
@@ -30,7 +30,7 @@
     "playground": "Playground"
   },
   "playground": {
-    "emojicodex": "Emoji Codec",
+    "emojiarchitect": "Emoji Architect",
     "relative-color-palette": "Relative Color Palette"
   },
   "theme": {

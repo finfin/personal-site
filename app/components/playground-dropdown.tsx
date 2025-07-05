@@ -14,8 +14,8 @@ import {
 
 const playgroundItems = [
   {
-    path: '/emojicodex',
-    name: 'emojicodex',
+    path: '/emojiarchitect',
+    name: 'emojiarchitect',
   },
   {
     path: '/relative-color-palette',

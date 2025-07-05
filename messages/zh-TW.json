@@ -16,8 +16,8 @@
   "post": {
     "title": "文章列表"
   },
-  "emojicodex": {
-    "title": "表情符號編解碼器",
+  "emojiarchitect": {
+    "title": "表情符號建築師",
     "description": "探索複合表情符號如何由獨立的 Unicode 字符組成",
     "composition": "組合",
     "decomposition": "分解",
@@ -30,7 +30,7 @@
     "playground": "實驗室"
   },
   "playground": {
-    "emojicodex": "表情符號編解碼器",
+    "emojiarchitect": "表情符號建築師",
     "relative-color-palette": "相對色彩調色盤"
   },
   "theme": {
