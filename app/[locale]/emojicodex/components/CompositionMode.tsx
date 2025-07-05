@@ -10,6 +10,7 @@ import {
   findComplexEmojis,
   getAllBaseEmojis,
   getAllCategories,
+  getPossibleComponents,
   getSelectionStats
 } from '../lib/unicodeEmojiDatabase';
 
@@ -31,24 +32,43 @@ export default function CompositionMode() {
 
   // Find matching complex emojis
   const matchingComplexEmojis = useMemo(() => {
-    return findComplexEmojis(selectedEmojis);
+    const result = findComplexEmojis(selectedEmojis);
+    console.log('🔍 findComplexEmojis called with:', selectedEmojis, 'result count:', result.length);
+    if (selectedEmojis.length > 0) {
+      console.log('First 3 results:', result.slice(0, 3).map(e => ({ emoji: e.emoji, description: e.description })));
+    }
+    return result;
+  }, [selectedEmojis]);
+
+  // Get possible components for current selection
+  const possibleComponents = useMemo(() => {
+    return getPossibleComponents(selectedEmojis);
   }, [selectedEmojis]);
 
   // Get statistics
   const stats = useMemo(() => {
-    return getSelectionStats(selectedEmojis);
+    const result = getSelectionStats(selectedEmojis);
+    console.log('📊 getSelectionStats called with:', selectedEmojis, 'stats:', result);
+    return result;
   }, [selectedEmojis]);
 
   const handleEmojiToggle = (codePoint: string) => {
+    console.log('🔄 handleEmojiToggle called with:', codePoint);
     setSelectedEmojis(prev => {
+      console.log('Previous selectedEmojis:', prev);
       if (prev.includes(codePoint)) {
-        return prev.filter(cp => cp !== codePoint);
+        const newSelection = prev.filter(cp => cp !== codePoint);
+        console.log('Removing emoji, new selection:', newSelection);
+        return newSelection;
       }
-      return [...prev, codePoint];
+      const newSelection = [...prev, codePoint];
+      console.log('Adding emoji, new selection:', newSelection);
+      return newSelection;
     });
   };
 
   const clearSelection = () => {
+    console.log('🧹 Clear selection called');
     setSelectedEmojis([]);
   };
 
@@ -60,7 +80,7 @@ export default function CompositionMode() {
           <CardTitle>Multi-Select Emoji Composition</CardTitle>
           <CardDescription>
             Select base emojis to see all complex emojis containing them.
-            For example: Select 👩 + 🏽 to see 👩🏽‍❤️‍💋‍👨🏻 and other combinations.
+            For example: Select 👩 + <div className='inline'>🏻</div> to see 👩🏽‍❤️‍💋‍👨🏻 and other combinations.
           </CardDescription>
         </CardHeader>
       </Card>
@@ -142,27 +162,45 @@ export default function CompositionMode() {
             </div>
 
             {/* Emoji Grid */}
-            <div className="grid grid-cols-8 gap-2 max-h-96 overflow-y-auto">
-              {filteredBaseEmojis.map((emoji: BaseEmoji) => (
-                <button
-                  className={cn(
-                    'aspect-square flex items-center justify-center text-2xl rounded-md border-2 transition-all hover:scale-110',
-                    selectedEmojis.includes(emoji.codePoint)
-                      ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30'
-                      : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
-                  )}
-                  key={emoji.codePoint}
-                  onClick={() => handleEmojiToggle(emoji.codePoint)}
-                  title={`${emoji.name} (${emoji.frequency} uses)`}
-                >
-                  {emoji.emoji}
-                </button>
-              ))}
+            <div className="grid grid-cols-8 gap-2 max-h-96 overflow-y-auto p-1">
+              {filteredBaseEmojis.map((emoji: BaseEmoji) => {
+                const isSelected = selectedEmojis.includes(emoji.codePoint);
+                const isPossible = selectedEmojis.length === 0 || possibleComponents.has(emoji.codePoint);
+                const isDisabled = !isPossible && !isSelected;
+
+                return (
+                  <button
+                    className={cn(
+                      'aspect-square flex items-center justify-center text-2xl rounded-md border-2 transition-all',
+                      isSelected
+                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30'
+                        : isDisabled
+                        ? 'border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 opacity-40 cursor-not-allowed'
+                        : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 hover:scale-110'
+                    )}
+                    disabled={isDisabled}
+                    key={emoji.codePoint}
+                    onClick={() => !isDisabled && handleEmojiToggle(emoji.codePoint)}
+                    title={`${emoji.name} (${emoji.frequency} uses)${isDisabled ? ' - Not compatible with current selection' : ''}`}
+                  >
+                    {emoji.emoji}
+                  </button>
+                );
+              })}
             </div>
 
             <p className='text-xs text-gray-500 mt-2'>
-              Showing {filteredBaseEmojis.length} emojis
-              {activeCategory !== 'all' && ` in ${activeCategory}`}
+              {(() => {
+                const enabledCount = filteredBaseEmojis.filter(emoji =>
+                  selectedEmojis.length === 0 || possibleComponents.has(emoji.codePoint) || selectedEmojis.includes(emoji.codePoint)
+                ).length;
+                const totalCount = filteredBaseEmojis.length;
+
+                if (selectedEmojis.length === 0) {
+                  return `Showing ${totalCount} emojis${activeCategory !== 'all' ? ` in ${activeCategory}` : ''}`;
+                }
+                return `Showing ${enabledCount} of ${totalCount} compatible emojis${activeCategory !== 'all' ? ` in ${activeCategory}` : ''}`;
+              })()}
             </p>
           </CardContent>
         </Card>

@@ -54,10 +54,10 @@ class SimpleEmojiDatabase {
 
     // Find emojis that contain ALL selected components
     const matchingEmojiIds = this.findIntersection(selectedCodePoints);
+    const matchingEmojiIdSet = new Set(matchingEmojiIds);
     
-    return matchingEmojiIds
-      .map(id => this.data.complexEmojis.find(emoji => emoji.id === id))
-      .filter(Boolean) as ComplexEmoji[];
+    // Filter while preserving the original order from complexEmojis array
+    return this.data.complexEmojis.filter(emoji => matchingEmojiIdSet.has(emoji.id));
   }
 
   /**
@@ -147,6 +147,32 @@ class SimpleEmojiDatabase {
   }
 
   /**
+   * 🔍 Get all possible components that can be combined with current selection
+   */
+  getPossibleComponents(selectedCodePoints: string[]): Set<string> {
+    if (selectedCodePoints.length === 0) {
+      // If nothing selected, all components are possible
+      return new Set(Object.keys(this.data.lookupIndex));
+    }
+
+    // Find all complex emojis that contain the current selection
+    const matchingEmojiIds = this.findIntersection(selectedCodePoints);
+    const possibleComponents = new Set<string>();
+
+    // For each matching complex emoji, add all its components as possible
+    for (const emojiId of matchingEmojiIds) {
+      const complexEmoji = this.data.complexEmojis.find(e => e.id === emojiId);
+      if (complexEmoji) {
+        complexEmoji.baseComponents.forEach(component => {
+          possibleComponents.add(component);
+        });
+      }
+    }
+
+    return possibleComponents;
+  }
+
+  /**
    * 📋 Get metadata
    */
   getMetadata() {
@@ -188,6 +214,10 @@ export function getAllCategories(): string[] {
 
 export function getMetadata() {
   return emojiDB.getMetadata();
+}
+
+export function getPossibleComponents(selectedCodePoints: string[]): Set<string> {
+  return emojiDB.getPossibleComponents(selectedCodePoints);
 }
 
 // Backwards compatibility exports (simplified)

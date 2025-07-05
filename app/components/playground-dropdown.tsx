@@ -49,7 +49,7 @@ export function PlaygroundDropdown() {
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <DropdownMenu delayDuration={0} modal={false} onOpenChange={setOpen} open={open}>
+      <DropdownMenu modal={false} onOpenChange={setOpen} open={open}>
         <DropdownMenuTrigger asChild>
           <button
             className='transition-all hover:text-neutral-800 dark:hover:text-neutral-200 flex align-middle relative py-1 px-2 m-1 items-center gap-1 focus:outline-none'
@@ -62,9 +62,9 @@ export function PlaygroundDropdown() {
         <DropdownMenuContent 
           align='start'
           className='bg-white/80 backdrop-blur-sm dark:bg-gray-800/90 border border-gray-200/50 dark:border-gray-600/50 shadow-xl animate-none'
-          sideOffset={2}
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
+          sideOffset={2}
         >
           {playgroundItems.map(({ path, name }) => {
             const isActive = pathname.includes(path)

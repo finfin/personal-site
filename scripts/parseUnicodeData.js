@@ -17,6 +17,9 @@ class SimpleEmojiParser {
     this.allBaseEmojis = new Map(); // All individual emojis used
     this.complexEmojis = new Map(); // All complex emoji sequences
     this.componentIndex = new Map(); // Component -> complex emojis lookup
+    this.officialOrder = new Map(); // Code point -> order index from unicode-emoji-list.txt
+    this.officialCategories = new Map(); // Code point -> official category
+    this.officialNames = new Map(); // Code point -> official name
   }
 
   /**
@@ -26,10 +29,14 @@ class SimpleEmojiParser {
     console.log('🚀 Starting simple emoji parsing...');
     
     const inputPath = path.join(__dirname, '../app/[locale]/emojicodex/data/unicode-emoji-data.txt');
+    const emojiListPath = path.join(__dirname, '../app/[locale]/emojicodex/data/unicode-emoji-list.txt');
     const outputPath = path.join(__dirname, '../app/[locale]/emojicodex/data/unicodeEmojiData.json');
     
     try {
-      // Load and parse data
+      // Load official emoji ordering and categories
+      this.loadOfficialEmojiData(emojiListPath);
+      
+      // Load and parse ZWJ sequences
       const lines = this.loadUnicodeFile(inputPath);
       this.parseSequences(lines);
       
@@ -51,10 +58,104 @@ class SimpleEmojiParser {
   }
 
   /**
+   * 📖 Load official emoji ordering and categories
+   */
+  loadOfficialEmojiData(filePath) {
+    console.log('📖 Loading official emoji ordering...');
+    
+    const data = fs.readFileSync(filePath, 'utf-8');
+    const lines = data.split('\n');
+    
+    let currentGroup = '';
+    let orderIndex = 0;
+    
+    for (const line of lines) {
+      const trimmedLine = line.trim();
+      
+      // Parse group headers
+      if (trimmedLine.startsWith('# group:')) {
+        currentGroup = trimmedLine.replace('# group:', '').trim();
+        continue;
+      }
+      
+      // Parse emoji entries
+      if (trimmedLine && !trimmedLine.startsWith('#') && currentGroup) {
+        const parts = trimmedLine.split(';');
+        if (parts.length >= 2) {
+          const codePointsStr = parts[0].trim();
+          const statusAndComment = parts[1].trim();
+          
+          // Split status and comment
+          const commentIndex = statusAndComment.indexOf('#');
+          if (commentIndex === -1) continue;
+          
+          const status = statusAndComment.substring(0, commentIndex).trim();
+          const comment = statusAndComment.substring(commentIndex + 1).trim();
+          
+          // Only process fully-qualified emojis for base components
+          if (status.includes('fully-qualified')) {
+            const codePoints = codePointsStr.split(' ');
+            
+            // For single code point emojis (potential base components)
+            if (codePoints.length === 1) {
+              const codePoint = `U+${codePoints[0]}`;
+              
+              // Extract emoji name from comment (format: "😀 E1.0 grinning face")
+              const emojiName = this.extractEmojiName(comment);
+              
+              this.officialOrder.set(codePoint, orderIndex);
+              this.officialCategories.set(codePoint, currentGroup);
+              this.officialNames.set(codePoint, emojiName);
+              orderIndex++;
+            }
+          }
+        }
+      }
+    }
+    
+    console.log(`📊 Loaded ${this.officialOrder.size} emojis with official ordering`);
+  }
+
+  /**
+   * 🏷️ Extract emoji name from comment
+   */
+  extractEmojiName(comment) {
+    // Format: "😀 E1.0 grinning face" or "😀 E1.0 some name"
+    // We want to extract the name part after the version
+    const parts = comment.split(' ');
+    
+    // Find the version part (starts with E)
+    let versionIndex = -1;
+    for (let i = 0; i < parts.length; i++) {
+      if (parts[i].startsWith('E') && parts[i].match(/^E\d+/)) {
+        versionIndex = i;
+        break;
+      }
+    }
+    
+    if (versionIndex !== -1 && versionIndex < parts.length - 1) {
+      // Join all parts after the version
+      return parts.slice(versionIndex + 1).join(' ');
+    }
+    
+    // Fallback: take everything after the first emoji character
+    const firstSpace = comment.indexOf(' ');
+    if (firstSpace !== -1) {
+      const afterEmoji = comment.substring(firstSpace + 1);
+      const secondSpace = afterEmoji.indexOf(' ');
+      if (secondSpace !== -1) {
+        return afterEmoji.substring(secondSpace + 1);
+      }
+    }
+    
+    return comment;
+  }
+
+  /**
    * 📖 Load Unicode data file
    */
   loadUnicodeFile(filePath) {
-    console.log('📖 Loading Unicode data...');
+    console.log('📖 Loading Unicode ZWJ sequences...');
     
     const data = fs.readFileSync(filePath, 'utf-8');
     const lines = data.split('\n')
@@ -167,6 +268,12 @@ class SimpleEmojiParser {
    * 🏷️ Get emoji name
    */
   getEmojiName(codePoint) {
+    // Use official name if available
+    if (this.officialNames.has(codePoint)) {
+      return this.officialNames.get(codePoint);
+    }
+    
+    // Fallback to hardcoded names
     const names = {
       'U+1F468': 'Man',
       'U+1F469': 'Woman',
@@ -202,6 +309,12 @@ class SimpleEmojiParser {
    * 🏷️ Get emoji category
    */
   getEmojiCategory(codePoint) {
+    // Use official category if available
+    if (this.officialCategories.has(codePoint)) {
+      return this.officialCategories.get(codePoint);
+    }
+    
+    // Fallback to old logic for emojis not in the official list
     // People & Body emojis
     if (codePoint.startsWith('U+1F46') || codePoint.startsWith('U+1F469') || 
         codePoint.startsWith('U+1F9D1') || codePoint.startsWith('U+1F9B')) {
@@ -279,12 +392,23 @@ class SimpleEmojiParser {
   generateOutput() {
     console.log('📤 Generating output...');
     
-    // Convert to arrays and sort
+    // Convert to arrays and sort using official ordering
     const baseEmojis = Array.from(this.allBaseEmojis.values())
-      .sort((a, b) => b.frequency - a.frequency); // Sort by frequency
+      .sort((a, b) => {
+        // First, sort by official order if available
+        const orderA = this.officialOrder.get(a.codePoint) ?? 999999;
+        const orderB = this.officialOrder.get(b.codePoint) ?? 999999;
+        
+        if (orderA !== orderB) {
+          return orderA - orderB;
+        }
+        
+        // Fallback to frequency for emojis not in official list
+        return b.frequency - a.frequency;
+      });
     
     const complexEmojis = Array.from(this.complexEmojis.values())
-      .sort((a, b) => a.componentCount - b.componentCount); // Sort by complexity
+      .sort((a, b) => a.description.localeCompare(b.description)); // Keep alphabetical for complex emojis
     
     // Create lookup index
     const lookupIndex = {};
@@ -304,11 +428,12 @@ class SimpleEmojiParser {
       
       // Metadata
       metadata: {
-        version: '3.0.0',
+        version: '3.1.0',
         generatedAt: new Date().toISOString(),
         totalBaseEmojis: baseEmojis.length,
         totalComplexEmojis: complexEmojis.length,
-        categories: [...new Set(complexEmojis.map(e => e.category))]
+        categories: [...new Set(baseEmojis.map(e => e.category))],
+        orderingSource: 'unicode-emoji-list.txt'
       }
     };
   }
