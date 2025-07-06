@@ -1,4 +1,3 @@
-/* eslint-disable @stylistic/indent */
 /* eslint-disable react/jsx-sort-props */
 'use client';
 

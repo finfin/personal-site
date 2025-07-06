@@ -15,6 +15,9 @@ export default function EmojiArchitectPage() {
         <p className="text-lg text-muted-foreground">
           {t('description')}
         </p>
+        <p className="text-lg text-muted-foreground">
+          Select base emojis to see all complex emojis containing them. For example: Select 👩 + <div className='inline'>🏻</div> to see 👩🏽‍❤️‍💋‍👨🏻 and other combinations.
+        </p>
       </div>
 
       {/* Content */}

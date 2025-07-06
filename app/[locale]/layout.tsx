@@ -22,6 +22,7 @@ import { Wave } from '@/components/wave';
 import { cn } from '@/lib/utils'
 import {setRequestLocale} from 'next-intl/server'
 import { LayoutProps } from '@/lib/types'
+import { Toaster } from 'sonner'
 
 type ValidLocale = (typeof routing.locales)[number];
 type Params = { locale: string };
@@ -108,6 +109,7 @@ export default async function RootLayout({
               <Footer />
               <Analytics />
             </main>
+            <Toaster />
           </ThemeProvider>
         </NextIntlClientProvider>
         <GoogleAnalytics gaId='G-PNJ8MDH6MX' />
