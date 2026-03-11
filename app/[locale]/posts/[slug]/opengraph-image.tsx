@@ -2,7 +2,6 @@ import { findPostBySlugAndLocale } from '../utils'
 import { ImageResponse } from 'next/og'
 import { baseUrl } from '@/sitemap';
 
-export const runtime = 'edge'
 export const alt = 'Blog Post'
 export const contentType = 'image/png'
 export const size = {
@@ -12,17 +11,13 @@ export const size = {
 
 export default async function Image({ params }: { params: { slug: string, locale: string } }) {
 
-  const font = await fetch(
-    new URL('/fonts/NotoSansTC-Medium.ttf', baseUrl)
-  );
+  const font = await fetch(new URL('/fonts/NotoSansTC-Medium.ttf', baseUrl));
 
   if (!font.ok) {
     throw new Error('Failed to fetch the font file');
   }
 
   const fontData = await font.arrayBuffer();
-
-  // const notoSansTCMediumFont = promises.readFile(join(fileURLToPath(import.meta.url), '../../../../assets/fonts/NotoSansTC-Medium.ttf'));
   const post = await findPostBySlugAndLocale(params.slug, params.locale)
 
   let backgroundImage: string
