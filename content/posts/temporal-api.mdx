@@ -1,0 +1,623 @@
+---
+title: 'Temporal API：JavaScript Date 的現代替代方案'
+date: '2026-03-14'
+slug: 'temporal-api'
+summary: 'JavaScript 的 Date API 壞了幾十年——可變物件、月份運算靜默溢出、跨環境解析行為不一致，逼得大家都去用 dayjs 或 moment.js。Temporal API 在 2026 年 3 月正式成為 ES2026 標準，原生內建在 Chrome、Firefox、Edge。幾個具體的範例，讓你直接在頁面上執行、對照。'
+type: Post
+language: zh-TW
+---
+
+2026 年 3 月 11 日，Temporal 正式升上 TC39 Stage 4，成為 ES2026 標準的一部分，並已原生內建在 Chrome 144+、Firefox 139+、Edge 144+。
+
+Temporal 是 JavaScript 的全新日期時間 API，也是三十年來 `Date` 物件各種設計缺陷的語言層面解答。因為 `Date` 的不足過去需要靠 `dayjs`、`date-fns` 或 `moment.js` 來填補，Temporal 有望可以原生補上這個空缺。
+
+## Temporal 的型別
+
+Temporal 下其實有幾種獨立的型別，每個都針對特定的使用情境：
+
+| 型別 | 適用情境 |
+|------|----------|
+| `Temporal.PlainDate` | 生日、紀念日——只有日期，沒有時間、沒有時區 |
+| `Temporal.PlainDateTime` | 「本地」脈絡下的行事曆事件 |
+| `Temporal.ZonedDateTime` | 會議、航班——明確的 IANA 時區，自動處理日光節約時間（DST） |
+| `Temporal.Instant` | 某個精確的時間點，適合存資料庫或跨時區比對 |
+| `Temporal.Duration` | 兩個時間點之間的差距 |
+| `Temporal.PlainTime` | 不帶日期的時刻 |
+
+所有 Temporal 物件都是**不可變的（immutable）**，操作永遠回傳新物件，原始物件不會被改動。不確定該用哪個型別時，從 `ZonedDateTime` 開始。
+
+接下來，直接用幾個具體範例來看看 Temporal 可以做到什麼：
+
+
+> 本頁面的範例都可以自行編輯與執行，並載入了 `@js-temporal/polyfill`，所以不管你用哪個瀏覽器都可以直接跑。如果你的瀏覽器已原生支援 Temporal（Chrome 144+、Firefox 139+、Edge 144+），polyfill 會自動略過，直接使用原生實作。
+
+## 範例一：Duration 計算
+
+用 `Date` 算「兩個時間差多久」，你得自己把毫秒數除以 86400000 算天、取餘數再除 3600000 算小時⋯⋯每次都在手動做單位換算。Temporal 直接給你一個 `Duration` 物件，天、時、分各自分開，也可以用 `.total('hours')` 換算成單一單位：
+
+<JSPlayground
+  title="試試看：Date 版本的 Duration 計算"
+  defaultCode={`const startDate = new Date('2024-03-10T09:00:00');
+const endDate = new Date('2024-03-11T17:30:00');
+const diffMs = endDate - startDate;
+
+const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+const mins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+
+console.log('結果:', days + ' 天', hours + ' 小時', mins + ' 分鐘');`}
+/>
+
+<JSPlayground
+  title="試試看：Temporal 版本的 Duration 計算"
+  useTemporal
+  defaultCode={`const start = Temporal.PlainDateTime.from('2024-03-10T09:00:00');
+const end = Temporal.PlainDateTime.from('2024-03-11T17:30:00');
+
+const duration = start.until(end, { largestUnit: 'day' });
+
+console.log('ISO 格式:', duration.toString());
+console.log('天:', duration.days, '小時:', duration.hours, '分鐘:', duration.minutes);
+console.log('換算成小時:', duration.total('hours'));
+
+// largestUnit 換成 'hour' 或 'minute' 看看結果差異
+const byHour = start.until(end, { largestUnit: 'hour' });
+console.log('largestUnit: hour ->', byHour.toString());`}
+/>
+
+## 範例二：農曆支援
+
+農曆每個月長度不固定（29 或 30 天），遇到閏年還會插入閏月。用 `Date` 對農曆做「加兩個月」，加的是西曆兩個月六十天，農曆日期就可能偏移。Temporal 可以透過 `[u-ca=chinese]` 標注農曆，「加兩個月」會在農曆規則下進行：
+
+<JSPlayground
+  title="試試看：農曆的正確加月"
+  useTemporal
+  defaultCode={`// 起點：西曆 2026-03-11 = 農曆正月廿二
+const startISO = '2026-03-11';
+const startLegacy = new Date(2026, 2, 11);
+
+console.log('=== 起點 ===');
+console.log('西曆:', startISO);
+console.log('農曆:', startLegacy.toLocaleDateString('zh-TW', { calendar: 'chinese' }));
+
+console.log('');
+
+// 1. Date：加的是西曆月份，農曆日期會偏移
+const legacyDate = new Date(2026, 2, 11);
+legacyDate.setMonth(legacyDate.getMonth() + 2);
+console.log('=== Date +2 西曆月 ===');
+console.log('西曆:', legacyDate.toLocaleDateString('zh-TW'));
+console.log('農曆:', legacyDate.toLocaleDateString('zh-TW', { calendar: 'chinese' }), '← 農曆日不是廿二，偏移了');
+
+console.log('');
+
+// 2. Temporal 無標注：add() 同樣加的是西曆月份
+const plain = Temporal.PlainDate.from(startISO);
+const plainPlus2 = plain.add({ months: 2 });
+console.log('=== Temporal 無 [u-ca=chinese] +2月 ===');
+console.log('西曆:', plainPlus2.toString());
+console.log('農曆:', plainPlus2.withCalendar('chinese').toLocaleString('zh-TW', { calendar: 'chinese' }), '← 農曆日也跑掉了');
+
+console.log('');
+
+// 3. [u-ca=chinese]：add() 加的是農曆月份，結果正確
+const lunar = Temporal.PlainDate.from(startISO + '[u-ca=chinese]');
+const lunarPlus2 = lunar.add({ months: 2 });
+console.log('=== Temporal [u-ca=chinese] +2農曆月 ===');
+console.log('西曆:', lunarPlus2.toString());
+console.log('農曆:', lunarPlus2.toLocaleString('zh-TW', { calendar: 'chinese' }), '← 農曆日還是廿三，正確');
+
+console.log('');
+
+// withCalendar()：把任意西曆日期轉農曆顯示
+const today = Temporal.Now.plainDateISO();
+console.log('=== 今天 ===');
+console.log('西曆:', today.toString());
+console.log('農曆:', today.withCalendar('chinese').toLocaleString('zh-TW', { calendar: 'chinese' }));
+
+// 反過來：直接用農曆日期建立物件，再轉西曆
+// { year: 2026, month: 7, day: 15, calendar: 'chinese' } = 農曆七月十五
+const zhongyuan = Temporal.PlainDate.from({ year: 2026, month: 7, day: 15, calendar: 'chinese' });
+console.log('');
+console.log('=== 中元節（農曆七月十五）===');
+console.log('農曆:', zhongyuan.toLocaleString('zh-TW', { calendar: 'chinese' }));
+console.log('西曆:', zhongyuan.withCalendar('iso8601').toString());`}
+/>
+
+## 範例三：Instant 跨時區顯示
+
+`Temporal.Instant` 代表一個精確的時間點，沒有時區、沒有曆法——就是距離 Unix epoch 的奈秒數。適合存在資料庫或傳輸，然後再根據不同使用者的時區轉換顯示：
+
+<JSPlayground
+  title="試試看：Instant 轉換成不同時區"
+  useTemporal
+  defaultCode={`const instant = Temporal.Instant.from('2026-02-25T15:15:00Z');
+
+const zones = [
+  'Europe/London',
+  'America/New_York',
+  'Asia/Tokyo',
+  'Asia/Taipei',
+  'Australia/Sydney',
+];
+
+// 不同時區
+zones.forEach(function(tz) {
+  const zdt = instant.toZonedDateTimeISO(tz);
+  console.log(tz + ':');
+  console.log('  ' + zdt.toString());
+});
+
+// Instant 支援奈秒精度（比 Date 的毫秒更精確）
+const now = Temporal.Now.instant();
+console.log('');
+console.log('現在（奈秒）:', now.epochNanoseconds.toString());
+console.log('現在（毫秒）:', now.epochMilliseconds.toString());`}
+/>
+
+## 範例四：ZonedDateTime 自動處理 DST（Daylight Saving Time）
+
+許多國家有日光節約時間（Daylight Saving Time, DST），有些時刻根本不存在——`Date` 讓你自己負責，`Temporal.ZonedDateTime` 會自動跳過它。
+
+2026 年 3 月 29 日是英國的 DST，凌晨 1 點直接跳到 2 點（`01:00 → 02:00`），所以 `01:30` 這個時刻根本不存在：
+
+<JSPlayground
+  title="試試看：ZonedDateTime 的 DST 自動處理"
+  useTemporal
+  defaultCode={`// 英國 2026 年春季調時：03-29 01:00 → 02:00（01:xx 這段時間不存在）
+const beforeDST = Temporal.ZonedDateTime.from(
+  '2026-03-29T00:30:00+00:00[Europe/London]'
+);
+
+console.log('起點:', beforeDST.toString());
+console.log('加 1 小時:', beforeDST.add({ hours: 1 }).toString());
+// 不是 01:30，而是 02:30——自動跳過
+
+console.log('');
+console.log('加 30 分鐘:', beforeDST.add({ minutes: 30 }).toString());
+console.log('加 90 分鐘:', beforeDST.add({ minutes: 90 }).toString());
+
+// 台灣沒有 DST，結果單純
+const taipei = Temporal.ZonedDateTime.from('2026-03-29T00:30:00+08:00[Asia/Taipei]');
+console.log('');
+console.log('台北加 1 小時:', taipei.add({ hours: 1 }).toString());`}
+/>
+
+## Temporal 解決了 Date 的哪些問題？
+
+看完上面的範例，回頭談談 Temporal 解決了什麼：
+
+### Mutation：避免改動悄悄發生
+
+**Date 的做法**
+
+`Date` 是可變的（mutable）。傳進函式的 `Date` 物件，那個函式可能在你不知情的情況下改掉原始值——沒有任何警告。
+
+**Temporal 的做法**
+
+Temporal 物件全部 immutable，所有操作都回傳新物件，原始值絕對不變。
+
+<JSPlayground
+  title="Date vs Temporal：mutation"
+  useTemporal
+  defaultCode={`// Date：mutation 悄悄發生
+const legacyDate = new Date('2026-02-25T00:00:00Z');
+function addOneDayLegacy(d) {
+  d.setDate(d.getDate() + 1); // 直接改動傳入的物件
+  return d;
+}
+console.log('Date 呼叫前:', legacyDate.toISOString().slice(0, 10));
+addOneDayLegacy(legacyDate);
+console.log('Date 呼叫後:', legacyDate.toISOString().slice(0, 10)); // 被改了！
+
+console.log('');
+
+// Temporal：immutable，原始值永遠安全
+const temporalDate = Temporal.PlainDate.from('2026-02-25');
+function addOneDayTemporal(d) {
+  return d.add({ days: 1 }); // 回傳新物件
+}
+console.log('Temporal 呼叫前:', temporalDate.toString());
+addOneDayTemporal(temporalDate);
+console.log('Temporal 呼叫後:', temporalDate.toString()); // 完全不變`}
+/>
+
+### 月份運算：Date 自動溢出 vs Temporal 自動 clamp
+
+**Date 的做法**
+
+`Date` 不驗證日期是否合法，直接把溢出的日數滾到下個月——例如 `Jan 31 + 1 month` 會得到 `Mar 03` 而不是 `Feb 28`，完全不報錯。
+
+**Temporal 的做法**
+
+Temporal 預設把結果 clamp 到月底，不會溢出；如果你要嚴格拒絕就用 `overflow: 'reject'`。
+
+<JSPlayground
+  title="Date vs Temporal：月份溢出"
+  useTemporal
+  defaultCode={`// Date：1/31 + 1個月 = 3/3（靜默跳過2月）
+const d = new Date('Jan 31 2026');
+d.setMonth(d.getMonth() + 1);
+console.log('Date 1/31 + 1月:', d.toDateString()); // Mar 03
+
+console.log('');
+
+// Temporal：自動 clamp 到月底
+const t = Temporal.PlainDate.from('2026-01-31');
+console.log('Temporal 1/31 + 1月:', t.add({ months: 1 }).toString()); // 2026-02-28
+
+// 每個月底都對比一下
+const cases = ['2026-01-31', '2026-03-31', '2026-10-31'];
+console.log('');
+cases.forEach(function(iso) {
+  const legacy = new Date(iso);
+  legacy.setMonth(legacy.getMonth() + 1);
+  const temporal = Temporal.PlainDate.from(iso).add({ months: 1 });
+  console.log(iso, '+ 1月');
+  console.log('  Date:', legacy.toDateString(), '  Temporal:', temporal.toString());
+});`}
+/>
+
+### 字串解析：行為未定義 vs 嚴格格式
+
+**Date 的做法**
+
+同一個格式的字串，不同瀏覽器解析出來的時區可能完全不同——例如 `new Date('2026-06-25 15:15:00')` 在 Chrome 用本地時區、在 Firefox 可能是 Invalid Date、在 Safari 用 UTC 解析。
+
+**Temporal 的做法**
+
+Temporal 只接受嚴格定義的格式，不確定的格式直接拋錯，完全杜絕跨環境行為不一致——格式必須包含 `T` 分隔符，含時區要用 `+08:00[Asia/Taipei]` 明確標注。
+
+<JSPlayground
+  title="Date vs Temporal：字串解析"
+  useTemporal
+  defaultCode={`// Date：「接近 ISO」的格式，行為跨瀏覽器不一致
+const d = new Date('2026-06-25 15:15:00');
+if (isNaN(d)) {
+  console.log('Date 結果: Invalid Date');
+} else {
+  console.log('Date getHours():', d.getHours(), '（本地）');
+  console.log('Date getUTCHours():', d.getUTCHours(), '（UTC）');
+  console.log('→ 解析為:', d.getHours() === 15 ? '本地時區' : '非本地時區');
+}
+
+console.log('');
+
+// Temporal：只接受嚴格格式，否則直接拋錯
+try {
+  Temporal.PlainDateTime.from('2026-06-25 15:15:00'); // 空格不行
+} catch (e) {
+  console.log('Temporal 空格格式:', e.constructor.name, '(格式不對就拋錯)');
+}
+
+// 正確格式：
+const t = Temporal.PlainDateTime.from('2026-06-25T15:15:00'); // T 分隔
+console.log('Temporal 正確格式:', t.toString());
+
+const tz = Temporal.ZonedDateTime.from('2026-06-25T15:15:00+08:00[Asia/Taipei]');
+console.log('含時區:', tz.toString());`}
+/>
+
+---
+
+也因此我們有龐大的 datetime 函式庫生態系需求：到 2026 年，moment.js + dayjs + date-fns 合計每週下載量超過 1 億次。
+
+## 需要注意的地方
+
+### 1. 比較不能用 `>`, `<`，要用 `compare()`
+
+Temporal 物件不是 primitive，直接用 `>`, `<` 比較會拋錯。需要使用 `compare()` ，會回傳 `-1`、`0`、`1`，可以直接丟給 `Array.sort(dates, Temporal.PlainDate.compare)`。
+
+<JSPlayground
+  title="試試看：compare() 與排序"
+  useTemporal
+  defaultCode={`const dates = [
+  Temporal.PlainDate.from('2026-05-01'),
+  Temporal.PlainDate.from('2026-01-15'),
+  Temporal.PlainDate.from('2026-12-31'),
+  Temporal.PlainDate.from('2026-03-14'),
+];
+
+console.log('排序前:', dates.map(d => d.toString()));
+
+const sorted = dates.sort(Temporal.PlainDate.compare);
+console.log('排序後:', sorted.map(d => d.toString()));
+
+// 直接比較兩個日期
+const a = Temporal.PlainDate.from('2026-01-01');
+const b = Temporal.PlainDate.from('2026-06-01');
+console.log('compare(a, b):', Temporal.PlainDate.compare(a, b)); // -1`}
+/>
+
+### 2. `dayOfWeek` 是 ISO 8601，不是 `Date.getDay()`
+
+`Date.getDay()` 用 `0` 表示週日、`6` 表示週六。Temporal 遵循 ISO 8601：**`1` 是週一，`7` 是週日**。把 `Date` 的舊程式碼移植過來時要特別注意這個差異。
+
+<JSPlayground
+  title="試試看：dayOfWeek vs Date.getDay()"
+  useTemporal
+  defaultCode={`const dates = ['2026-03-15', '2026-03-16', '2026-03-17', '2026-03-20', '2026-03-21'];
+
+dates.forEach(function(iso) {
+  const t = Temporal.PlainDate.from(iso);
+  const d = new Date(iso + 'T12:00:00Z'); // 加時間避免時區問題
+  console.log(iso, '  Temporal.dayOfWeek:', t.dayOfWeek, '  Date.getDay():', d.getUTCDay());
+});
+
+console.log('');
+console.log('Temporal: 1=Mon 2=Tue ... 6=Sat 7=Sun');
+console.log('Date:     0=Sun 1=Mon ... 5=Fri 6=Sat');
+
+// 常見錯誤：直接用 Date.getDay() 的邏輯套到 Temporal
+const isWeekend = (d) => d.dayOfWeek >= 6; // ✅ Temporal 正確寫法
+const sat = Temporal.PlainDate.from('2026-03-21');
+const sun = Temporal.PlainDate.from('2026-03-22');
+console.log('');
+console.log('週六 isWeekend:', isWeekend(sat)); // true
+console.log('週日 isWeekend:', isWeekend(sun)); // true`}
+/>
+
+### 3. `Duration` 不會自動 balance
+
+`Temporal.Duration` 不會自動把 100 秒換算成 1 分 40 秒——它保留你給的單位原封不動（`PT100S`，不是 `PT1M40S`）。需要換算時，用 `round({ largestUnit: 'hour' })` 明確指定。
+
+<JSPlayground
+  title="試試看：Duration balance"
+  useTemporal
+  defaultCode={`// Duration 不自動 balance
+const d = Temporal.Duration.from({ seconds: 100 });
+console.log('100秒 -> d.minutes:', d.minutes, ' d.seconds:', d.seconds);
+console.log('toString:', d.toString()); // PT100S
+
+// 需要主動 round 才會換算
+const d2 = Temporal.Duration.from({ minutes: 80 });
+console.log('80分 未換算:', d2.toString()); // PT80M，不是 PT1H20M
+console.log('80分 換算後:', d2.round({ largestUnit: 'hour' }).toString()); // PT1H20M
+
+// since() / until() 也要注意 largestUnit
+const start = Temporal.PlainDate.from('2026-01-15');
+const end = Temporal.PlainDate.from('2026-02-20');
+console.log('');
+console.log('until largestUnit:day  :', start.until(end, { largestUnit: 'day' }).toString());
+console.log('until largestUnit:month:', start.until(end, { largestUnit: 'month' }).toString());`}
+/>
+
+### 4. `total()` 對於月份、年份需要 `relativeTo`
+
+因為一個月有 28–31 天，一年有 365/366 天，所以「2 個月等於幾天」沒有固定答案，需要告訴 Temporal 從哪個日期起算：
+
+<JSPlayground
+  title="試試看：total() 與 relativeTo"
+  useTemporal
+  defaultCode={`const dur = Temporal.Duration.from({ months: 2 });
+
+// 沒有 relativeTo 會拋出錯誤
+try {
+  dur.total('day');
+} catch (e) {
+  console.log('沒有 relativeTo：', e.constructor.name);
+}
+
+// 加上 relativeTo，月份長度因起點不同而有差異
+const ref1 = Temporal.PlainDate.from('2026-01-01');
+const ref2 = Temporal.PlainDate.from('2026-02-01');
+console.log('從 2026-01-01 算2個月（天）:', dur.total({ unit: 'day', relativeTo: ref1 }));
+console.log('從 2026-02-01 算2個月（天）:', dur.total({ unit: 'day', relativeTo: ref2 }));
+
+// 年份也一樣需要 relativeTo
+const oneYear = Temporal.Duration.from({ years: 1 });
+const refLeap = Temporal.PlainDate.from('2024-01-01'); // 閏年
+const refNormal = Temporal.PlainDate.from('2026-01-01');
+console.log('');
+console.log('2024 開始的1年（天）:', oneYear.total({ unit: 'day', relativeTo: refLeap })); // 366
+console.log('2026 開始的1年（天）:', oneYear.total({ unit: 'day', relativeTo: refNormal })); // 365`}
+/>
+
+### 5. `since()` 與 `until()` 的方向
+
+兩者都能做「相差多少時間」的計算，但方向相反，搞混了結果會變負數。
+
+記憶方式：`a.until(b)` = 從 a 到 b 還有多遠；`a.since(b)` = 距離 b 過了多久。
+
+<JSPlayground
+  title="試試看：since() vs until()"
+  useTemporal
+  defaultCode={`const start = Temporal.PlainDate.from('2026-01-01');
+const end = Temporal.PlainDate.from('2026-03-14');
+
+console.log('start.until(end):', start.until(end).toString());  // 正
+console.log('start.since(end):', start.since(end).toString());  // 負！
+console.log('end.since(start):', end.since(start).toString());  // 正（等同 until）
+console.log('end.until(start):', end.until(start).toString());  // 負！
+
+console.log('');
+// 倒數計時：今天距離某個未來日期還有多久
+const today = Temporal.Now.plainDateISO();
+const event = Temporal.PlainDate.from('2026-12-31');
+console.log('今天:', today.toString());
+console.log('距離 2026-12-31 還有:', today.until(event, { largestUnit: 'day' }).toString());
+
+// 計算過了多久：某個過去日期到今天
+const launch = Temporal.PlainDate.from('2026-03-11'); // Temporal 升 Stage 4 的日期
+console.log('Stage 4 升格到今天:', launch.until(today, { largestUnit: 'day' }).toString());`}
+/>
+
+### 6. `PlainDateTime` 轉 `ZonedDateTime` 時，夏令時間隙需要處理
+
+把一個「牆時鐘時間」轉成特定時區時，如果那個時刻剛好落在 DST 跳過的空隙裡，Temporal 會要你明確選擇怎麼處理：`reject` 直接拋錯、`earlier` 跳到間隙前、`later` 跳到間隙後、`compatible`（預設）等同 `later`。
+
+如果你用的是 `ZonedDateTime` 直接做加法，就不會有這個問題——Temporal 會自動跳過。
+
+<JSPlayground
+  title="試試看：PlainDateTime 的 disambiguation 選項"
+  useTemporal
+  defaultCode={`// 英國 2026-03-29 01:30 不存在（DST 跳過了）
+const pdt = Temporal.PlainDateTime.from('2026-03-29T01:30:00');
+
+try {
+  pdt.toZonedDateTime('Europe/London', { disambiguation: 'reject' });
+} catch (e) {
+  console.log('reject:', e.constructor.name, '(時刻不存在)');
+}
+
+const earlier = pdt.toZonedDateTime('Europe/London', { disambiguation: 'earlier' });
+const later = pdt.toZonedDateTime('Europe/London', { disambiguation: 'later' });
+console.log('earlier:', earlier.toString());
+console.log('later:  ', later.toString());
+
+// ZonedDateTime 直接加法不會遇到這個問題
+const zdt = Temporal.ZonedDateTime.from('2026-03-29T00:30:00+00:00[Europe/London]');
+console.log('');
+console.log('ZDT +1h（自動跳過）:', zdt.add({ hours: 1 }).toString());`}
+/>
+
+### 7. `Instant` 沒有 `year`、`month`、`day`
+
+`Temporal.Instant` 只表示一個精確的時間點（奈秒 timestamp），沒有曆法概念，所以沒有 `year`、`month`、`day`——必須先 `.toZonedDateTimeISO(tz)` 轉成 `ZonedDateTime` 再存取。
+
+<JSPlayground
+  title="試試看：Instant 沒有日期屬性"
+  useTemporal
+  defaultCode={`const inst = Temporal.Instant.from('2026-03-14T10:00:00Z');
+
+// Instant 只有 epoch 相關屬性
+console.log('epochMilliseconds:', inst.epochMilliseconds);
+console.log('epochNanoseconds:', inst.epochNanoseconds.toString());
+console.log('year:', inst.year); // undefined
+console.log('month:', inst.month); // undefined
+
+console.log('');
+// 要取得日期，必須先指定時區轉成 ZonedDateTime
+const zones = ['UTC', 'Asia/Taipei', 'America/New_York'];
+zones.forEach(function(tz) {
+  const zdt = inst.toZonedDateTimeISO(tz);
+  console.log(tz + ': ' + zdt.year + '-' + String(zdt.month).padStart(2,'0') + '-' + String(zdt.day).padStart(2,'0') + ' ' + String(zdt.hour).padStart(2,'0') + ':00');
+});
+
+console.log('');
+// 同一個 Instant，在不同時區可能是不同的「日期」
+const midnight = Temporal.Instant.from('2026-03-14T23:30:00Z');
+const tpe = midnight.toZonedDateTimeISO('Asia/Taipei');
+const nyc = midnight.toZonedDateTimeISO('America/New_York');
+console.log('同一個時間點，台北是:', tpe.toPlainDate().toString(), '  紐約是:', nyc.toPlainDate().toString());`}
+/>
+
+### 8. DST 當天只有 23 小時
+
+夏令時間「撥前」的那天，從當天午夜到隔天午夜實際上只有 23 小時。如果你用 `ZonedDateTime.until()` 計算這段時間，會得到 `PT23H` 而不是 `PT24H`。
+
+這是正確的行為——`ZonedDateTime` 忠實反映現實。如果你需要「24 小時後」，用 `.add({ hours: 24 })`；如果需要「隔天同一時間」，用 `.add({ days: 1 })`（兩個結果不同！）。
+
+<JSPlayground
+  title="試試看：DST 當天的 23 小時"
+  useTemporal
+  defaultCode={`// 英國 DST 那天（2026-03-29）只有 23 小時
+const before = Temporal.ZonedDateTime.from('2026-03-29T00:00:00[Europe/London]');
+const after = Temporal.ZonedDateTime.from('2026-03-30T00:00:00[Europe/London]');
+
+console.log('DST 那天長度:', before.until(after, { largestUnit: 'hour' }).toString());
+// PT23H，不是 PT24H
+
+// add({ hours: 24 }) 和 add({ days: 1 }) 結果不同！
+const morning = Temporal.ZonedDateTime.from('2026-03-29T09:00:00[Europe/London]');
+console.log('');
+console.log('+ 24 小時:', morning.add({ hours: 24 }).toString()); // 隔天 10:00（跳過1小時）
+console.log('+ 1 天:  ', morning.add({ days: 1 }).toString());   // 隔天 09:00（保留壁鐘時間）`}
+/>
+
+### 9. `PlainMonthDay`：年度重複事件的正確型別
+
+生日、節日這種「每年固定日期」的事件，應該用 `Temporal.PlainMonthDay`，然後每年用 `toPlainDate({ year })` 生成實際日期，之後可以直接查任一年的星期幾，不需要手動換算。
+
+<JSPlayground
+  title="試試看：PlainMonthDay 年度事件"
+  useTemporal
+  defaultCode={`const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+// 聖誕節：每年 12 月 25 日，落在星期幾？
+const xmas = Temporal.PlainMonthDay.from('12-25');
+console.log('聖誕節 2026-2035：');
+for (let year = 2026; year <= 2035; year++) {
+  const date = xmas.toPlainDate({ year });
+  console.log(year + ':', date.toString(), dayNames[date.dayOfWeek - 1]);
+}
+
+console.log('');
+// 距離今年聖誕節還有幾天
+const today = Temporal.Now.plainDateISO();
+let nextXmas = xmas.toPlainDate({ year: today.year });
+if (Temporal.PlainDate.compare(nextXmas, today) < 0) {
+  nextXmas = xmas.toPlainDate({ year: today.year + 1 });
+}
+console.log('今天:', today.toString());
+console.log('距離聖誕節:', today.until(nextXmas).days, '天');`}
+/>
+
+### 10. 與 `Date` 互轉
+
+如果還在混用舊的 `Date` API：`Date → Temporal` 用 `Temporal.Instant.fromEpochMilliseconds(legacy.getTime())`（ES2026 原生可直接用 `legacy.toTemporalInstant()`）；`Temporal → Date` 用 `new Date(instant.epochMilliseconds)`。
+
+注意：轉換時精度從奈秒降為毫秒，其他 Temporal 型別（如曆法資訊、時區名稱）也不會被保留。
+
+<JSPlayground
+  title="試試看：Date 與 Temporal 互轉"
+  useTemporal
+  defaultCode={`// Date → Temporal.Instant（polyfill 通用寫法）
+const legacy = new Date('2026-03-14T10:00:00Z');
+const instant = Temporal.Instant.fromEpochMilliseconds(legacy.getTime());
+console.log('Date → Instant:', instant.toString());
+
+// Instant → 有時區的 ZonedDateTime
+const zdt = instant.toZonedDateTimeISO('Asia/Taipei');
+console.log('→ ZonedDateTime (台北):', zdt.toString());
+
+console.log('');
+// Temporal → Date（只需要 epochMilliseconds）
+const backToDate = new Date(zdt.epochMilliseconds);
+console.log('ZonedDateTime → Date:', backToDate.toISOString());
+
+console.log('');
+// 注意：轉回 Date 會失去時區資訊和奈秒精度
+const now = Temporal.Now.instant();
+console.log('Temporal 奈秒精度:', now.epochNanoseconds.toString().slice(-6), '（最後6位奈秒）');
+const asDate = new Date(now.epochMilliseconds);
+console.log('Date 毫秒精度，尾數消失:', asDate.getMilliseconds(), 'ms（奈秒消失）');`}
+/>
+
+### 11. 瀏覽器支援
+
+Temporal 在 2026 年 3 月正式成為 ES2026 標準，主流瀏覽器已原生支援：
+
+- **Chrome 144+**（2026 年 1 月起）
+- **Firefox 139+**（2025 年 5 月起）
+- **Edge 144+**（2026 年 1 月起）
+- **Safari**（Tech Preview 部分支援）
+
+如果需要支援舊版瀏覽器，可以用 `@js-temporal/polyfill`：
+
+```bash
+npm install @js-temporal/polyfill
+```
+
+```javascript
+import { Temporal } from '@js-temporal/polyfill';
+```
+
+## 總結
+
+三十年來，JavaScript 前端開發者要處理任何稍微複雜的日期邏輯，幾乎都要靠第三方套件——這件事終於有了轉變。Temporal 帶來了 immutable 物件、明確的型別系統（`Instant` 跟 `PlainDate` 是完全不同的概念）、嚴格的格式解析、完整的 IANA 時區支援、多曆法運算。這些功能以前分散在不同套件裡，現在都內建了。
+
+對前端開發最直接的影響是：**日期相關的處理會輕鬆很多**。
+
+Chrome 144+、Firefox 139+、Edge 144+ 已原生支援，Safari 還在路上。現在可以用 polyfill 先跑起來，等瀏覽器全跟上之後把 polyfill 移掉就好。
+
+---
+
+## 參考資料
+
+- [TC39 Temporal Proposal](https://github.com/tc39/proposal-temporal) — 規格本體、設計討論和 Cookbook
+- [Temporal API 文件](https://tc39.es/proposal-temporal/docs/) — 完整 API 參考
+- [Bloomberg Engineering：Temporal 的開發歷程](https://bloomberg.github.io/js-blog/post/temporal/#implementation) — 主要推動者之一的第一手紀錄
+- [MDN：Temporal](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Temporal) — MDN 文件
+- [@js-temporal/polyfill](https://github.com/js-temporal/temporal-polyfill) — TC39 官方維護的 polyfill
+- [Can I Use：Temporal](https://caniuse.com/temporal) — 各瀏覽器支援狀況

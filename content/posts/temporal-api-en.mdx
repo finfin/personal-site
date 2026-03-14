@@ -1,0 +1,431 @@
+---
+title: 'Temporal API: The Modern Replacement for JavaScript Date'
+date: '2026-03-14'
+slug: 'temporal-api'
+summary: "JavaScript's Date API has been broken for decades — mutation hidden inside helper functions, month arithmetic silently overflowing, date string parsing inconsistent across browsers. Temporal reached TC39 Stage 4 in March 2026 and is now part of ES2026, natively shipped in Chrome, Firefox, and Edge. Here are the concrete examples that show what finally changed."
+type: Post
+language: en
+---
+
+On March 11, 2026, Temporal reached TC39 Stage 4 and became part of the ES2026 specification. It is now natively shipped in Chrome 144+, Firefox 139+, and Edge 144+.
+
+Temporal is JavaScript's new datetime API — the language-level answer to thirty years of `Date` design problems. If you've been reaching for `dayjs`, `date-fns`, or `moment.js` to fill gaps that `Date` leaves open, Temporal is what makes those libraries unnecessary.
+
+## Temporal's Types
+
+Temporal lives as a top-level namespace (like `Math` or `Intl`) with a family of distinct types, each purpose-built for a specific use case — unlike `Date`, which tries to be everything at once:
+
+| Type | When to use |
+|------|-------------|
+| `Temporal.PlainDate` | Birthdays, holidays — date only, no time, no timezone |
+| `Temporal.PlainDateTime` | Calendar events in a "local" context |
+| `Temporal.ZonedDateTime` | Meetings, flights — explicit IANA timezone + DST handling |
+| `Temporal.Instant` | An exact point in time, for storage or cross-timezone comparison |
+| `Temporal.Duration` | The span between two points in time |
+| `Temporal.PlainTime` | Time-of-day without a date |
+
+All Temporal objects are **immutable** — operations return new objects, originals are never modified. When in doubt, start with `ZonedDateTime`.
+
+## Example 1: ZonedDateTime Handles DST Automatically
+
+This is one of the most impressive parts of Temporal. During a DST transition, some moments simply don't exist — `Date` leaves that problem to you, `Temporal.ZonedDateTime` handles it automatically.
+
+On March 29, 2026, the UK clocks spring forward from 01:00 to 02:00 — meaning `01:30` doesn't exist:
+
+```javascript
+// London DST starts: 2026-03-29 01:00 -> 02:00
+const zdt = Temporal.ZonedDateTime.from(
+  '2026-03-29T00:30:00+00:00[Europe/London]'
+);
+
+const plus1h = zdt.add({ hours: 1 });
+console.log(plus1h.toString());
+// "2026-03-29T02:30:00+01:00[Europe/London]"
+// 01:30 doesn't exist — Temporal skips straight to 02:30
+```
+
+<JSPlayground
+  title="Try it: ZonedDateTime DST handling"
+  useTemporal
+  defaultCode={`// UK spring clocks forward: 2026-03-29 01:00 → 02:00 (01:xx doesn't exist)
+const beforeDST = Temporal.ZonedDateTime.from(
+  '2026-03-29T00:30:00+00:00[Europe/London]'
+);
+
+console.log('start:', beforeDST.toString());
+console.log('+1 hour:', beforeDST.add({ hours: 1 }).toString());
+// Note: not 01:30 but 02:30 — the non-existent hour is skipped
+
+console.log('');
+console.log('+30 min:', beforeDST.add({ minutes: 30 }).toString());
+console.log('+90 min:', beforeDST.add({ minutes: 90 }).toString());
+
+// Taiwan has no DST — results are straightforward
+const taipei = Temporal.ZonedDateTime.from('2026-03-29T00:30:00+08:00[Asia/Taipei]');
+console.log('');
+console.log('Taipei +1 hour:', taipei.add({ hours: 1 }).toString());`}
+/>
+
+## Example 2: Instant for Cross-Timezone Display
+
+`Temporal.Instant` represents an exact point in time with no timezone or calendar semantics — just nanoseconds since the Unix epoch. Store it, transmit it, then convert for each user's timezone:
+
+```javascript
+const instant = Temporal.Instant.from('2026-02-25T15:15:00Z');
+
+instant.toZonedDateTimeISO('Europe/London').toString();
+// "2026-02-25T15:15:00+00:00[Europe/London]"
+
+instant.toZonedDateTimeISO('America/New_York').toString();
+// "2026-02-25T10:15:00-05:00[America/New_York]"
+```
+
+<JSPlayground
+  title="Try it: Instant cross-timezone display"
+  useTemporal
+  defaultCode={`// One exact point in time
+const instant = Temporal.Instant.from('2026-02-25T15:15:00Z');
+
+const zones = [
+  'Europe/London',
+  'America/New_York',
+  'Asia/Tokyo',
+  'Asia/Taipei',
+  'Australia/Sydney',
+];
+
+zones.forEach(function(tz) {
+  const zdt = instant.toZonedDateTimeISO(tz);
+  console.log(tz + ':');
+  console.log('  ' + zdt.toString());
+});
+
+// Instant supports nanosecond precision (vs Date's milliseconds)
+const now = Temporal.Now.instant();
+console.log('');
+console.log('Now (nanoseconds):', now.epochNanoseconds.toString());
+console.log('Now (milliseconds):', now.epochMilliseconds.toString());`}
+/>
+
+## Example 3: Duration Arithmetic
+
+With `Date`, duration calculation means subtracting milliseconds and manually converting to meaningful units.
+
+**Before (Date):**
+
+```javascript
+function getDuration(start, end) {
+  const diffMs = new Date(end) - new Date(start);
+  return {
+    days: Math.floor(diffMs / (1000 * 60 * 60 * 24)),
+    hours: Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+    minutes: Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60)),
+  };
+}
+```
+
+**After (Temporal):**
+
+```javascript
+function getDuration(startStr, endStr) {
+  const start = Temporal.PlainDateTime.from(startStr);
+  const end = Temporal.PlainDateTime.from(endStr);
+
+  const duration = start.until(end, { largestUnit: 'day' });
+  return {
+    iso: duration.toString(),   // "P1DT8H30M"
+    days: duration.days,
+    hours: duration.hours,
+    minutes: duration.minutes,
+    totalHours: duration.total('hours'),
+  };
+}
+```
+
+`start.until(end)` returns a `Temporal.Duration` object. The ISO 8601 representation (`P1DT8H30M`) is human-readable, and `.total('hours')` converts the entire duration to a single unit.
+
+<JSPlayground
+  title="Try it: Date version — duration arithmetic"
+  defaultCode={`const startDate = new Date('2026-03-10T09:00:00');
+const endDate = new Date('2026-03-11T17:30:00');
+const diffMs = endDate - startDate;
+
+const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+const mins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+
+console.log('Result:', days + 'd', hours + 'h', mins + 'm');`}
+/>
+
+<JSPlayground
+  title="Try it: Temporal version — duration arithmetic"
+  useTemporal
+  defaultCode={`const start = Temporal.PlainDateTime.from('2026-03-10T09:00:00');
+const end = Temporal.PlainDateTime.from('2026-03-11T17:30:00');
+
+const duration = start.until(end, { largestUnit: 'day' });
+
+console.log('ISO 8601:', duration.toString());
+console.log('Days:', duration.days, 'Hours:', duration.hours, 'Minutes:', duration.minutes);
+console.log('Total hours:', duration.total('hours'));
+
+// Compare different largestUnit values
+const byHour = start.until(end, { largestUnit: 'hour' });
+console.log('largestUnit: hour ->', byHour.toString());
+
+// Duration.from() for building durations directly
+const d2 = Temporal.Duration.from({ hours: 130, minutes: 20 });
+console.log('\n130h 20m in seconds:', d2.total({ unit: 'second' }));`}
+/>
+
+## Example 4: Calendar Support
+
+Temporal natively supports non-Gregorian calendars. "Add one month" operates in the rules of the specified calendar, not Gregorian-then-reformat:
+
+```javascript
+const today = Temporal.PlainDate.from('2026-03-11[u-ca=hebrew]');
+today.toLocaleString('en', { calendar: 'hebrew' });
+// '22 Adar 5786'
+
+const nextMonth = today.add({ months: 1 });
+nextMonth.toLocaleString('en', { calendar: 'hebrew' });
+// '22 Nisan 5786'
+```
+
+With `Date`, adding a Gregorian month and then displaying in Hebrew gives the wrong day — the calendar systems don't have the same month lengths.
+
+<JSPlayground
+  title="Try it: Hebrew calendar month arithmetic"
+  useTemporal
+  defaultCode={`// Temporal: adding a Hebrew month lands on the correct Hebrew day
+const today = Temporal.PlainDate.from('2026-03-11[u-ca=hebrew]');
+console.log('Gregorian:', today.toString());
+console.log('Hebrew:   ', today.toLocaleString('en', { calendar: 'hebrew' }));
+
+const nextMonth = today.add({ months: 1 });
+console.log('After +1 Hebrew month:', nextMonth.toLocaleString('en', { calendar: 'hebrew' }));
+
+// Date: adds a Gregorian month, result is a different Hebrew day
+const legacyDate = new Date(2026, 2, 11);
+legacyDate.setMonth(legacyDate.getMonth() + 1);
+console.log('\nDate +1 Gregorian month displayed in Hebrew:');
+console.log(legacyDate.toLocaleDateString('en', { calendar: 'hebrew' }));
+console.log('(the day number shifted — this is not 22 Nisan)');`}
+/>
+
+## Why Did Date Need Replacing?
+
+`Date` was directly copied from Java's buggy 1995 implementation. Three fundamental design problems accumulated over the decades, driving the creation of moment.js, dayjs, and date-fns — together exceeding 100 million weekly downloads by 2026.
+
+### Mutation hides inside function calls
+
+`Date` is mutable. Passing a `Date` into a function can silently modify the original, without the caller knowing:
+
+```javascript
+const date = new Date('2026-02-25T00:00:00Z');
+
+function addOneDay(d) {
+  d.setDate(d.getDate() + 1); // modifying the argument directly
+  return d;
+}
+
+addOneDay(date);
+console.log(date.toISOString()); // "2026-02-26T00:00:00.000Z" — mutated!
+```
+
+`addOneDay` isn't buggy on its own — `Date` is inherently mutable, so any function receiving one can change it. The caller has no way to know. Temporal objects are always immutable, so this problem doesn't exist.
+
+<JSPlayground
+  title="Try it: addOneDay mutation bug"
+  defaultCode={`const date = new Date('2026-02-25T00:00:00Z');
+
+function addOneDay(d) {
+  // looks harmless, but modifies the original
+  d.setDate(d.getDate() + 1);
+  return d;
+}
+
+console.log('before:', date.toISOString().slice(0, 10));
+addOneDay(date);
+console.log('after: ', date.toISOString().slice(0, 10)); // silently mutated
+
+// safe version requires manual cloning at call site
+const date2 = new Date('2026-02-25T00:00:00Z');
+function addOneDaySafe(d) {
+  const copy = new Date(d);
+  copy.setDate(copy.getDate() + 1);
+  return copy;
+}
+addOneDaySafe(date2);
+console.log('safe:', date2.toISOString().slice(0, 10)); // unchanged`}
+/>
+
+### Month arithmetic silently overflows
+
+`Date` doesn't clamp invalid dates — it rolls overflow into the next month:
+
+```javascript
+const billingDate = new Date('Jan 31 2026');
+billingDate.setMonth(billingDate.getMonth() + 1);
+// Expected: Feb 28    Actual: Mar 02
+```
+
+Temporal automatically clamps results to the last valid day of the month, and throws a `RangeError` for invalid dates rather than silently overflowing.
+
+<JSPlayground
+  title="Try it: month arithmetic silent overflow"
+  defaultCode={`const billingDate = new Date('Jan 31 2026');
+billingDate.setMonth(billingDate.getMonth() + 1);
+console.log('Jan 31 + 1 month:', billingDate.toDateString()); // skips to March!
+
+const jan31 = new Date('Jan 31 2026');
+const mar31 = new Date('Mar 31 2026');
+const oct31 = new Date('Oct 31 2026');
+
+[jan31, mar31, oct31].forEach(function(d) {
+  const copy = new Date(d);
+  copy.setMonth(copy.getMonth() + 1);
+  console.log(d.toDateString() + ' + 1 month →', copy.toDateString());
+});`}
+/>
+
+### Parsing behavior is inconsistent across browsers
+
+The same string can produce different results depending on the browser:
+
+```javascript
+new Date('2026-06-25 15:15:00').toISOString();
+// Chrome: local timezone   Firefox: might throw   Safari: UTC
+```
+
+This string looks like ISO 8601 but isn't quite — the spec historically left "almost-ISO" parsing behavior undefined. Temporal only accepts strictly defined formats and throws on anything ambiguous.
+
+<JSPlayground
+  title="Try it: parsing ambiguity (in your browser)"
+  defaultCode={`// Behavior of this format was historically undefined across browsers
+const d = new Date('2026-06-25 15:15:00');
+if (isNaN(d)) {
+  console.log('Result: Invalid Date');
+} else {
+  console.log('getHours():', d.getHours(), '← local time');
+  console.log('getUTCHours():', d.getUTCHours(), '← UTC');
+  console.log('Parsed as:', d.getHours() === 15 ? 'local timezone' : 'not local timezone');
+}
+
+// Safe: always include an explicit timezone offset
+const safe = new Date('2026-06-25T15:15:00+08:00');
+console.log('\nWith explicit offset:', safe.toISOString());`}
+/>
+
+## Gotchas Worth Knowing
+
+### 1. Date comparison requires compare()
+
+```javascript
+// ❌ Won't work — Temporal objects aren't primitives
+date1 > date2
+
+// ✅ Correct
+Temporal.PlainDate.compare(date1, date2) // Returns -1, 0, or 1
+```
+
+### 2. dayOfWeek is ISO 8601 (1 = Monday)
+
+`Date.getDay()` returns `0` for Sunday and `6` for Saturday. Temporal uses ISO 8601: `1` is Monday, `7` is Sunday. Don't port old code assuming the old convention.
+
+### 3. largestUnit matters for until()
+
+```javascript
+const start = Temporal.PlainDate.from('2026-01-15');
+const end = Temporal.PlainDate.from('2026-02-15');
+
+start.until(end, { largestUnit: 'day' })   // P31D
+start.until(end, { largestUnit: 'month' }) // P1M
+```
+
+The two results are different representations of the same duration, but the choice affects downstream arithmetic.
+
+<JSPlayground
+  title="Try it: largestUnit differences"
+  useTemporal
+  defaultCode={`const start = Temporal.PlainDate.from('2026-01-15');
+const end = Temporal.PlainDate.from('2026-02-15');
+
+const byDay = start.until(end, { largestUnit: 'day' });
+const byMonth = start.until(end, { largestUnit: 'month' });
+
+console.log('largestUnit: day   ->', byDay.toString());
+console.log('largestUnit: month ->', byMonth.toString());
+
+// Add 5 more days for a clearer difference
+const end2 = Temporal.PlainDate.from('2026-02-20');
+console.log('');
+console.log('To 2026-02-20:');
+console.log('largestUnit: day   ->', start.until(end2, { largestUnit: 'day' }).toString());
+console.log('largestUnit: month ->', start.until(end2, { largestUnit: 'month' }).toString());`}
+/>
+
+### 4. Month overflow: Temporal clamps, Date rolls
+
+<JSPlayground
+  title="Try it: month overflow before and after"
+  useTemporal
+  defaultCode={`// Temporal clamps to last day of month
+const jan31 = Temporal.PlainDate.from('2026-01-31');
+console.log('Temporal 1/31 + 1 month:', jan31.add({ months: 1 }).toString()); // 2026-02-28
+
+// Date silently rolls into March
+const jan31Legacy = new Date('Jan 31 2026');
+jan31Legacy.setMonth(jan31Legacy.getMonth() + 1);
+console.log('Date    1/31 + 1 month:', jan31Legacy.toDateString()); // Mar 02
+
+// Invalid date: Temporal throws, Date overflows
+try {
+  Temporal.PlainDate.from('2026-02-30');
+} catch (e) {
+  console.log('\nTemporal 2026-02-30:', e.message);
+}
+console.log('Date    2026-02-30:', new Date('2026-02-30').toDateString());`}
+/>
+
+### 5. Pick the right type
+
+- `PlainDate` for birthdays, holidays, deadlines — no time component
+- `ZonedDateTime` for meetings, flights — explicit timezone + DST awareness
+- `Instant` for stored timestamps and cross-timezone comparisons
+- When in doubt, start with `ZonedDateTime`
+
+### 6. Browser support
+
+Temporal became part of ES2026 in March 2026 and is natively shipped in modern browsers:
+
+- **Chrome 144+** (since January 2026)
+- **Firefox 139+** (since May 2025)
+- **Edge 144+** (since January 2026)
+- **Safari** (partial support in Tech Preview)
+
+If you need to support older browsers, use `@js-temporal/polyfill`:
+
+```bash
+npm install @js-temporal/polyfill
+```
+
+```javascript
+import { Temporal } from '@js-temporal/polyfill';
+```
+
+## The Summary
+
+| Problem | Date | Temporal |
+|---------|------|----------|
+| Mutability | Functions can silently modify the object they receive | All operations return new objects |
+| Month overflow | Silently rolls into the next month | Clamps to the last valid day |
+| String parsing | Inconsistent across browsers | Strict, well-defined ISO 8601 |
+| Timezone support | UTC and local only | Full IANA timezone support |
+| DST handling | Manual | ZonedDateTime handles it automatically |
+| Invalid dates | Silent overflow | Throws a RangeError |
+| Duration type | Milliseconds only | Rich Duration with `total()` and unit conversion |
+| Calendar support | None | Hebrew, Japanese, Islamic, and more |
+| Comparison | `>`, `<` (unreliable) | `Temporal.*.compare()` |
+
+After nearly thirty years, JavaScript finally has a datetime API that doesn't require a library to use correctly.

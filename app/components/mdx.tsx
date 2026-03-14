@@ -3,6 +3,7 @@ import Image from 'next/image'
 import { MDXRemote } from 'next-mdx-remote/rsc'
 import React from 'react'
 import { CodePen } from '@/components/codepen'
+import { JSPlayground } from '@/components/js-playground'
 import '@/styles/highlight-monokai.css'
 import { cn } from '@/lib/utils'
 
@@ -83,7 +84,8 @@ export const mdxComponents = {
   img: img,
   a: CustomLink,
   Table,
-  CodePen
+  CodePen,
+  JSPlayground,
 }
 
 export function CustomMDX(props) {
