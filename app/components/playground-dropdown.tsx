@@ -20,6 +20,10 @@ const playgroundItems = [
   {
     path: '/relative-color-palette',
     name: 'relative-color-palette',
+  },
+  {
+    path: '/navigation-api',
+    name: 'navigation-api',
   }
 ]
 
@@ -59,7 +63,7 @@ export function PlaygroundDropdown() {
             <ChevronDown className='h-4 w-4' />
           </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent 
+        <DropdownMenuContent
           align='start'
           className='bg-white/80 backdrop-blur-sm dark:bg-gray-800/90 border border-gray-200/50 dark:border-gray-600/50 shadow-xl animate-none'
           onMouseEnter={handleMouseEnter}
@@ -70,12 +74,12 @@ export function PlaygroundDropdown() {
             const isActive = pathname.includes(path)
             return (
               <DropdownMenuItem asChild key={path}>
-                <Link 
+                <Link
                   className={`cursor-pointer transition-colors duration-150 block px-2 py-1.5 rounded-sm ${
-                    isActive 
-                      ? 'bg-gray-200 dark:bg-gray-600 text-gray-900 dark:text-gray-100 font-medium' 
+                    isActive
+                      ? 'bg-gray-200 dark:bg-gray-600 text-gray-900 dark:text-gray-100 font-medium'
                       : 'hover:bg-gray-100 dark:hover:bg-gray-700'
-                  }`} 
+                  }`}
                   href={path}
                 >
                   {tPlayground(name)}

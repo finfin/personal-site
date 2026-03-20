@@ -1,51 +1,106 @@
 {
-  "metadata": {
-    "title": "Things About Web Development",
-    "description": "\"Things About Web Development\" is a personal website documenting the journey of building a web presence, offering insights and experiences in front-end development."
-  },
-  "home": {
-    "title": "Things About Web Development",
-    "subtitle": "Share my journey, learning and insights in web development",
-    "description": "Here I share the journey of building a web presence, offering insights and experiences in front-end development. ",
-    "latest_posts": "Latest Posts",
-    "view_all_posts": "View All Posts"
+  "PaletteGenerator": {
+    "analogous": "Analogous",
+    "chroma": "Chroma",
+    "chromaSwatch": "Chroma Swatch",
+    "hue": "Hue",
+    "hueSwatch": "Hue Swatch",
+    "lightness": "Lightness",
+    "lightnessSwatch": "Lightness Swatch",
+    "triadic": "Triadic"
   },
   "about": {
     "title": "About Fin Chen"
   },
-  "post": {
-    "title": "Posts"
-  },
   "emojiarchitect": {
-    "title": "Emoji Architect",
-    "description": "Explore how complex emojis are composed from individual Unicode characters",
     "composition": "Composition",
-    "decomposition": "Decomposition", 
-    "learning": "Learning"
+    "decomposition": "Decomposition",
+    "description": "Explore how complex emojis are composed from individual Unicode characters",
+    "learning": "Learning",
+    "title": "Emoji Architect"
+  },
+  "home": {
+    "description": "Here I share the journey of building a web presence, offering insights and experiences in front-end development. ",
+    "latest_posts": "Latest Posts",
+    "subtitle": "Share my journey, learning and insights in web development",
+    "title": "Things About Web Development",
+    "view_all_posts": "View All Posts"
+  },
+  "metadata": {
+    "description": "\"Things About Web Development\" is a personal website documenting the journey of building a web presence, offering insights and experiences in front-end development.",
+    "title": "Things About Web Development"
   },
   "navbar": {
-    "home": "Home",
     "about": "About",
-    "posts": "Posts",
-    "playground": "Playground"
+    "home": "Home",
+    "playground": "Playground",
+    "posts": "Posts"
+  },
+  "navigation-api": {
+    "about": "About",
+    "aboutContent": "This demo showcases the Navigation API, which became fully supported across all three major browser engines in December 2025. It replaces the History API with a cleaner, SPA-native design.",
+    "aboutFeature1": "Centralized navigate event interception",
+    "aboutFeature2": "navigation.entries() for same-origin history",
+    "aboutFeature3": "State management with getState()",
+    "aboutFeature4": "traverseTo() with entry keys",
+    "aboutFeature5": "committed & finished promises",
+    "aboutFeatures": "Features demonstrated:",
+    "aboutTitle": "About This Demo",
+    "articles": "Articles",
+    "articlesTitle": "Articles",
+    "back": "Back",
+    "backToArticles": "← Back to Articles",
+    "checkSupport": "Check browser support",
+    "clearLog": "Clear",
+    "current": "current",
+    "currentState": "Current State",
+    "debugPanel": "Debug Panel",
+    "description": "Experience the Navigation API — the successor to History API, purpose-built for SPA routing. Navigate through a mini blog app and watch the API in action.",
+    "entries": "Entries",
+    "eventLog": "Event Log",
+    "forward": "Forward",
+    "goTo": "Go",
+    "home": "Home",
+    "homeIntro": "This mini-blog is entirely powered by the Navigation API. Every link click, back/forward navigation, and page transition you see here triggers a real navigate event — no History API, no framework router.",
+    "homeTitle": "Welcome to the Navigation API Demo",
+    "homeTryIt": "Try clicking the links above, use the Back/Forward buttons, and watch the Debug Panel on the right to see Navigation API in action.",
+    "noEvents": "Navigate to see events here",
+    "noState": "(no state)",
+    "notSupported": "Your browser does not support the Navigation API.",
+    "notSupportedDetail": "Navigation API requires Chrome 102+, Firefox 147+, or Safari 26.2+.",
+    "readMore": "Read more →",
+    "references": "References",
+    "referencesSummary": "MDN, Chrome Developers, WHATWG HTML Standard, Can I Use.",
+    "reload": "Reload",
+    "stateDemo": "Notice: navigating from article list carries state (selectedId, from). Check the Debug Panel!",
+    "title": "Navigation API Playground",
+    "article1_title": "Design Goals",
+    "article1_summary": "Navigation API is the successor to History API and window.location, purpose-built for SPA navigation. Three core problems it solves.",
+    "article1_body": "Navigation API is the successor to History API and window.location, purpose-built for SPA navigation needs. It solves three core problems:\n\n1. Centralized navigation interception — Intercepting all navigation in a SPA used to be painful: listen to click events on every link, manually call e.preventDefault(), then do history.pushState(). Navigation API provides a unified navigate event. Whether the user clicks a link, a script triggers navigation, or a form is submitted — everything can be intercepted in one place.\n\n2. Reliable history access — History API's history.length includes cross-origin entries and iframe history; developers had no way to know their app's actual history state. Navigation API's navigation.entries() returns only same-origin, same browsing-context entries. Each is a NavigationHistoryEntry with key, url, getState() and more.\n\n3. Making SPA navigation visible to the browser — Assistive tech, browser UI, and performance metrics (LCP, CLS) previously had no visibility into SPA page transitions. Navigation API provides a standardized mechanism for the browser to know when a SPA navigation starts and ends.",
+    "article2_title": "Standards Evolution",
+    "article2_summary": "From 'App History API' in 2021 to full cross-engine support in 2025 — a typical modern web standard journey taking nearly four years.",
+    "article2_body": "The evolution path of this API is typical of modern web standards:\n\n• Early 2021: Google's Domenic Denicola proposed it at WICG, initially called 'App History API' (window.appHistory)\n• 2022: After feedback from W3C TAG and Mozilla, renamed to 'Navigation API' (window.navigation) in WICG/navigation-api#83\n• April 2022 (Chrome 102): Chromium shipped first, becoming the first supporting engine\n• Spec moved officially from WICG into WHATWG HTML Standard, Section 7.2 of html.spec.whatwg.org\n• December 2025: Safari 26.2 and Firefox 147 joined almost simultaneously — Navigation API reached full cross-engine support\n• Listed in Interop 2025, meaning browser vendors jointly committed to interoperability\n\nThis road took nearly four years — from Chromium-only to cross-engine availability. A typical pace for web API standardization.",
+    "article3_title": "Usage",
+    "article3_summary": "The core entry point is window.navigation. Key scenarios: intercepting navigation, programmatic navigation, state management, and history inspection.",
+    "article3_body": "The core entry point is window.navigation. Key usage scenarios:\n\n1. Intercepting navigation (core of SPA routing)\nListen to the navigate event to handle all navigation in one place. event.intercept() lets you define what to load:\n\nnavigation.addEventListener('navigate', (event) => {\n  event.intercept({\n    async handler() {\n      const content = await loadPage(url.pathname);\n      render(content);\n    }\n  });\n});\n\n2. Programmatic navigation\nnavigation.navigate('/new-page', { state: { foo: 'bar' } });\nnavigation.traverseTo(key);  // by key, not index\nnavigation.back();\nnavigation.forward();\n\nEach method returns { committed, finished } — two Promises for precise lifecycle tracking.\n\n3. State management\nnavigation.navigate(url, { state: { scrollPos: 200 } });\nnavigation.updateCurrentEntry({ state: { sidebarOpen: true } });\nconst state = navigation.currentEntry.getState();\n\ngetState() returns a structured clone, not the same reference like history.state.\n\n4. History inspection\nnavigation.entries() — each entry has url, key, index.\nentry.addEventListener('dispose', () => { /* cleanup */ });",
+    "article4_title": "Browser Support",
+    "article4_summary": "~89% global coverage. Chromium since 2022, Firefox 147 and Safari 26.2 joined in December 2025. Listed in Interop 2025.",
+    "article4_body": "Current support status:\n\n✅ Chromium (Chrome, Edge, Opera) — supported since Chrome 102 (April 2022), the earliest implementor\n✅ Firefox — joined with version 147 (December 2025)\n✅ Safari — joined with version 26.2 (December 2025)\n\nGlobal usage: ~88.78%, covering the vast majority of users.\n\nNot supported: IE (retired), Opera Mini, KaiOS, some regional browsers (UC, Baidu).\n\nFirefox and Safari both joined in December 2025, which is why this API was marked as Experimental for years. It's also listed in Interop 2025, meaning browser vendors jointly committed to pushing interoperability.",
+    "article5_title": "Known Limitations",
+    "article5_summary": "First load doesn't fire navigate, single-frame only, and you can't delete or reorder history entries.",
+    "article5_body": "MDN documents several limitations:\n\n1. First load doesn't fire navigate — The navigate event doesn't fire on initial page load. SSR scenarios are fine, but pure CSR apps need separate initialization logic.\n\n2. Single frame only — The API only works in top-level pages or a single iframe. It won't affect other frames. This is intentional — designed to avoid the cross-frame chaos of History API.\n\n3. Cannot modify or reorder history — You can't delete specific history entries. Patterns like 'temporary modal navigation that gets removed after closing' aren't possible yet."
   },
   "playground": {
     "emojiarchitect": "Emoji Architect",
+    "navigation-api": "Navigation API",
     "relative-color-palette": "Relative Color Palette"
+  },
+  "post": {
+    "title": "Posts"
   },
   "theme": {
     "dark": "dark",
     "light": "light",
     "system": "auto"
-  },
-  "PaletteGenerator": {
-    "hueSwatch": "Hue Swatch",
-    "lightnessSwatch": "Lightness Swatch",
-    "chromaSwatch": "Chroma Swatch",
-    "analogous": "Analogous",
-    "triadic": "Triadic",
-    "lightness": "Lightness",
-    "chroma": "Chroma",
-    "hue": "Hue"
   }
 }
