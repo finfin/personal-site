@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react';
 
+import ArticleBody from './ArticleBody';
+
 /* ── Article definitions (content comes from i18n via t.raw) ── */
 
 export interface Article {
@@ -111,9 +113,7 @@ export function ArticleDetailView({
         {t('backToArticles')}
       </button>
       <h2 className="text-2xl font-bold">{tRaw(article.titleKey)}</h2>
-      <div className="text-sm leading-relaxed whitespace-pre-line text-muted-foreground">
-        {tRaw(article.bodyKey)}
-      </div>
+      <ArticleBody content={tRaw(article.bodyKey)} />
     </div>
   );
 }
