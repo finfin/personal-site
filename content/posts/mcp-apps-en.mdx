@@ -1,0 +1,225 @@
+---
+title: 'MCP Apps: When Interactive UI Grows Inside AI Conversations'
+date: '2026-03-25'
+slug: 'mcp-apps'
+summary: 'MCP Apps let MCP Servers embed interactive HTML UIs directly inside AI conversations. This post walks through the spec's core concepts — three roles, lifecycle, two-way communication — using a Mermaid diagram renderer I built, along with gotchas I hit during development.'
+type: Post
+language: en
+socialImage: mcp-apps-cover.png
+---
+
+In January 2026, the MCP Apps specification was officially released. It lets MCP Servers embed interactive HTML UIs directly inside conversations in Claude, VS Code — charts, forms, dashboards, maps, you name it.
+
+As a frontend developer, I couldn't help being drawn to the high interactivity MCP Apps enable.
+
+Tired of text-only interfaces, I spent some time studying the spec and built an interactive Mermaid diagram tool I actually use regularly (mermaid-mcp-app). This post uses that MCP App to walk through the key ideas behind MCP Apps.
+
+---
+
+## What Are MCP Apps
+
+### Three Roles
+
+The MCP Apps architecture revolves around three roles:
+
+1. **MCP Server** — The backend. Registers tools (`registerAppTool`) and HTML resources (`registerAppResource`). The `_meta.ui.resourceUri` field in tool definitions binds a tool to its UI.
+
+2. **Host** — AI interfaces like Claude Desktop or VS Code Copilot. When the LLM calls a tool, the Host executes it, fetches the HTML via `resourceUri`, and renders it in a sandboxed iframe.
+
+3. **View** — The frontend app running inside the iframe. Uses the `App` class to establish a postMessage channel with the Host, receives tool results, and can call server tools or send messages back to the conversation.
+
+All View ↔ Server communication is proxied through the Host, using standard JSON-RPC 2.0 over postMessage.
+
+![Architecture diagram of MCP Apps' three roles: communication between MCP Server, Host, and View](/images/posts/mcp-apps-1.png)
+
+### Lifecycle
+
+The spec defines four phases:
+
+1. **Discovery** — After the Host connects to the server and sees the tool list, it identifies which tools carry `_meta.ui` metadata. The Host can pre-fetch HTML resources at this stage for caching and security review.
+
+2. **Initialize** — After the LLM calls a tool, the Host creates a sandboxed iframe, loads the HTML, and completes the handshake via `ui/initialize`. The View and Host exchange capabilities at this stage — the View declares which display modes it supports, and the Host provides context like theme and container dimensions.
+
+3. **Interactive** — The Host pushes tool input and tool result to the View, which renders the UI. When the user interacts with the UI, the View can call server tools via `callServerTool`, send messages back to the conversation via `sendMessage`, or sync state to the LLM via `updateModelContext`.
+
+4. **Teardown** — When the conversation ends or the user closes the UI, the Host sends `ui/resource-teardown` to let the View clean up.
+
+### Beyond Display — Adding Interactivity
+
+Statically visualizing LLM output is nice, but something's missing. MCP Apps take it further: **after users interact with the UI, results can be sent back to the LLM.**
+
+The spec provides two APIs:
+
+**sendMessage** — Equivalent to the user typing in the chat box. The message appears in the conversation input.
+
+```typescript
+await app.sendMessage({
+  role: "user",
+  content: [{ type: "text", text: `I modified the diagram:\n\`\`\`mermaid\n${code}\n\`\`\`` }],
+});
+```
+
+**updateModelContext** — Silent sync. Doesn't trigger a response, but the LLM will see the data next time the user sends a message. Each call overwrites the previous one — only the latest is kept.
+
+```typescript
+await app.updateModelContext({
+  content: [{ type: "text", text: `Current Mermaid source:\n\`\`\`mermaid\n${code}\n\`\`\`` }],
+});
+```
+
+|  | sendMessage | updateModelContext |
+| --- | --- | --- |
+| Triggers LLM response | Immediately | No |
+| Visible in conversation | Appears as user message | Not visible |
+| Multiple calls | Each independent | Last overwrites previous |
+| Best for | Completed actions needing LLM response | Continuous state sync, letting the user decide when to ask |
+
+These two APIs redefine what an MCP App is. It's no longer just "a container for displaying LLM output" — it's a full interactive component with input, user actions, and output flowing back to the LLM.
+
+Imagine: `sendMessage` after filling a form so the LLM reviews it, `updateModelContext` after selecting an area on a map to sync coordinates until the user asks "what restaurants are nearby", or letting the LLM review code right after editing it in a code editor.
+
+Beyond these two core APIs, the View can also call `callServerTool` (invoke server-side tools to update data), `openLink` (ask the Host to open external links), `downloadFile` (ask the Host to download files, since the sandbox can't download directly), and `requestDisplayMode` (switch between inline / fullscreen / pip).
+
+---
+
+## Using the Mermaid MCP App as an Example
+
+Concepts covered — let's walk through the mermaid-mcp-app I built. It's an interactive Mermaid tool that embeds interactive diagrams directly in conversations, with drag-to-pan, scroll-to-zoom, and a split-view editor for live syntax editing and re-rendering.
+
+### 30-Second Setup
+
+Add this to your Claude Desktop / VS Code MCP config:
+
+```json
+{
+  "mcpServers": {
+    "mermaid": {
+      "command": "npx",
+      "args": ["-y", "mermaid-mcp-app", "--stdio"]
+    }
+  }
+}
+```
+
+Restart Claude Desktop and say "draw a user authentication flowchart." The diagram embeds right in the conversation — draggable, zoomable, with an editor for modifying the syntax.
+
+There's also a packaged Desktop Extension (`.mcpb`) — download it from GitHub Releases and double-click to install, no terminal needed.
+
+### Server Side
+
+The server does three things:
+
+**Registers the main tool.** `registerAppTool` defines the `render-mermaid` tool, with `_meta.ui.resourceUri` pointing to the HTML resource:
+
+```typescript
+registerAppTool(server, "render-mermaid", {
+  title: "Render Mermaid Diagram",
+  inputSchema: {
+    code: z.string().describe("The Mermaid diagram syntax to render"),
+    theme: z.enum(["default", "light", "dark", "forest", "neutral"]).optional(),
+  },
+  _meta: {
+    ui: { resourceUri: "ui://mermaid/view.html" },
+  },
+}, async ({ code, theme }) => ({
+  content: [{ type: "text" as const, text: JSON.stringify({ code, theme: theme ?? "default" }) }],
+}));
+```
+
+**Serves the HTML resource.** `registerAppResource` provides the Vite-bundled single HTML file as a `ui://` resource for the Host. The server doesn't render — it only sends data. All rendering happens in the frontend inside the iframe.
+
+**Internal tools for draft persistence.** Two additional tools are registered — `save-mermaid-draft` and `get-mermaid-draft` — so the View can persist user edits to server memory and restore state when the iframe is recreated. These tools aren't meant for the LLM; only the View calls them via `callServerTool`.
+
+### View Side
+
+The View is a standard frontend app that uses the `App` class to establish the postMessage channel:
+
+```typescript
+const app = new App(
+  { name: "MermaidViewer", version: "1.0.0" },
+  {},
+  { autoResize: true },
+);
+
+app.ontoolinput = (params) => {
+  // When the LLM calls the tool, the Host sends the arguments first (before server processing)
+  handleMermaidData(params.arguments);
+};
+
+app.ontoolresult = (params) => {
+  // After the server processes, the Host sends the complete result
+  const data = JSON.parse(params.content[0].text);
+  handleMermaidData(data);
+};
+
+await app.connect();
+```
+
+`ontoolinput` and `ontoolresult` fire at two different moments — the former when the LLM decides to call the tool (arguments are set but the server hasn't processed yet), the latter after the server returns its result. For scenarios that don't need server computation (like mermaid-mcp-app), both carry essentially the same data, so `ontoolinput` can be used for early rendering. For scenarios requiring server-side computation, the data will differ.
+
+The spec also supports `ontoolinputpartial` — as the LLM streams tool arguments, the Host attempts to patch the incomplete JSON into a valid format and pushes it to the View. Not very useful for Mermaid (incomplete syntax usually can't render), but great for text-based UIs doing progressive rendering.
+
+### Interactivity Implementation
+
+After the user opens the split-view editor and modifies the Mermaid syntax, there are two actions:
+
+**Auto context sync** — After each edit, a debounced `updateModelContext` call silently syncs the current source to the LLM. The LLM won't respond immediately, but any subsequent question from the user will include the latest diagram state.
+
+**Send to AI (⌘ Enter)** — Calls `sendMessage`, sending the modified full source as a user message. The LLM sees it and responds immediately.
+
+![MCP Apps interactivity implementation](/images/posts/mcp-apps-2.png)
+
+---
+
+## Things to Watch Out for During Development
+
+### Iframe Restrictions
+
+All Views run inside sandbox iframes with a default CSP (Content Security Policy), so libraries requiring `eval()` won't work directly. External resources need additional declarations via `connectDomains`, `resourceDomains`, and `frameDomains`. The official map example was blocked by CSP because it needed `eval()` for binding parsing.
+
+### Viewport Size Management
+
+The spec provides two mechanisms for handling iframe dimensions:
+
+1. **autoResize** — The SDK's `autoResize: true` uses a `ResizeObserver` to detect body size changes. During measurement, it temporarily sets `html.style.height` to `max-content` to get the natural content height, then notifies the Host via `ui/notifications/size-changed` to adjust the iframe. The UI height is driven by content; the Host follows.
+
+2. **containerDimensions** — You can get the View container constraints anytime via `app.getHostContext()?.containerDimensions`:
+
+```typescript
+interface HostContext {
+  containerDimensions?: (
+    | { height: number }      // fixed: Host controls height, View should fill it
+    | { maxHeight?: number }  // flexible: View decides height, but within a ceiling
+  ) & (
+    | { width: number }       // fixed: Host controls width
+    | { maxWidth?: number }   // flexible: View decides width
+  );
+}
+```
+
+### Wait for Layout to Stabilize Before Measuring
+
+The iframe's size can change due to various factors, especially during loading. If you measure at that point for fit-to-container, you'll get wrong values. Use a `ResizeObserver` with a "wait until it stops changing" debounce helper to avoid capturing incorrect measurements.
+
+### Draft Persistence Is on You
+
+The Host can re-render the iframe at any time — when the conversation scrolls out of view, the user switches tabs, or the Host updates its UI. The Mermaid syntax the user spent time editing can vanish without any warning.
+
+My approach: register two internal tools on the server (`save-mermaid-draft` / `get-mermaid-draft`). The View persists state to server memory via `callServerTool` on every edit, and loads the previous state when the iframe is recreated.
+
+### Ecosystem Status
+
+**Limited Host support.** Currently confirmed: Claude Desktop, VS Code Copilot, Goose, Postman, and MCPJam. The spec requires servers to provide a plain-text fallback — Hosts that don't support MCP Apps fall back to plain text, and the tool itself won't break.
+
+**The spec is still evolving.** SEP-1865 was consolidated in November 2025 from the MCP-UI community and OpenAI Apps SDK experience. It's currently in Final status but still has active PRs. Future additions may include external URL support, state persistence, and View-to-View communication.
+
+---
+
+## References
+
+- [MCP Apps Specification (SEP-1865)](https://github.com/modelcontextprotocol/ext-apps/blob/main/specification/2026-01-26/apps.mdx)
+- [MCP Apps Official Documentation](https://modelcontextprotocol.io/docs/extensions/apps)
+- [ext-apps GitHub Repo (SDK + Examples)](https://github.com/modelcontextprotocol/ext-apps)
+- [Quickstart Tutorial](https://modelcontextprotocol.github.io/ext-apps/api/documents/Quickstart.html)
+- [API Documentation](https://modelcontextprotocol.github.io/ext-apps/api/)
+- [SEP-1865 Discussion (Proposal Thread)](https://github.com/modelcontextprotocol/modelcontextprotocol/pull/1865)
