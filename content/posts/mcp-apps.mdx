@@ -1,0 +1,225 @@
+---
+title: 'MCP Apps：當 AI 對話裡長出了互動式 UI'
+date: '2026-03-25'
+slug: 'mcp-apps'
+summary: 'MCP Apps 讓 MCP Server 可以在 AI 對話中嵌入互動式 HTML UI。這篇用自己做的 Mermaid 圖表渲染器走一遍規範的核心概念：三個角色、生命週期、雙向通訊，以及開發時踩到的坑。'
+type: Post
+language: zh-TW
+---
+
+2026 年一月，MCP Apps 規範正式發布。它讓 MCP Server 可以在 Claude、VS Code 的對話中，直接嵌入互動式 HTML UI——圖表、表單、儀表板、地圖，什麼都行。
+
+身為前端，不自覺會被 MCP Apps 所能達到的高互動性所吸引。
+
+看膩文字介面的我花了一些時間研究這個規範，做了一個自己很常用的 Mermaid 圖表互動工具（mermaid-mcp-app）。這篇就拿自己寫的 MCP App 來介紹一下 MCP Apps 吧。
+
+---
+
+## MCP Apps 是什麼
+
+### 三個角色
+
+MCP Apps 的架構圍繞三個角色運作：
+
+1. **MCP Server** — 後端。負責註冊工具（`registerAppTool`）和 HTML 資源（`registerAppResource`），工具定義裡的 `_meta.ui.resourceUri` 欄位把工具和 UI 綁在一起
+
+2. **Host** — Claude Desktop、VS Code Copilot 這些 AI 介面。LLM 呼叫工具時，Host 執行工具、根據 `resourceUri` 取得 HTML、在 sandbox iframe 裡渲染
+
+3. **View** — 跑在 iframe 裡的前端應用。用 `App` 類別建立與 Host 的 postMessage 通道，接收工具結果，也能反向呼叫 server 工具或把訊息送回對話
+
+所有 View ↔ Server 的通訊都走 Host 代理，底層是標準的 JSON-RPC 2.0 over postMessage。
+
+![MCP Apps 三個角色的架構圖：MCP Server、Host、View 之間的通訊關係](/images/posts/mcp-apps-1.png)
+
+### 生命週期
+
+規範定義了四個階段：
+
+1. **Discovery** — Host 連上 server 後看到工具清單，辨識哪些工具帶有 `_meta.ui` 元資料。Host 可以在這個階段預先取得 HTML 資源做快取和安全審查
+
+2. **Initialize** — LLM 呼叫工具後，Host 建立 sandbox iframe、載入 HTML、透過 `ui/initialize` 完成握手。View 和 Host 在這個階段交換 capabilities——View 宣告支援哪些 display mode，Host 提供 theme、container dimensions 等上下文
+
+3. **Interactive** — Host 把工具輸入（tool-input）和結果（tool-result）推給 View，View 渲染 UI。使用者在 UI 裡操作後，View 可以透過 `callServerTool` 呼叫 server 工具、用 `sendMessage` 送訊息回對話、用 `updateModelContext` 同步狀態給 LLM
+
+4. **Teardown** — 對話結束或使用者關閉 UI 時，Host 送出 `ui/resource-teardown` 讓 View 做清理
+
+### 不只顯示，加點互動性
+
+純粹把 LLM 的輸出靜態的視覺化是不賴，但少了點什麼。MCP Apps 還能再多作一點：**使用者在 UI 裡操作後，能把結果送回 LLM。**
+
+規範提供了兩個 API：
+
+**sendMessage** — 等同於使用者在聊天框打字。訊息會出現在對話輸入框裡。
+
+```typescript
+await app.sendMessage({
+  role: "user",
+  content: [{ type: "text", text: `我修改了圖表：\n\`\`\`mermaid\n${code}\n\`\`\`` }],
+});
+```
+
+**updateModelContext** — 靜默同步。不觸發回應，但 LLM 在下一輪使用者主動發訊息時會看到。每次呼叫覆蓋前一次，只保留最新一份。
+
+```typescript
+await app.updateModelContext({
+  content: [{ type: "text", text: `目前的 Mermaid source：\n\`\`\`mermaid\n${code}\n\`\`\`` }],
+});
+```
+
+|  | sendMessage | updateModelContext |
+| --- | --- | --- |
+| 觸發 LLM 回應 | 立即 | 不觸發 |
+| 在對話裡可見 | 出現為 user 訊息 | 不出現 |
+| 多次呼叫 | 每次獨立 | 後蓋前，只留最新 |
+| 適合場景 | 操作完成、要 LLM 回應 | 持續同步狀態、等使用者自己決定何時提問 |
+
+這兩個 API 改變了 MCP App 的定位。它不再只是「顯示 LLM 輸出的容器」，而是一個完整的互動元件——有 input、有使用者操作、有 output 回到 LLM。
+
+想像一下：表單填完後 `sendMessage` 讓 LLM 幫你 review、在地圖上選了區域後 `updateModelContext` 同步座標等使用者問「附近有什麼餐廳」、在程式碼編輯器改了 code 後直接讓 LLM review。
+
+除了上面兩個核心 API，View 還能呼叫 `callServerTool`（呼叫 server 端工具更新資料）、`openLink`（請 Host 開外部連結）、`downloadFile`（請 Host 下載檔案，因為 sandbox 內無法直接下載）、`requestDisplayMode`（切換 inline / fullscreen / pip）。
+
+---
+
+## 用 Mermaid MCP App 當案例
+
+概念講完，用我做的 mermaid-mcp-app 走一遍。這是一個 Mermaid 互動式工具——在對話裡直接嵌入可互動的圖表，支援拖曳平移、滾輪縮放、split-view 編輯器即時修改語法並 live re-render。
+
+### 30 秒安裝
+
+在 Claude Desktop / VSCode MCP 設定檔加上：
+
+```json
+{
+  "mcpServers": {
+    "mermaid": {
+      "command": "npx",
+      "args": ["-y", "mermaid-mcp-app", "--stdio"]
+    }
+  }
+}
+```
+
+重開 Claude Desktop，說「畫一個 user authentication 的 flowchart」。圖表直接嵌在對話裡，可以拖、可以縮放、可以打開編輯器改語法。
+
+也有打包好的 Desktop Extension（`.mcpb`）——從 GitHub Releases 下載後雙擊安裝，不用 terminal。
+
+### Server 端
+
+Server 簡單的說只做三件事：
+
+**註冊主要工具。** `registerAppTool` 定義 `render-mermaid` 工具，`_meta.ui.resourceUri` 指向 HTML 資源：
+
+```typescript
+registerAppTool(server, "render-mermaid", {
+  title: "Render Mermaid Diagram",
+  inputSchema: {
+    code: z.string().describe("The Mermaid diagram syntax to render"),
+    theme: z.enum(["default", "light", "dark", "forest", "neutral"]).optional(),
+  },
+  _meta: {
+    ui: { resourceUri: "ui://mermaid/view.html" },
+  },
+}, async ({ code, theme }) => ({
+  content: [{ type: "text" as const, text: JSON.stringify({ code, theme: theme ?? "default" }) }],
+}));
+```
+
+**提供 HTML 資源。** `registerAppResource` 把 Vite 打包好的單一 HTML 檔案作為 `ui://` 資源供 Host 取用。Server 不做渲染——它只傳資料，渲染全在 iframe 的前端完成。
+
+**內部工具做 draft persistence。** 另外註冊了 `save-mermaid-draft` 和 `get-mermaid-draft` 兩個 tool，讓 View 可以把使用者的編輯存到 server 記憶體裡，iframe 重新渲染時恢復。這兩個工具不是給 LLM 用的，只有 View 透過 `callServerTool` 呼叫。
+
+### View 端
+
+View 端是標準前端應用，用 `App` 類別建立 postMessage 通道：
+
+```typescript
+const app = new App(
+  { name: "MermaidViewer", version: "1.0.0" },
+  {},
+  { autoResize: true },
+);
+
+app.ontoolinput = (params) => {
+  // LLM 呼叫工具時，Host 先把工具參數傳過來（Server 還沒處理）
+  handleMermaidData(params.arguments);
+};
+
+app.ontoolresult = (params) => {
+  // Server 處理完後，Host 把完整結果傳過來
+  const data = JSON.parse(params.content[0].text);
+  handleMermaidData(data);
+};
+
+await app.connect();
+```
+
+`ontoolinput` 和 `ontoolresult` 是兩個時機——前者是 LLM 決定呼叫工具時（參數已確定但 Server 還沒處理），後者是 Server 回傳結果後。對不需要 Server 運算的場景（像 mermaid-mcp-app），兩邊拿到的資料基本一樣，可以用 `ontoolinput` 搶先渲染。但對需要 Server 端計算的場景，兩者資料會不同。
+
+規範還支援 `ontoolinputpartial`——LLM streaming 產生工具參數時，Host 嘗試把不完整的 JSON 修補成合法格式推給 View。對 Mermaid 來說不太實用（不完整的語法通常不能渲染），但對文字類的 UI 可以做 progressive rendering。
+
+### 互動性實作
+
+使用者打開 split-view 編輯器修改 Mermaid 語法後，有兩個操作：
+
+**自動同步（auto context sync）**——使用者每次修改，debounced 後自動呼叫 `updateModelContext`，把當前 source 靜默同步給 LLM。LLM 不會立即回應，但使用者之後任何提問都會帶上最新的圖表狀態。
+
+**Send to AI（⌘ Enter）**——呼叫 `sendMessage`，把修改後的完整 source 作為 user 訊息送出。LLM 立即看到並回應。
+
+
+![MCP Apps 互動性實作](/images/posts/mcp-apps-2.png)
+
+---
+
+## 開發上需注意的地方
+
+### Iframe 限制
+
+所有 View 都在 sandbox iframe 裡跑，加上有預設的 CSP (Content Security Policy)，需要 `eval()` 的函式庫不能直接用。外部資源需要透過額外的宣告 `connectDomains`、`resourceDomains`、`frameDomains` 才能使用。官方的地圖範例就因為需要 `eval()` 解析 binding，直接被 CSP 擋掉。
+
+### Viewport Size 管理
+
+規範提供了兩個機制來處理 iframe 尺寸
+
+1. **autoResize** — SDK 的 `autoResize: true` 會用 `ResizeObserver` 偵測 body 大小，量測時暫時把 `html.style.height` 設為 `max-content` 取得內容自然高度，再透過 `ui/notifications/size-changed` 通知 Host 調整 iframe。UI 高度由內容決定，Host 跟著調。
+
+2. **containerDimensions** — 可以隨時透過 app.getHostContext()?.containerDimensions 來取得 View 容器限制：
+
+```typescript
+interface HostContext {
+  containerDimensions?: (
+    | { height: number }      // fixed：Host 控制高度，View 應該填滿
+    | { maxHeight?: number }  // flexible：View 自己決定高度，但不超過上限
+  ) & (
+    | { width: number }       // fixed：Host 控制寬度
+    | { maxWidth?: number }   // flexible：View 自己決定寬度
+  );
+}
+```
+
+### 等 layout 穩定再量尺寸
+
+iframe 的大小因為各種因素可能會改變，尤其是載入時。如果你在這個時間點量尺寸做 fit-to-container，量到的值可能是錯的。用 `ResizeObserver` 做一個「等到不再變化」的 debounce helper，避免抓到錯的值。
+
+### Draft persistence 需要自己做
+
+Host 隨時可能重新渲染 iframe——對話滾動超出視窗、使用者切換分頁、Host 更新 UI，都可能觸發。使用者在編輯器裡改了半天的 Mermaid 語法，一個不注意就全部消失，而且完全沒有提示。
+
+我的做法是在 server 端開兩個 internal tool（`save-mermaid-draft` / `get-mermaid-draft`），View 每次修改都透過 `callServerTool` 把狀態存到 server 記憶體，iframe 重建後直接載入先前狀態。
+
+### 生態現況
+
+**Host 支援有限。** 目前確認支援的有 Claude Desktop、VS Code Copilot、Goose、Postman、MCPJam。規範要求 server 必須提供純文字 fallback——不支援 MCP Apps 的 Host 會退回普通文字，工具本身不會壞掉。
+
+**規範仍在演化。** SEP-1865 在 2025 年 11 月由 MCP-UI 社群和 OpenAI Apps SDK 的經驗彙整而成，目前是 Final 狀態但仍有活躍的 PR。未來可能加入 external URL 支援、state persistence、View-to-View 通訊等。
+
+---
+
+## 參考資料
+
+- [MCP Apps 規範（SEP-1865）](https://github.com/modelcontextprotocol/ext-apps/blob/main/specification/2026-01-26/apps.mdx)
+- [MCP Apps 官方文件](https://modelcontextprotocol.io/docs/extensions/apps)
+- [ext-apps GitHub repo（SDK + 範例）](https://github.com/modelcontextprotocol/ext-apps)
+- [Quickstart 教學](https://modelcontextprotocol.github.io/ext-apps/api/documents/Quickstart.html)
+- [API 文件](https://modelcontextprotocol.github.io/ext-apps/api/)
+- [SEP-1865 Discussion（提案討論串）](https://github.com/modelcontextprotocol/modelcontextprotocol/pull/1865)
