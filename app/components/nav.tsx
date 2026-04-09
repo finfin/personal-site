@@ -4,6 +4,7 @@ import { Link } from 'i18n/routing'
 // import { usePathname } from 'next/navigation'
 import LanguageSwitcher from './language-switcher'
 import { PlaygroundDropdown } from './playground-dropdown'
+import { LearningDropdown } from './learning-dropdown'
 import { useTranslations } from 'next-intl'
 import Image from 'next/image';
 
@@ -46,6 +47,7 @@ export function Navbar() {
               )
             })}
             <PlaygroundDropdown />
+            <LearningDropdown />
           </div>
           <div className="flex flex-row gap-4 ml-auto">
             <LanguageSwitcher />

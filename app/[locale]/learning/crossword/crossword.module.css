@@ -1,0 +1,463 @@
+/* ── Purple Design System ──
+   Primary:    #7C3AED
+   Dark:       #6D28D9
+   Light:      #A78BFA
+   Subtle:     #C4B5FD
+   Surface:    #EDE9FE
+   Wash:       #F5F3FF
+   Text:       #1E1B4B
+   Muted:      #6B7280
+   OK:         #34D399 / #ECFDF5
+   Error:      #F87171 / #FEF2F2
+   Focus:      #FBBF24 (amber accent)
+── */
+
+.app {
+  max-width: 100%;
+  padding: 16px 0 48px;
+  font-family: 'Fredoka', var(--font-fredoka, sans-serif);
+}
+
+/* ── Header ── */
+.header {
+  text-align: center;
+  margin-bottom: 12px;
+  position: relative;
+}
+
+.title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #1E1B4B;
+}
+
+.round {
+  font-size: 0.78rem;
+  color: #6B7280;
+  margin-top: 2px;
+  font-family: 'Noto Sans TC', var(--font-noto-tc, sans-serif);
+}
+
+.gear {
+  position: absolute;
+  right: 0;
+  top: 4px;
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  opacity: 0.4;
+  transition: opacity 0.15s;
+  padding: 4px;
+}
+.gear:hover { opacity: 0.85; }
+
+/* ── Action buttons ── */
+.actions {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  font-family: 'Fredoka', var(--font-fredoka, sans-serif);
+  padding: 7px 20px;
+  border: 2px solid transparent;
+  border-radius: 10px;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.15s, background 0.15s;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+.btn:active { transform: scale(0.96); }
+
+.btnCheck {
+  background: #7C3AED;
+  color: #fff;
+}
+.btnCheck:hover { box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3); }
+
+.btnReveal {
+  background: transparent;
+  color: #A78BFA;
+  border: none;
+  font-size: 0.75rem;
+  font-weight: 400;
+  padding: 6px 12px;
+  opacity: 0.7;
+}
+.btnReveal:hover { opacity: 1; color: #7C3AED; }
+
+.btnNext {
+  background: #EDE9FE;
+  color: #6D28D9;
+  border-color: #DDD6FE;
+}
+.btnNext:hover { background: #DDD6FE; }
+
+.btnSm { padding: 6px 14px; font-size: 0.78rem; }
+
+/* ── Message ── */
+.msg {
+  text-align: center;
+  font-size: 0.92rem;
+  margin: 6px 0;
+  min-height: 1.2em;
+  font-family: 'Noto Sans TC', var(--font-noto-tc, sans-serif);
+  color: #1E1B4B;
+}
+
+/* ── Two-column puzzle layout ── */
+.puzzleLayout {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 28px;
+  flex-wrap: wrap;
+}
+
+.cluePanel {
+  flex: 0 0 200px;
+  min-width: 160px;
+}
+
+.boardPanel {
+  flex: 0 0 auto;
+  min-width: 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.board {
+  display: inline-block;
+}
+
+/* ── Cells ── */
+.cellEmpty {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  background: transparent;
+}
+
+.cell {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  background: #fff;
+  border: 2px solid #C4B5FD;
+  border-radius: 3px;
+  position: relative;
+  transition: background 0.12s, border-color 0.12s;
+}
+
+.cellFo {
+  background: #EDE9FE !important;
+  border-color: #7C3AED !important;
+  box-shadow: 0 0 0 1px rgba(124, 58, 237, 0.15);
+}
+
+.cellHi {
+  background: #F5F3FF !important;
+  border-color: #A78BFA !important;
+}
+
+.cellOk {
+  background: #ECFDF5 !important;
+  border-color: #6EE7B7 !important;
+}
+
+.cellNo {
+  background: #FEF2F2 !important;
+  border-color: #FCA5A5 !important;
+}
+
+.cellInput {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: transparent;
+  text-align: center;
+  font-size: 1.05rem;
+  font-family: 'Fredoka', var(--font-fredoka, sans-serif);
+  text-transform: uppercase;
+  font-weight: 600;
+  outline: none;
+  caret-color: transparent;
+  color: #1E1B4B;
+  cursor: default;
+}
+
+.cellNum {
+  position: absolute;
+  top: 1px;
+  left: 2px;
+  font-size: 0.5rem;
+  color: #A78BFA;
+  pointer-events: none;
+  z-index: 1;
+  line-height: 1;
+  font-weight: 600;
+}
+
+/* ── Clues ── */
+.clues {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.clueHeading {
+  font-size: 0.85rem;
+  color: #7C3AED;
+  margin-bottom: 4px;
+  border-bottom: 2px solid #EDE9FE;
+  padding-bottom: 3px;
+  font-weight: 700;
+}
+
+.clueList {
+  list-style: none;
+  font-family: 'Noto Sans TC', var(--font-noto-tc, sans-serif);
+  font-size: 0.82rem;
+  color: #374151;
+  line-height: 2;
+}
+
+.clueItem {
+  cursor: pointer;
+  padding: 1px 6px;
+  border-radius: 6px;
+  transition: background 0.1s;
+}
+.clueItem:hover     { background: #F5F3FF; }
+.clueItemActive     { background: #EDE9FE; font-weight: 700; }
+.clueItemDone       { color: #A78BFA; text-decoration: line-through; }
+
+.clueNum {
+  font-weight: 700;
+  color: #7C3AED;
+  margin-right: 4px;
+}
+
+/* ── Empty state ── */
+.emptyMsg {
+  text-align: center;
+  padding: 40px;
+  color: #6B7280;
+  font-family: 'Noto Sans TC', var(--font-noto-tc, sans-serif);
+}
+
+/* ── Modal overlay ── */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(30, 27, 75, 0.35);
+  backdrop-filter: blur(2px);
+  z-index: 100;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal {
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  width: 92%;
+  max-width: 520px;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 40px rgba(30, 27, 75, 0.18);
+  border: 1px solid #EDE9FE;
+}
+
+.modalTitle {
+  font-size: 1.1rem;
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #1E1B4B;
+}
+
+.modalClose {
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  cursor: pointer;
+  color: #A78BFA;
+  padding: 0;
+  transition: color 0.15s;
+}
+.modalClose:hover { color: #7C3AED; }
+
+.modalTextarea {
+  width: 100%;
+  height: 80px;
+  border: 2px solid #DDD6FE;
+  border-radius: 10px;
+  padding: 10px;
+  font-family: 'Noto Sans TC', var(--font-noto-tc, sans-serif);
+  font-size: 0.82rem;
+  resize: vertical;
+  margin-bottom: 4px;
+  background: #FAFAFE;
+  color: #1E1B4B;
+  transition: border-color 0.15s;
+}
+.modalTextarea:focus {
+  outline: none;
+  border-color: #A78BFA;
+}
+
+.modalHint {
+  font-size: 0.72rem;
+  color: #6B7280;
+  font-family: 'Noto Sans TC', var(--font-noto-tc, sans-serif);
+  margin-bottom: 10px;
+}
+
+.modalBtns {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.btnModal { font-size: 0.78rem; padding: 6px 14px; border-radius: 10px; }
+
+.btnImp {
+  background: #7C3AED;
+  color: #fff;
+}
+.btnImp:hover { box-shadow: 0 2px 6px rgba(124, 58, 237, 0.25); }
+
+.btnDef {
+  background: transparent;
+  color: #6B7280;
+  border-color: #DDD6FE;
+}
+.btnDef:hover { background: #F5F3FF; color: #7C3AED; }
+
+.btnClr {
+  background: transparent;
+  color: #F87171;
+  border-color: #FECACA;
+}
+.btnClr:hover { background: #FEF2F2; }
+
+.wcount {
+  font-family: 'Noto Sans TC', var(--font-noto-tc, sans-serif);
+  font-size: 0.78rem;
+  color: #6B7280;
+  margin-bottom: 8px;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #F5F3FF;
+  border: 1.5px solid #DDD6FE;
+  border-radius: 8px;
+  padding: 3px 10px;
+  font-family: 'Noto Sans TC', var(--font-noto-tc, sans-serif);
+  font-size: 0.78rem;
+  color: #374151;
+  transition: border-color 0.12s;
+}
+.tag:hover { border-color: #A78BFA; }
+
+.tagEn {
+  font-family: 'Fredoka', var(--font-fredoka, sans-serif);
+  font-weight: 600;
+  color: #7C3AED;
+  text-transform: lowercase;
+}
+
+.tagX {
+  background: none;
+  border: none;
+  color: #C4B5FD;
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 0 1px;
+  transition: color 0.12s;
+}
+.tagX:hover { color: #F87171; }
+
+@media (max-width: 420px) {
+  .cellEmpty, .cell { width: 30px; height: 30px; min-width: 30px; }
+  .cellInput         { font-size: 0.9rem; }
+  .clues             { grid-template-columns: 1fr; }
+}
+
+/* ── Dark mode ── */
+:global(:root.dark) {
+  /* Title & text */
+  .title        { color: #E9E5F5; }
+  .round        { color: #9CA3AF; }
+  .msg          { color: #E9E5F5; }
+
+  /* Buttons */
+  .btnCheck     { background: #7C3AED; color: #fff; }
+  .btnNext      { background: rgba(124, 58, 237, 0.15); color: #C4B5FD; border-color: rgba(124, 58, 237, 0.3); }
+  .btnNext:hover{ background: rgba(124, 58, 237, 0.25); }
+  .btnReveal    { color: #8B7FB8; }
+  .btnReveal:hover { color: #C4B5FD; }
+
+  /* Cells */
+  .cell         { background: rgba(255, 255, 255, 0.08); border-color: rgba(167, 139, 250, 0.3); }
+  .cellFo       { background: rgba(124, 58, 237, 0.25) !important; border-color: #A78BFA !important; box-shadow: 0 0 0 1px rgba(167, 139, 250, 0.2); }
+  .cellHi       { background: rgba(124, 58, 237, 0.12) !important; border-color: rgba(167, 139, 250, 0.4) !important; }
+  .cellOk       { background: rgba(52, 211, 153, 0.12) !important; border-color: rgba(52, 211, 153, 0.5) !important; }
+  .cellNo       { background: rgba(248, 113, 113, 0.12) !important; border-color: rgba(248, 113, 113, 0.5) !important; }
+  .cellInput    { color: #E9E5F5; }
+  .cellNum      { color: #8B7FB8; }
+
+  /* Clues */
+  .clueHeading  { color: #C4B5FD; border-bottom-color: rgba(167, 139, 250, 0.2); }
+  .clueList     { color: #D1D5DB; }
+  .clueNum      { color: #C4B5FD; }
+  .clueItem:hover     { background: rgba(124, 58, 237, 0.12); }
+  .clueItemActive     { background: rgba(124, 58, 237, 0.2); }
+  .clueItemDone       { color: #8B7FB8; }
+
+  /* Modal */
+  .overlay      { background: rgba(0, 0, 0, 0.5); }
+  .modal        { background: #2A2A3D; border-color: rgba(167, 139, 250, 0.2); box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4); }
+  .modalTitle   { color: #E9E5F5; }
+  .modalClose   { color: #8B7FB8; }
+  .modalClose:hover { color: #C4B5FD; }
+  .modalTextarea{ background: rgba(255, 255, 255, 0.05); border-color: rgba(167, 139, 250, 0.25); color: #E9E5F5; }
+  .modalTextarea:focus { border-color: #A78BFA; }
+  .modalHint    { color: #9CA3AF; }
+  .btnDef       { color: #9CA3AF; border-color: rgba(167, 139, 250, 0.25); }
+  .btnDef:hover { background: rgba(124, 58, 237, 0.12); color: #C4B5FD; }
+  .btnClr       { color: #FCA5A5; border-color: rgba(252, 165, 165, 0.3); }
+  .btnClr:hover { background: rgba(248, 113, 113, 0.1); }
+  .wcount       { color: #9CA3AF; }
+
+  /* Tags */
+  .tag          { background: rgba(124, 58, 237, 0.1); border-color: rgba(167, 139, 250, 0.2); color: #D1D5DB; }
+  .tag:hover    { border-color: rgba(167, 139, 250, 0.4); }
+  .tagEn        { color: #C4B5FD; }
+  .tagX         { color: #6B7280; }
+  .tagX:hover   { color: #FCA5A5; }
+
+  /* Empty state */
+  .emptyMsg     { color: #9CA3AF; }
+}

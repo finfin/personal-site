@@ -33,6 +33,7 @@
   "navbar": {
     "about": "About",
     "home": "Home",
+    "learning": "Learning",
     "playground": "Playground",
     "posts": "Posts"
   },
@@ -89,6 +90,12 @@
     "article5_title": "Known Limitations",
     "article5_summary": "First load doesn't fire navigate, single-frame only, and you can't delete history entries. But compared to History API, these are minor.",
     "article5_body": "There are a few known limitations:\n\n1. First load doesn't fire navigate — The navigate event doesn't fire on initial page load. SSR scenarios are fine, but pure CSR apps need separate initialization logic.\n\n2. Single frame only — The API only works in top-level pages or a single iframe. It won't affect other frames. This is intentional — designed to avoid the cross-frame chaos of History API.\n\n3. Cannot delete history entries — You can't remove specific history entries. For example, say you navigate to a temporary modal and want the user to press Back to close it — but not be able to press Forward to reopen it. Neither History API nor Navigation API can do this today. The Navigation API spec has ongoing discussion about this feature, but there's no consensus yet.\n\nThat said, compared to the various pitfalls of History API, these are relatively minor issues."
+  },
+  "crossword": {
+    "title": "Crossword Puzzle"
+  },
+  "learning": {
+    "crossword": "Crossword"
   },
   "playground": {
     "emojiarchitect": "Emoji Architect",

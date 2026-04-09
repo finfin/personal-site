@@ -27,7 +27,14 @@
     "home": "首頁",
     "about": "關於",
     "posts": "文章",
+    "learning": "學習",
     "playground": "實驗室"
+  },
+  "crossword": {
+    "title": "填字遊戲"
+  },
+  "learning": {
+    "crossword": "填字遊戲"
   },
   "playground": {
     "emojiarchitect": "表情符號建築師",
