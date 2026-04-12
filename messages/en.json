@@ -94,8 +94,31 @@
   "crossword": {
     "title": "Crossword Puzzle"
   },
+  "fallingWords": {
+    "title": "Falling Words",
+    "subtitle": "Type each word before it hits the ground!",
+    "start": "Tap to Start",
+    "startHint": "Press any letter to begin",
+    "pause": "Pause",
+    "resume": "Resume",
+    "restart": "Play Again",
+    "gameOver": "Game Over!",
+    "paused": "Taking a break~",
+    "score": "Score",
+    "best": "Best",
+    "level": "Level",
+    "lives": "Lives",
+    "wordBank": "Word Bank",
+    "importHint": "One per line: english<space>chinese",
+    "import": "Import",
+    "reset": "Reset to Default",
+    "clear": "Clear All",
+    "wordCount": "{n} words total",
+    "levelUp": "Level Up!"
+  },
   "learning": {
-    "crossword": "Crossword"
+    "crossword": "Crossword",
+    "fallingWords": "Falling Words"
   },
   "playground": {
     "emojiarchitect": "Emoji Architect",

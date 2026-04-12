@@ -17,6 +17,10 @@ const learningItems = [
     path: '/learning/crossword',
     name: 'crossword',
   },
+  {
+    path: '/learning/falling-words',
+    name: 'fallingWords',
+  },
 ]
 
 export function LearningDropdown() {

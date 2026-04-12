@@ -2,6 +2,7 @@
 
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import styles from './crossword.module.css'
+import { DEFAULTS as WORD_DEFAULTS } from '@/lib/learning-words'
 
 // ── Types ──────────────────────────────────────────────────────────────────
 type WordEntry  = { en: string; zh: string }
@@ -24,30 +25,7 @@ function sSet(k: string, v: unknown) {
 }
 
 // ── Defaults ───────────────────────────────────────────────────────────────
-const DEFAULTS: [string, string][] = [
-  ['APPLE','蘋果'],['BOY','男孩'],['CAT','貓'],['DOG','狗'],['EGG','蛋'],
-  ['FOX','狐狸'],['GIRL','女孩'],['HAT','帽子'],['INK','墨汁'],['JAM','果醬'],
-  ['KID','小孩'],['LION','獅子'],['MOUSE','老鼠'],['NET','網子'],['OX','公牛'],
-  ['PIG','豬'],['QUEEN','皇后'],['ROBOT','機器人'],['SUN','太陽'],['TIGER','老虎'],
-  ['UMBRELLA','雨傘'],['VEST','背心'],['WATER','水'],['BOX','箱子'],['YAM','地瓜'],
-  ['ZEBRA','斑馬'],['ONE','一'],['TWO','二'],['THREE','三'],['FOUR','四'],
-  ['FIVE','五'],['SIX','六'],['SEVEN','七'],['EIGHT','八'],['NINE','九'],
-  ['TEN','十'],['ELEVEN','十一'],['TWELVE','十二'],['THIRTEEN','十三'],['FOURTEEN','十四'], ['FIFTEEN', '十五'],
-  ['ANGRY','生氣的'],['HAPPY','快樂的'],['SAD','難過的'],
-  ['HUNGRY','飢餓的'],['THIRSTY','口渴的'],['BALL','皮球'],['CAR','車'],
-  ['DOLL','洋娃娃'],['KITE','風箏'],['BLUE','藍色'],['GREEN','綠色'],
-  ['PINK','粉紅色'],['PURPLE','紫色'],['RED','紅色'],['YELLOW','黃色'],
-  ['BIRD','鳥'],['FROG','青蛙'],['RABBIT','兔子'],['DANCE','跳舞'],
-  ['DRAW','畫圖'],['SING','唱歌'],['SWIM','游泳'],['FATHER','爸爸'],
-  ['MOTHER','媽媽'],['BROTHER','兄弟'],['SISTER','姐妹'],['COOK','廚師'],
-  ['DOCTOR','醫師'],['NURSE','護理師'],['STUDENT','學生'],['TEACHER','教師'],
-  ['CLOUDY','陰天的'],['RAINY','下雨的'],['SUNNY','晴朗的'],['WINDY','颳風的'],
-  ['COLD','冷的'],['HOT','熱的'],['WEATHER','天氣'],
-  ['BOOK','書'],['ERASER','橡皮擦'],['MARKER','彩色筆'],['PEN','原子筆'],
-  ['PENCIL','鉛筆'],['RULER','尺'],['CHAIR','椅子'],['DESK','書桌'],
-  ['BEDROOM','臥室'],['KITCHEN','廚房'],['BATHROOM','浴室'],['RUN','跑步'],
-  ['READ','閱讀'],['WRITE','寫字'],['SLEEP','睡覺'],['EAT','吃東西'],
-]
+const DEFAULTS = WORD_DEFAULTS
 
 // ── Pure utilities ─────────────────────────────────────────────────────────
 function shuffle<T>(a: T[]): T[] {

@@ -33,8 +33,31 @@
   "crossword": {
     "title": "填字遊戲"
   },
+  "fallingWords": {
+    "title": "字字下墜",
+    "subtitle": "在單字落地前打出來吧！",
+    "start": "點擊開始",
+    "startHint": "按任意字母鍵開始",
+    "pause": "暫停",
+    "resume": "繼續",
+    "restart": "再玩一次",
+    "gameOver": "結束啦！",
+    "paused": "休息一下～",
+    "score": "分數",
+    "best": "最佳",
+    "level": "關卡",
+    "lives": "生命",
+    "wordBank": "單字庫管理",
+    "importHint": "每行一組：英文 空格 中文",
+    "import": "匯入",
+    "reset": "恢復預設",
+    "clear": "全部清除",
+    "wordCount": "共 {n} 個單字",
+    "levelUp": "升級！"
+  },
   "learning": {
-    "crossword": "填字遊戲"
+    "crossword": "填字遊戲",
+    "fallingWords": "字字下墜"
   },
   "playground": {
     "emojiarchitect": "表情符號建築師",
